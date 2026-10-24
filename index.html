@@ -104,10 +104,10 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Google Fonts -->
+    <!-- Google Fonts: Outfit (Display) + Plus Jakarta Sans (Body) + JetBrains Mono (Tabular Numerals) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;0,800;1,600&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;600;700;800&family=Outfit:wght@500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <!-- Cashfree Web SDK v3 -->
     <script src="https://sdk.cashfree.com/js/v3/cashfree.js"></script>
     <!-- Firebase SDKs Loading (Consolidated) -->
@@ -117,16 +117,23 @@
             darkMode: 'class',
             theme: {
                 extend: {
+                    fontFamily: {
+                        sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+                        display: ['"Outfit"', '"Plus Jakarta Sans"', 'sans-serif'],
+                        mono: ['"JetBrains Mono"', 'monospace']
+                    },
                     colors: {
-                        darkBg: '#020617',
-                        darkCard: '#0f172a',
+                        darkBg: '#090d16',
+                        darkCard: '#111827',
                         brandBlue: '#2563eb',
-                        brandIndigo: '#4f46e5'
+                        brandIndigo: '#4f46e5',
+                        brandEmerald: '#08bd80'
                     },
                     boxShadow: {
-                        'soft': '0 4px 20px -2px rgba(15, 23, 42, 0.05), 0 1px 3px 0 rgba(15, 23, 42, 0.03)',
-                        'elevated': '0 20px 40px -12px rgba(37, 99, 235, 0.14), 0 4px 12px -2px rgba(15, 23, 42, 0.05)',
-                        'glow': '0 0 25px rgba(37, 99, 235, 0.3)'
+                        'soft': '0 4px 20px -2px rgba(15, 23, 42, 0.04), 0 1px 3px 0 rgba(15, 23, 42, 0.02)',
+                        'elevated': '0 20px 38px -10px rgba(37, 99, 235, 0.14), 0 4px 12px -2px rgba(15, 23, 42, 0.04)',
+                        'glass': '0 10px 30px -5px rgba(15, 23, 42, 0.06), inset 0 1px 0 0 rgba(255, 255, 255, 0.7)',
+                        'glow': '0 0 25px rgba(8, 189, 128, 0.25)'
                     }
                 }
             }
@@ -139,13 +146,54 @@
             color: #0f172a;
             user-select: none;
             -webkit-tap-highlight-color: transparent;
-            transition: background-color 0.35s ease, color 0.35s ease;
+            transition: background-color 0.25s ease, color 0.25s ease;
+        }
+
+        h1, h2, h3, .font-display {
+            font-family: 'Outfit', 'Plus Jakarta Sans', sans-serif;
+            text-wrap: balance;
+        }
+
+        .tabular-nums {
+            font-variant-numeric: tabular-nums;
+            font-family: 'JetBrains Mono', 'Plus Jakarta Sans', monospace;
+        }
+
+        /* Unacademy-Inspired Glassmorphism Cards */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.84);
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+            border: 1px solid rgba(226, 232, 240, 0.88);
+            box-shadow: 0 8px 28px -6px rgba(15, 23, 42, 0.05), inset 0 1px 0 0 rgba(255, 255, 255, 0.9);
+            transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .glass-card:hover {
+            border-color: rgba(37, 99, 235, 0.35);
+            box-shadow: 0 16px 36px -8px rgba(37, 99, 235, 0.12), inset 0 1px 0 0 rgba(255, 255, 255, 1);
+        }
+        .dark .glass-card {
+            background: rgba(17, 24, 39, 0.78);
+            border-color: rgba(51, 65, 85, 0.65);
+            box-shadow: 0 12px 32px -6px rgba(0, 0, 0, 0.45), inset 0 1px 0 0 rgba(255, 255, 255, 0.06);
+        }
+        .dark .glass-card:hover {
+            border-color: rgba(59, 130, 246, 0.45);
+            box-shadow: 0 18px 40px -8px rgba(37, 99, 235, 0.2), inset 0 1px 0 0 rgba(255, 255, 255, 0.1);
+        }
+
+        .glass-dark {
+            background: linear-gradient(135deg, rgba(15, 23, 42, 0.96) 0%, rgba(23, 37, 84, 0.94) 55%, rgba(6, 78, 59, 0.9) 100%);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            box-shadow: 0 18px 40px -10px rgba(15, 23, 42, 0.35), inset 0 1px 0 0 rgba(255, 255, 255, 0.15);
         }
 
         /* Dark mode overrides */
         .dark body { background-color: #020617; color: #f8fafc; }
         .dark .app-card { background: #090d16; border-color: #1e293b; box-shadow: 0 0 80px rgba(0,0,0,0.7); }
-        .dark header { background: rgba(9, 13, 22, 0.88); border-color: rgba(30, 41, 59, 0.8); }
+        .dark header { background: rgba(9, 13, 22, 0.86); border-color: rgba(30, 41, 59, 0.8); }
         .dark h2, .dark h3, .dark h4 { color: #f8fafc; }
         
         /* Quiz Question text contrast fix for light and dark modes */
@@ -165,8 +213,8 @@
         }
         .dark .nav-item { color: #64748b; }
         .dark .nav-item.active { color: #60a5fa; background: rgba(59, 130, 246, 0.15); }
-        .dark .course-card { background: #0f172a; border-color: #1e293b; }
-        .dark .card-white { background: #0f172a; border-color: #1e293b; }
+        .dark .course-card { background: rgba(17, 24, 39, 0.82); border-color: rgba(51, 65, 85, 0.65); }
+        .dark .card-white { background: rgba(17, 24, 39, 0.82); border-color: rgba(51, 65, 85, 0.65); }
 
         /* No scrollbar utility */
         .no-scrollbar::-webkit-scrollbar { display: none; }
@@ -177,23 +225,32 @@
         .sidebar-nav::-webkit-scrollbar-track { background: transparent; }
         .sidebar-nav::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.12); border-radius: 10px; }
 
-        /* App Container - Modern Next.js EdTech Shell */
+        /* App Container - Modern EdTech Shell */
         .app-card {
-            background: #f8fafc;
+            background: radial-gradient(circle at 15% 0%, rgba(37, 99, 235, 0.04) 0%, transparent 45%),
+                        radial-gradient(circle at 85% 10%, rgba(8, 189, 128, 0.04) 0%, transparent 40%),
+                        #f8fafc;
             min-height: 100vh;
             margin-top: 0;
             padding-bottom: 120px;
             box-sizing: border-box;
             overflow-x: hidden;
-            transition: background-color 0.35s ease, border-color 0.35s ease;
+            transition: background-color 0.25s ease, border-color 0.25s ease;
+        }
+        .dark .app-card {
+            background: radial-gradient(circle at 15% 0%, rgba(37, 99, 235, 0.1) 0%, transparent 45%),
+                        radial-gradient(circle at 85% 10%, rgba(8, 189, 128, 0.08) 0%, transparent 40%),
+                        #090d16;
         }
 
         .card-white {
-            background: #ffffff;
+            background: rgba(255, 255, 255, 0.86);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
             border-radius: 24px;
             border: 1px solid rgba(226, 232, 240, 0.9);
             box-shadow: 0 4px 20px -2px rgba(15, 23, 42, 0.04);
-            transition: all 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+            transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.2s ease, box-shadow 0.2s ease;
         }
         .card-white:hover {
             border-color: rgba(37, 99, 235, 0.3);
@@ -809,49 +866,57 @@
 
     <!-- Main Content Area -->
     <main id="mainContent" class="hidden app-card relative z-10 max-w-6xl mx-auto md:border-x border-slate-200/70 dark:border-slate-800/80 shadow-soft">
-        <!-- Sticky EdTech App Header -->
-        <header class="sticky top-0 left-0 w-full bg-white/90 dark:bg-slate-900/90 backdrop-blur-xl z-50 px-4 sm:px-6 py-3.5 flex justify-between items-center border-b border-slate-200/70 dark:border-slate-800/80">
-            <div class="flex items-center gap-2.5 sm:gap-3.5 min-w-0">
-                <button onclick="toggleSidebar()" class="w-10 h-10 rounded-xl bg-slate-100/80 dark:bg-slate-800/80 hover:bg-blue-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 flex items-center justify-center transition-colors shrink-0 active:scale-95">
+        <!-- Sticky EdTech App Header (3-Zone Contract) -->
+        <header class="sticky top-0 left-0 w-full bg-white/85 dark:bg-slate-900/85 backdrop-blur-xl z-50 px-4 sm:px-6 py-3.5 flex justify-between items-center gap-6 border-b border-slate-200/70 dark:border-slate-800/80">
+            <!-- Zone 1: Menu Trigger & Single-Line Brand Wordmark -->
+            <div class="flex items-center gap-3 min-w-0 shrink-0">
+                <button onclick="toggleSidebar()" aria-label="Open menu" class="w-10 h-10 rounded-xl bg-slate-100/90 dark:bg-slate-800/90 hover:bg-blue-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 flex items-center justify-center transition-colors shrink-0 active:scale-95">
                     <i class="fa-solid fa-bars-staggered text-base"></i>
                 </button>
-                <div onclick="navigateTo('home')" class="flex items-center gap-2.5 min-w-0 cursor-pointer">
+                <div onclick="navigateTo('home')" class="flex items-center gap-2.5 cursor-pointer shrink-0">
                     <div class="tanu-logo-circle shrink-0">TOC</div>
-                    <div class="hidden xs:flex sm:flex flex-col min-w-0">
-                        <span class="text-sm sm:text-base font-extrabold text-slate-900 dark:text-white tracking-tight leading-none truncate">The Online Classes</span>
-                        <span class="text-[9px] font-bold text-blue-600 dark:text-blue-400 uppercase tracking-widest mt-0.5">Smart Learning Portal</span>
-                    </div>
-                </div>
-                <!-- Target Exam / Class Selector Pill -->
-                <div onclick="showCategorySelector()" class="flex items-center gap-2 bg-blue-50/90 dark:bg-blue-950/60 hover:bg-blue-100/80 dark:hover:bg-blue-900/60 px-3 py-1.5 rounded-xl border border-blue-200/70 dark:border-blue-800/70 cursor-pointer active:scale-95 transition-all shrink-0 shadow-2xs">
-                    <span class="w-2 h-2 rounded-full bg-blue-600 dark:bg-blue-400"></span>
-                    <span id="activeClassName" class="text-xs font-extrabold text-blue-900 dark:text-blue-200 tracking-tight max-w-[110px] sm:max-w-[160px] truncate">Select Class</span>
-                    <i class="fa-solid fa-chevron-down text-[9px] text-blue-600 dark:text-blue-400"></i>
+                    <span class="font-display text-base sm:text-lg font-extrabold text-slate-900 dark:text-white tracking-tight whitespace-nowrap shrink-0">The Online Classes</span>
                 </div>
             </div>
+
+            <!-- Zone 2: Clean Single-Line Navigation Links (Desktop) -->
+            <nav class="hidden lg:flex items-center gap-6 text-sm font-semibold text-slate-600 dark:text-slate-300">
+                <a href="javascript:void(0)" onclick="navigateTo('home')" class="hover:text-blue-600 dark:hover:text-blue-400 transition-colors whitespace-nowrap shrink-0">Dashboard</a>
+                <a href="javascript:void(0)" onclick="navigateTo('courses')" class="hover:text-blue-600 dark:hover:text-blue-400 transition-colors whitespace-nowrap shrink-0">Batches</a>
+                <a href="javascript:void(0)" onclick="navigateTo('live')" class="hover:text-blue-600 dark:hover:text-blue-400 transition-colors whitespace-nowrap shrink-0">Live Classes</a>
+                <a href="javascript:void(0)" onclick="navigateTo('tests')" class="hover:text-blue-600 dark:hover:text-blue-400 transition-colors whitespace-nowrap shrink-0">Mock Tests</a>
+                <a href="javascript:void(0)" onclick="navigateTo('notes')" class="hover:text-blue-600 dark:hover:text-blue-400 transition-colors whitespace-nowrap shrink-0">Study Notes</a>
+            </nav>
             
-            <div class="flex items-center gap-2 sm:gap-2.5 relative">
+            <!-- Zone 3: Goal Selector & Action Controls -->
+            <div class="flex items-center gap-2 sm:gap-2.5 relative shrink-0">
+                <button onclick="showCategorySelector()" class="flex items-center gap-2 bg-slate-100/90 dark:bg-slate-800/90 hover:bg-blue-50 dark:hover:bg-slate-700/80 px-3.5 py-2 rounded-xl border border-slate-200/80 dark:border-slate-700/80 cursor-pointer active:scale-95 transition-all shrink-0 whitespace-nowrap">
+                    <i class="fa-solid fa-bullseye text-xs text-emerald-600 dark:text-emerald-400"></i>
+                    <span id="activeClassName" class="text-xs font-bold text-slate-800 dark:text-slate-100 tracking-tight max-w-[115px] sm:max-w-[150px] truncate">Select Goal</span>
+                    <i class="fa-solid fa-chevron-down text-[9px] text-slate-400"></i>
+                </button>
+
                 <!-- Quick Theme Toggle Button -->
-                <button onclick="toggleDarkMode()" title="Switch Theme" class="w-10 h-10 rounded-xl bg-slate-100/80 dark:bg-slate-800/80 hover:bg-slate-200/70 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 flex items-center justify-center transition-colors active:scale-95">
+                <button onclick="toggleDarkMode()" title="Switch Theme" class="w-10 h-10 rounded-xl bg-slate-100/90 dark:bg-slate-800/90 hover:bg-slate-200/70 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 flex items-center justify-center transition-colors active:scale-95 shrink-0">
                     <i class="fa-solid fa-circle-half-stroke text-base"></i>
                 </button>
 
                 <!-- Notification Bell -->
-                <button onclick="toggleNotifications()" class="relative w-10 h-10 rounded-xl bg-slate-100/80 dark:bg-slate-800/80 hover:bg-slate-200/70 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 flex items-center justify-center transition-colors active:scale-95">
+                <button onclick="toggleNotifications()" aria-label="Notifications" class="relative w-10 h-10 rounded-xl bg-slate-100/90 dark:bg-slate-800/90 hover:bg-slate-200/70 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 flex items-center justify-center transition-colors active:scale-95 shrink-0">
                     <i class="fa-solid fa-bell text-base"></i>
                     <span id="unreadNotifBadge" class="absolute top-1.5 right-1.5 w-2.5 h-2.5 bg-rose-500 ring-2 ring-white dark:ring-slate-900 rounded-full hidden"></span>
                 </button>
 
                 <!-- Notifications Dropdown -->
-                <div id="notifDropdown" class="hidden absolute right-0 top-13 w-80 sm:w-96 bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-200/80 dark:border-slate-800 flex-col z-50 overflow-hidden max-h-[80vh]">
-                    <div class="p-4 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center bg-slate-50/80 dark:bg-slate-800/60">
+                <div id="notifDropdown" class="hidden absolute right-0 top-13 w-80 sm:w-96 glass-card rounded-2xl shadow-2xl flex-col z-50 overflow-hidden max-h-[80vh]">
+                    <div class="p-4 border-b border-slate-200/60 dark:border-slate-800 flex justify-between items-center bg-slate-50/70 dark:bg-slate-800/60">
                         <div class="flex items-center gap-2">
                             <div class="w-7 h-7 rounded-lg bg-blue-100 dark:bg-blue-900/50 text-blue-600 dark:text-blue-400 flex items-center justify-center text-xs">
                                 <i class="fa-solid fa-bell"></i>
                             </div>
-                            <h3 class="font-extrabold text-slate-900 dark:text-white text-sm">Announcements</h3>
+                            <h3 class="font-display font-bold text-slate-900 dark:text-white text-sm">Announcements</h3>
                         </div>
-                        <button onclick="clearAllNotifications()" class="text-xs text-blue-600 dark:text-blue-400 font-bold hover:underline">Clear All</button>
+                        <button onclick="clearAllNotifications()" class="text-xs text-blue-600 dark:text-blue-400 font-bold hover:underline whitespace-nowrap">Clear All</button>
                     </div>
                     <div id="notifList" class="p-3 space-y-2.5 overflow-y-auto max-h-[60vh]">
                         <div class="text-center p-6 text-slate-400 text-xs font-semibold">No new notifications</div>
@@ -861,164 +926,183 @@
         </header>
 
 
-        <!-- Home Page -->
-        <div id="page-home" class="page active px-4 sm:px-6 pt-5 pb-10">
-            <!-- Top Welcome & Streak Row -->
-            <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 mb-6 items-stretch">
-                <!-- Personalized Welcome Card -->
-                <div class="lg:col-span-5 bg-white dark:bg-slate-900 rounded-3xl p-5 border border-slate-200/80 dark:border-slate-800 shadow-soft flex flex-col justify-between relative overflow-hidden">
-                    <div class="absolute -right-6 -bottom-6 w-28 h-28 bg-blue-500/5 dark:bg-blue-500/10 rounded-full pointer-events-none"></div>
+        <!-- Home Page (Unacademy-Inspired High-Conversion Student Dashboard) -->
+        <div id="page-home" class="page active px-4 sm:px-6 pt-6 pb-12">
+            <!-- Top Welcome & 7-Day Consistency Glassmorphic Hero Row -->
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 mb-7 items-stretch">
+                <!-- Personalized Learner Command Card -->
+                <div class="lg:col-span-5 glass-card rounded-3xl p-5 sm:p-6 flex flex-col justify-between relative overflow-hidden">
+                    <div class="absolute -right-8 -top-8 w-36 h-36 bg-gradient-to-br from-blue-500/10 to-emerald-500/10 rounded-full blur-xl pointer-events-none"></div>
                     <div>
-                        <div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-blue-50 dark:bg-blue-950/70 text-blue-600 dark:text-blue-400 text-[10px] font-extrabold uppercase tracking-wider mb-2">
-                            <i class="fa-solid fa-sparkles text-[9px]"></i> <span id="greetingTime">Welcome Back</span>
-                        </div>
-                        <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight leading-tight">
-                            Hi, <span id="userNameHeader" class="bg-gradient-to-r from-blue-600 to-indigo-600 dark:from-blue-400 dark:to-indigo-400 bg-clip-text text-transparent">Learner</span> 👋
+                        <p class="text-xs font-semibold text-blue-600 dark:text-blue-400 mb-1 flex items-center gap-1.5">
+                            <span id="greetingTime">Welcome Back</span>
+                            <span aria-hidden="true">·</span>
+                            <span>Active Study Session</span>
+                        </p>
+                        <h2 class="font-display text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight leading-tight">
+                            Hi, <span id="userNameHeader" class="bg-gradient-to-r from-blue-600 via-indigo-600 to-emerald-600 dark:from-blue-400 dark:via-indigo-400 dark:to-emerald-400 bg-clip-text text-transparent">Learner</span>
                         </h2>
-                        <p class="text-xs text-slate-500 dark:text-slate-400 font-medium mt-1">Ready to ace your upcoming exams today?</p>
+                        <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 font-medium mt-1.5 leading-relaxed">Stay consistent with your daily live classes, NCERT notes, and CBT mock tests.</p>
                     </div>
-                    <div class="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800/80 flex items-center justify-between gap-2">
-                        <button onclick="navigateTo('mycourses')" class="text-xs font-extrabold text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-1.5">
+                    <div class="mt-5 pt-4 border-t border-slate-200/60 dark:border-slate-800/80 flex items-center justify-between gap-3">
+                        <button onclick="navigateTo('mycourses')" class="btn-blue text-white px-4 py-2.5 rounded-xl text-xs font-bold flex items-center gap-2 whitespace-nowrap shrink-0">
                             <span>Resume My Batches</span>
                             <i class="fa-solid fa-arrow-right text-[10px]"></i>
                         </button>
-                        <button onclick="navigateTo('timetable')" class="text-[11px] font-bold text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white flex items-center gap-1">
-                            <i class="fa-regular fa-calendar"></i> <span>Schedule</span>
+                        <button onclick="navigateTo('timetable')" class="px-3.5 py-2.5 rounded-xl bg-slate-100/80 dark:bg-slate-800/80 hover:bg-slate-200/70 dark:hover:bg-slate-700 text-xs font-bold text-slate-700 dark:text-slate-300 flex items-center gap-1.5 transition-colors whitespace-nowrap shrink-0">
+                            <i class="fa-regular fa-calendar text-blue-600 dark:text-blue-400"></i>
+                            <span>Class Routine</span>
                         </button>
                     </div>
                 </div>
 
-                <!-- Gamified 7-Day Study Streak Banner -->
-                <div class="lg:col-span-7 bg-gradient-to-br from-slate-900 via-indigo-950 to-blue-950 rounded-3xl p-5 shadow-lg text-white flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 relative overflow-hidden border border-indigo-500/20">
-                    <div class="absolute -right-10 -top-10 w-40 h-40 bg-amber-500/15 rounded-full blur-2xl pointer-events-none"></div>
+                <!-- Gamified 7-Day Study Streak Glassmorphic Banner -->
+                <div class="lg:col-span-7 glass-dark rounded-3xl p-5 sm:p-6 text-white flex flex-col sm:flex-row items-start sm:items-center justify-between gap-5 relative overflow-hidden">
+                    <div class="absolute -right-10 -top-10 w-44 h-44 bg-emerald-500/15 rounded-full blur-2xl pointer-events-none"></div>
                     <div class="z-10">
-                        <div class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-amber-500/20 border border-amber-400/30 text-amber-300 text-[10px] font-extrabold uppercase tracking-wider mb-1.5">
-                            <i class="fa-solid fa-bolt"></i> Daily Consistency
-                        </div>
-                        <h3 class="font-black text-xl sm:text-2xl flex items-center gap-2 tracking-tight">
-                            <i class="fa-solid fa-fire text-amber-400 drop-shadow"></i>
-                            <span id="streakCountText">0 Day Streak!</span>
+                        <p class="text-xs font-semibold text-emerald-300 mb-1 flex items-center gap-1.5">
+                            <span>Learning Momentum</span>
+                            <span aria-hidden="true">·</span>
+                            <span>Weekly Goal</span>
+                        </p>
+                        <h3 class="font-display font-extrabold text-xl sm:text-2xl flex items-center gap-2.5 tracking-tight">
+                            <i class="fa-solid fa-fire text-amber-400"></i>
+                            <span id="streakCountText" class="tabular-nums">0 Day Streak!</span>
                         </h3>
-                        <p class="text-xs text-indigo-200/80 font-medium mt-0.5">Complete 7 days in a row to unlock your consistency badge.</p>
+                        <p class="text-xs text-slate-300 font-medium mt-1 max-w-sm leading-relaxed">Complete 7 consecutive study days to maintain top exam readiness.</p>
                     </div>
-                    <div class="flex gap-1.5 sm:gap-2 z-10 w-full sm:w-auto justify-between sm:justify-end bg-white/5 p-2.5 rounded-2xl border border-white/10" id="streakDaysContainer">
+                    <div class="flex gap-1.5 sm:gap-2 z-10 w-full sm:w-auto justify-between sm:justify-end bg-white/10 backdrop-blur-md p-3 rounded-2xl border border-white/15" id="streakDaysContainer">
                         <!-- Days injected by JS -->
                     </div>
                 </div>
             </div>
 
             <!-- Hero Promotional Carousel -->
-            <div class="slider-container mb-8 relative aspect-[2.1/1] group bg-slate-900">
+            <div class="slider-container mb-9 relative aspect-[2.1/1] group bg-slate-900">
                 <div class="slider-wrapper h-full" id="homeSlider">
                     <!-- Slider images injected by JS -->
                     <div class="slider-item bg-slate-900 flex items-center justify-center">
                         <div class="flex flex-col items-center">
                             <i class="fa-solid fa-spinner fa-spin text-blue-400 text-xl mb-2"></i>
-                            <p class="text-[10px] text-white/60 font-bold uppercase tracking-widest">Loading Featured Batches...</p>
+                            <p class="text-xs text-white/70 font-medium">Loading Featured Batches...</p>
                         </div>
                     </div>
                 </div>
                 <!-- Slider Pagination -->
-                <div id="sliderDots" class="absolute bottom-3.5 left-0 w-full flex justify-center gap-1.5 z-10 transition-opacity opacity-80 group-hover:opacity-100"></div>
+                <div id="sliderDots" class="absolute bottom-3.5 left-0 w-full flex justify-center gap-1.5 z-10 transition-opacity opacity-85 group-hover:opacity-100"></div>
             </div>
 
-            <!-- Quick Explore Bento Matrix (PW / Unacademy Style) -->
+            <!-- Quick Explore Bento Matrix (Unacademy High-Conversion Style) -->
             <div class="mb-10">
                 <div class="flex justify-between items-end mb-4">
                     <div>
-                        <p class="text-[10px] font-extrabold text-blue-600 dark:text-blue-400 uppercase tracking-widest mb-0.5">Study Zone</p>
-                        <h2 class="text-lg sm:text-xl font-extrabold text-slate-900 dark:text-white tracking-tight">Explore Learning Modules</h2>
+                        <p class="text-xs font-semibold text-blue-600 dark:text-blue-400 mb-0.5">Structured Preparation</p>
+                        <h2 class="font-display text-xl sm:text-2xl font-extrabold text-slate-900 dark:text-white tracking-tight">Explore Study Modules</h2>
                     </div>
-                    <button onclick="navigateTo('courses')" class="text-xs font-extrabold text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-1">
-                        <span>View Store</span> <i class="fa-solid fa-chevron-right text-[9px]"></i>
+                    <button onclick="navigateTo('courses')" class="text-xs font-bold text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-1 whitespace-nowrap">
+                        <span>Browse All Batches</span> <i class="fa-solid fa-chevron-right text-[9px]"></i>
                     </button>
                 </div>
                 <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3.5">
                     <!-- Paid Courses -->
-                    <div onclick="navigateTo('courses')" class="group bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-soft hover:shadow-elevated hover:border-blue-500/50 dark:hover:border-blue-500/50 flex flex-col justify-between gap-3 transition-all duration-200 cursor-pointer active:scale-95 relative overflow-hidden">
+                    <div onclick="navigateTo('courses')" class="group glass-card p-4 rounded-2xl flex flex-col justify-between gap-3.5 cursor-pointer active:scale-95 relative overflow-hidden">
                         <div class="flex items-center justify-between">
-                            <div class="w-11 h-11 rounded-2xl bg-blue-50 dark:bg-blue-950/80 text-blue-600 dark:text-blue-400 flex items-center justify-center transition-transform group-hover:scale-110 shadow-2xs">
+                            <div class="w-11 h-11 rounded-2xl bg-blue-500/10 dark:bg-blue-500/20 text-blue-600 dark:text-blue-400 flex items-center justify-center transition-transform duration-200 group-hover:scale-105">
                                 <i class="fa-solid fa-graduation-cap text-lg"></i>
                             </div>
-                            <span class="text-[9px] font-black uppercase tracking-wider px-2 py-0.5 rounded-md bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400">PRO</span>
+                            <i class="fa-solid fa-arrow-up-right-from-square text-[10px] text-slate-300 dark:text-slate-600 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors"></i>
                         </div>
                         <div>
-                            <h3 class="text-sm font-extrabold text-slate-900 dark:text-white leading-snug group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">Paid Batches</h3>
-                            <p class="text-[10px] text-slate-500 dark:text-slate-400 font-medium mt-0.5">Full Syllabus</p>
+                            <h3 class="font-display text-sm font-bold text-slate-900 dark:text-white leading-snug group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">Paid Batches</h3>
+                            <p class="text-[11px] text-slate-500 dark:text-slate-400 font-medium mt-0.5">Full Syllabus · Pro</p>
                         </div>
                     </div>
 
                     <!-- Free Courses -->
-                    <div onclick="navigateTo('courses')" class="group bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-soft hover:shadow-elevated hover:border-emerald-500/50 dark:hover:border-emerald-500/50 flex flex-col justify-between gap-3 transition-all duration-200 cursor-pointer active:scale-95 relative overflow-hidden">
+                    <div onclick="navigateTo('courses')" class="group glass-card p-4 rounded-2xl flex flex-col justify-between gap-3.5 cursor-pointer active:scale-95 relative overflow-hidden">
                         <div class="flex items-center justify-between">
-                            <div class="w-11 h-11 rounded-2xl bg-emerald-50 dark:bg-emerald-950/80 text-emerald-600 dark:text-emerald-400 flex items-center justify-center transition-transform group-hover:scale-110 shadow-2xs">
+                            <div class="w-11 h-11 rounded-2xl bg-emerald-500/10 dark:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 flex items-center justify-center transition-transform duration-200 group-hover:scale-105">
                                 <i class="fa-solid fa-book-open text-lg"></i>
                             </div>
-                            <span class="text-[9px] font-black uppercase tracking-wider px-2 py-0.5 rounded-md bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400">FREE</span>
+                            <i class="fa-solid fa-arrow-up-right-from-square text-[10px] text-slate-300 dark:text-slate-600 group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors"></i>
                         </div>
                         <div>
-                            <h3 class="text-sm font-extrabold text-slate-900 dark:text-white leading-snug group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">Free Courses</h3>
-                            <p class="text-[10px] text-slate-500 dark:text-slate-400 font-medium mt-0.5">Open Lessons</p>
+                            <h3 class="font-display text-sm font-bold text-slate-900 dark:text-white leading-snug group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">Free Courses</h3>
+                            <p class="text-[11px] text-slate-500 dark:text-slate-400 font-medium mt-0.5">Open Access · Free</p>
                         </div>
                     </div>
 
                     <!-- Live Classes -->
-                    <div onclick="navigateTo('live'); const el = document.getElementById('liveTypeFilter'); if(el){el.value='Free';} renderLive();" class="group bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-soft hover:shadow-elevated hover:border-rose-500/50 dark:hover:border-rose-500/50 flex flex-col justify-between gap-3 transition-all duration-200 cursor-pointer active:scale-95 relative overflow-hidden">
+                    <div onclick="navigateTo('live'); const el = document.getElementById('liveTypeFilter'); if(el){el.value='Free';} renderLive();" class="group glass-card p-4 rounded-2xl flex flex-col justify-between gap-3.5 cursor-pointer active:scale-95 relative overflow-hidden">
                         <div class="flex items-center justify-between">
-                            <div class="w-11 h-11 rounded-2xl bg-rose-50 dark:bg-rose-950/80 text-rose-600 dark:text-rose-400 flex items-center justify-center transition-transform group-hover:scale-110 shadow-2xs">
+                            <div class="w-11 h-11 rounded-2xl bg-rose-500/10 dark:bg-rose-500/20 text-rose-600 dark:text-rose-400 flex items-center justify-center transition-transform duration-200 group-hover:scale-105">
                                 <i class="fa-solid fa-tower-broadcast text-lg"></i>
                             </div>
-                            <span class="inline-flex items-center gap-1 text-[9px] font-black uppercase tracking-wider px-2 py-0.5 rounded-md bg-rose-50 dark:bg-rose-950/60 text-rose-600 dark:text-rose-400">
-                                <span class="w-1.5 h-1.5 rounded-full bg-rose-500 animate-ping"></span> LIVE
-                            </span>
+                            <i class="fa-solid fa-arrow-up-right-from-square text-[10px] text-slate-300 dark:text-slate-600 group-hover:text-rose-600 dark:group-hover:text-rose-400 transition-colors"></i>
                         </div>
                         <div>
-                            <h3 class="text-sm font-extrabold text-slate-900 dark:text-white leading-snug group-hover:text-rose-600 dark:group-hover:text-rose-400 transition-colors">Live Classes</h3>
-                            <p class="text-[10px] text-slate-500 dark:text-slate-400 font-medium mt-0.5">Interactive</p>
+                            <h3 class="font-display text-sm font-bold text-slate-900 dark:text-white leading-snug group-hover:text-rose-600 dark:group-hover:text-rose-400 transition-colors">Live Classes</h3>
+                            <p class="text-[11px] text-slate-500 dark:text-slate-400 font-medium mt-0.5">Interactive · Stream</p>
                         </div>
                     </div>
 
                     <!-- PDF Notes -->
-                    <div onclick="navigateTo('notes'); const el = document.getElementById('notesTypeFilter'); if(el){el.value='Free';} renderNotes();" class="group bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-soft hover:shadow-elevated hover:border-amber-500/50 dark:hover:border-amber-500/50 flex flex-col justify-between gap-3 transition-all duration-200 cursor-pointer active:scale-95 relative overflow-hidden">
+                    <div onclick="navigateTo('notes'); const el = document.getElementById('notesTypeFilter'); if(el){el.value='Free';} renderNotes();" class="group glass-card p-4 rounded-2xl flex flex-col justify-between gap-3.5 cursor-pointer active:scale-95 relative overflow-hidden">
                         <div class="flex items-center justify-between">
-                            <div class="w-11 h-11 rounded-2xl bg-amber-50 dark:bg-amber-950/80 text-amber-600 dark:text-amber-400 flex items-center justify-center transition-transform group-hover:scale-110 shadow-2xs">
+                            <div class="w-11 h-11 rounded-2xl bg-amber-500/10 dark:bg-amber-500/20 text-amber-600 dark:text-amber-400 flex items-center justify-center transition-transform duration-200 group-hover:scale-105">
                                 <i class="fa-solid fa-file-pdf text-lg"></i>
                             </div>
-                            <span class="text-[9px] font-black uppercase tracking-wider px-2 py-0.5 rounded-md bg-amber-50 dark:bg-amber-950/60 text-amber-600 dark:text-amber-400">PDF</span>
+                            <i class="fa-solid fa-arrow-up-right-from-square text-[10px] text-slate-300 dark:text-slate-600 group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors"></i>
                         </div>
                         <div>
-                            <h3 class="text-sm font-extrabold text-slate-900 dark:text-white leading-snug group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors">Study Notes</h3>
-                            <p class="text-[10px] text-slate-500 dark:text-slate-400 font-medium mt-0.5">Handwritten & DPP</p>
+                            <h3 class="font-display text-sm font-bold text-slate-900 dark:text-white leading-snug group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors">Study Notes</h3>
+                            <p class="text-[11px] text-slate-500 dark:text-slate-400 font-medium mt-0.5">Handwritten · PDF</p>
                         </div>
                     </div>
 
                     <!-- Paid Test -->
-                    <div onclick="navigateTo('tests'); setTestTab('Paid');" class="group bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-soft hover:shadow-elevated hover:border-purple-500/50 dark:hover:border-purple-500/50 flex flex-col justify-between gap-3 transition-all duration-200 cursor-pointer active:scale-95 relative overflow-hidden">
+                    <div onclick="navigateTo('tests'); setTestTab('Paid');" class="group glass-card p-4 rounded-2xl flex flex-col justify-between gap-3.5 cursor-pointer active:scale-95 relative overflow-hidden">
                         <div class="flex items-center justify-between">
-                            <div class="w-11 h-11 rounded-2xl bg-purple-50 dark:bg-purple-950/80 text-purple-600 dark:text-purple-400 flex items-center justify-center transition-transform group-hover:scale-110 shadow-2xs">
+                            <div class="w-11 h-11 rounded-2xl bg-indigo-500/10 dark:bg-indigo-500/20 text-indigo-600 dark:text-indigo-400 flex items-center justify-center transition-transform duration-200 group-hover:scale-105">
                                 <i class="fa-solid fa-vial text-lg"></i>
                             </div>
-                            <span class="text-[9px] font-black uppercase tracking-wider px-2 py-0.5 rounded-md bg-purple-50 dark:bg-purple-950/60 text-purple-600 dark:text-purple-400">SERIES</span>
+                            <i class="fa-solid fa-arrow-up-right-from-square text-[10px] text-slate-300 dark:text-slate-600 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors"></i>
                         </div>
                         <div>
-                            <h3 class="text-sm font-extrabold text-slate-900 dark:text-white leading-snug group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors">Paid Tests</h3>
-                            <p class="text-[10px] text-slate-500 dark:text-slate-400 font-medium mt-0.5">Board Pattern</p>
+                            <h3 class="font-display text-sm font-bold text-slate-900 dark:text-white leading-snug group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">Paid Tests</h3>
+                            <p class="text-[11px] text-slate-500 dark:text-slate-400 font-medium mt-0.5">Board Pattern · Series</p>
                         </div>
                     </div>
 
                     <!-- Free Test -->
-                    <div onclick="navigateTo('tests'); setTestTab('Free');" class="group bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-soft hover:shadow-elevated hover:border-cyan-500/50 dark:hover:border-cyan-500/50 flex flex-col justify-between gap-3 transition-all duration-200 cursor-pointer active:scale-95 relative overflow-hidden">
+                    <div onclick="navigateTo('tests'); setTestTab('Free');" class="group glass-card p-4 rounded-2xl flex flex-col justify-between gap-3.5 cursor-pointer active:scale-95 relative overflow-hidden">
                         <div class="flex items-center justify-between">
-                            <div class="w-11 h-11 rounded-2xl bg-cyan-50 dark:bg-cyan-950/80 text-cyan-600 dark:text-cyan-400 flex items-center justify-center transition-transform group-hover:scale-110 shadow-2xs">
+                            <div class="w-11 h-11 rounded-2xl bg-cyan-500/10 dark:bg-cyan-500/20 text-cyan-600 dark:text-cyan-400 flex items-center justify-center transition-transform duration-200 group-hover:scale-105">
                                 <i class="fa-solid fa-clipboard-check text-lg"></i>
                             </div>
-                            <span class="text-[9px] font-black uppercase tracking-wider px-2 py-0.5 rounded-md bg-cyan-50 dark:bg-cyan-950/60 text-cyan-600 dark:text-cyan-400">QUIZ</span>
+                            <i class="fa-solid fa-arrow-up-right-from-square text-[10px] text-slate-300 dark:text-slate-600 group-hover:text-cyan-600 dark:group-hover:text-cyan-400 transition-colors"></i>
                         </div>
                         <div>
-                            <h3 class="text-sm font-extrabold text-slate-900 dark:text-white leading-snug group-hover:text-cyan-600 dark:group-hover:text-cyan-400 transition-colors">Free Mock Test</h3>
-                            <p class="text-[10px] text-slate-500 dark:text-slate-400 font-medium mt-0.5">Daily Practice</p>
+                            <h3 class="font-display text-sm font-bold text-slate-900 dark:text-white leading-snug group-hover:text-cyan-600 dark:group-hover:text-cyan-400 transition-colors">Free Mock Test</h3>
+                            <p class="text-[11px] text-slate-500 dark:text-slate-400 font-medium mt-0.5">Daily Practice · CBT</p>
                         </div>
                     </div>
+                </div>
+            </div>
+
+            <!-- Featured & Recommended Batches Section (High-Conversion Showcase) -->
+            <div class="mb-10">
+                <div class="flex justify-between items-end mb-4">
+                    <div>
+                        <p class="text-xs font-semibold text-emerald-600 dark:text-emerald-400 mb-0.5">Top Rated Batches</p>
+                        <h2 class="font-display text-xl sm:text-2xl font-extrabold text-slate-900 dark:text-white tracking-tight">Recommended for Your Goal</h2>
+                    </div>
+                    <button onclick="navigateTo('courses')" class="text-xs font-bold text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-1 whitespace-nowrap">
+                        <span>View All</span> <i class="fa-solid fa-chevron-right text-[9px]"></i>
+                    </button>
+                </div>
+                <div id="homeCoursesList" class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    <!-- Populated dynamically by renderHomeCourses() -->
                 </div>
             </div>
 
@@ -1026,12 +1110,10 @@
             <div id="liveSection" class="mb-10 hidden">
                 <div class="flex justify-between items-end mb-4">
                     <div>
-                        <p class="text-[10px] text-rose-500 font-extrabold uppercase tracking-widest mb-0.5 flex items-center gap-1.5">
-                            <span class="w-2 h-2 rounded-full bg-rose-500 animate-ping"></span> Interactive Stream
-                        </p>
-                        <h2 class="text-lg sm:text-xl font-extrabold text-slate-900 dark:text-white tracking-tight">Ongoing & Live Sessions</h2>
+                        <p class="text-xs text-rose-600 dark:text-rose-400 font-semibold mb-0.5">Interactive Classroom</p>
+                        <h2 class="font-display text-xl sm:text-2xl font-extrabold text-slate-900 dark:text-white tracking-tight">Ongoing & Live Sessions</h2>
                     </div>
-                    <button onclick="navigateTo('live')" class="text-xs font-extrabold text-blue-600 dark:text-blue-400 hover:underline">See All</button>
+                    <button onclick="navigateTo('live')" class="text-xs font-bold text-blue-600 dark:text-blue-400 hover:underline whitespace-nowrap">See All</button>
                 </div>
                 <div class="flex gap-4 overflow-x-auto no-scrollbar pb-2" id="homeLiveList">
                     <!-- Home Live Classes injected by JS -->
@@ -1042,14 +1124,14 @@
             <div class="mb-10">
                 <div class="flex justify-between items-end mb-4">
                     <div>
-                        <p class="text-[10px] font-extrabold text-blue-600 dark:text-blue-400 uppercase tracking-widest mb-0.5">Experience Quality Teaching</p>
-                        <h2 class="text-lg sm:text-xl font-extrabold text-slate-900 dark:text-white tracking-tight">Free Demo Lectures</h2>
+                        <p class="text-xs font-semibold text-blue-600 dark:text-blue-400 mb-0.5">Experience Quality Teaching</p>
+                        <h2 class="font-display text-xl sm:text-2xl font-extrabold text-slate-900 dark:text-white tracking-tight">Free Demo Lectures</h2>
                     </div>
                 </div>
                 <div class="flex gap-4 overflow-x-auto no-scrollbar pb-2" id="homeDemoList">
                     <!-- Demo classes injected by JS -->
-                    <div class="min-w-[260px] aspect-video bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-2xl flex items-center justify-center">
-                        <p class="text-xs text-slate-400 font-bold">No demo lectures available.</p>
+                    <div class="min-w-[260px] aspect-video glass-card rounded-2xl flex items-center justify-center">
+                        <p class="text-xs text-slate-400 font-semibold">No demo lectures available.</p>
                     </div>
                 </div>
             </div>
@@ -1058,8 +1140,8 @@
             <div id="upcomingSection" class="mb-10 hidden">
                 <div class="flex justify-between items-end mb-4">
                     <div>
-                        <p class="text-[10px] text-indigo-600 dark:text-indigo-400 font-extrabold uppercase tracking-widest mb-0.5">New Academic Calendar</p>
-                        <h2 class="text-lg sm:text-xl font-extrabold text-slate-900 dark:text-white tracking-tight">Upcoming Batches</h2>
+                        <p class="text-xs text-indigo-600 dark:text-indigo-400 font-semibold mb-0.5">New Academic Calendar</p>
+                        <h2 class="font-display text-xl sm:text-2xl font-extrabold text-slate-900 dark:text-white tracking-tight">Upcoming Batches</h2>
                     </div>
                 </div>
                 <div class="flex gap-4 overflow-x-auto no-scrollbar pb-2" id="homeUpcomingList">
@@ -1071,8 +1153,8 @@
             <div id="toppersSection" class="mb-10 hidden">
                 <div class="flex justify-between items-end mb-4">
                     <div>
-                        <p class="text-[10px] font-extrabold text-amber-500 uppercase tracking-widest mb-0.5"><i class="fa-solid fa-crown mr-1"></i> Hall of Fame</p>
-                        <h2 class="text-lg sm:text-xl font-extrabold text-slate-900 dark:text-white tracking-tight">Our Pride & Toppers</h2>
+                        <p class="text-xs font-semibold text-amber-600 dark:text-amber-400 mb-0.5">Verified Results & Selections</p>
+                        <h2 class="font-display text-xl sm:text-2xl font-extrabold text-slate-900 dark:text-white tracking-tight">Our Pride & Toppers</h2>
                     </div>
                 </div>
                 <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4" id="homeToppersList">
@@ -1084,10 +1166,10 @@
             <div id="quizLeaderboardSection" class="mb-10 hidden">
                 <div class="flex justify-between items-end mb-4">
                     <div>
-                        <p class="text-[10px] font-extrabold text-emerald-600 dark:text-emerald-400 uppercase tracking-widest mb-0.5"><i class="fa-solid fa-Ranking-star mr-1"></i> Live Standings</p>
-                        <h2 class="text-lg sm:text-xl font-extrabold text-slate-900 dark:text-white tracking-tight">Test Series Leaderboard</h2>
+                        <p class="text-xs font-semibold text-emerald-600 dark:text-emerald-400 mb-0.5">All-India Mock Standings</p>
+                        <h2 class="font-display text-xl sm:text-2xl font-extrabold text-slate-900 dark:text-white tracking-tight">Test Series Leaderboard</h2>
                     </div>
-                    <button onclick="navigateTo('tests')" class="text-xs font-extrabold text-emerald-600 dark:text-emerald-400 hover:underline">Take a Quiz</button>
+                    <button onclick="navigateTo('tests')" class="text-xs font-bold text-emerald-600 dark:text-emerald-400 hover:underline whitespace-nowrap">Take a Quiz</button>
                 </div>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-3" id="homeQuizLeaderboardList">
                     <!-- Leaderboard injected by JS -->
@@ -1098,38 +1180,32 @@
             <div class="mb-10">
                 <div class="flex justify-between items-end mb-4">
                     <div>
-                        <p class="text-[10px] text-emerald-600 dark:text-emerald-400 font-extrabold uppercase tracking-widest mb-0.5">Smart Study Companion</p>
-                        <h2 class="text-lg sm:text-xl font-extrabold text-slate-900 dark:text-white tracking-tight">Student Productivity Tools</h2>
+                        <p class="text-xs text-emerald-600 dark:text-emerald-400 font-semibold mb-0.5">Smart Study Companion</p>
+                        <h2 class="font-display text-xl sm:text-2xl font-extrabold text-slate-900 dark:text-white tracking-tight">Student Productivity Tools</h2>
                     </div>
                 </div>
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <!-- Focus Timer -->
-                    <div onclick="openFocusTimer()" class="group bg-gradient-to-br from-blue-600 via-blue-700 to-indigo-800 p-6 rounded-3xl shadow-lg shadow-blue-600/20 flex items-center justify-between transition-all duration-300 hover:shadow-xl hover:shadow-blue-600/30 cursor-pointer active:scale-[0.98] relative overflow-hidden border border-white/10">
-                        <div class="absolute -right-4 -bottom-4 text-white/10 text-8xl group-hover:rotate-12 transition-transform duration-500 pointer-events-none">
-                            <i class="fa-solid fa-stopwatch"></i>
-                        </div>
+                    <div onclick="openFocusTimer()" class="group bg-gradient-to-br from-blue-600 via-blue-700 to-indigo-800 p-6 rounded-3xl shadow-lg shadow-blue-600/15 flex items-center justify-between transition-all duration-200 hover:shadow-xl cursor-pointer active:scale-[0.98] relative overflow-hidden border border-white/15">
                         <div class="z-10">
-                            <span class="inline-block px-2.5 py-0.5 rounded-full bg-white/15 text-white text-[9px] font-extrabold uppercase tracking-widest mb-2">Pomodoro Technique</span>
-                            <h3 class="text-white text-xl font-black tracking-tight mb-1">Deep Focus Timer</h3>
-                            <p class="text-blue-100/90 text-xs font-medium">25-min distraction-free study sessions</p>
+                            <p class="text-blue-200 text-xs font-semibold mb-1">Pomodoro Study Mode · 25m</p>
+                            <h3 class="font-display text-white text-xl font-extrabold tracking-tight mb-1">Deep Focus Timer</h3>
+                            <p class="text-blue-100/90 text-xs font-medium">Distraction-free timed revision sessions</p>
                         </div>
-                        <div class="w-12 h-12 rounded-2xl bg-white/20 backdrop-blur-md flex items-center justify-center text-white text-lg z-10 shrink-0 group-hover:bg-white group-hover:text-blue-700 transition-colors">
+                        <div class="w-12 h-12 rounded-2xl bg-white/15 backdrop-blur-md flex items-center justify-center text-white text-lg z-10 shrink-0 group-hover:bg-white group-hover:text-blue-700 transition-colors border border-white/20">
                             <i class="fa-solid fa-play"></i>
                         </div>
                     </div>
                     
                     <!-- Daily Motivation -->
-                    <div onclick="openQuoteModal()" class="group bg-gradient-to-br from-amber-500 via-orange-500 to-rose-600 p-6 rounded-3xl shadow-lg shadow-orange-500/20 flex items-center justify-between transition-all duration-300 hover:shadow-xl hover:shadow-orange-500/30 cursor-pointer active:scale-[0.98] relative overflow-hidden border border-white/10">
-                        <div class="absolute -right-2 -bottom-4 text-white/10 text-8xl group-hover:rotate-12 transition-transform duration-500 pointer-events-none">
-                            <i class="fa-solid fa-quote-right"></i>
-                        </div>
+                    <div onclick="openQuoteModal()" class="group bg-gradient-to-br from-emerald-600 via-teal-600 to-cyan-700 p-6 rounded-3xl shadow-lg shadow-emerald-600/15 flex items-center justify-between transition-all duration-200 hover:shadow-xl cursor-pointer active:scale-[0.98] relative overflow-hidden border border-white/15">
                         <div class="z-10">
-                            <span class="inline-block px-2.5 py-0.5 rounded-full bg-white/15 text-white text-[9px] font-extrabold uppercase tracking-widest mb-2">Daily Spark</span>
-                            <h3 class="text-white text-xl font-black tracking-tight mb-1">Quote of the Day</h3>
-                            <p class="text-orange-50/90 text-xs font-medium">Daily inspiration for exam warriors</p>
+                            <p class="text-emerald-100 text-xs font-semibold mb-1">Daily Spark · Mindset</p>
+                            <h3 class="font-display text-white text-xl font-extrabold tracking-tight mb-1">Quote of the Day</h3>
+                            <p class="text-emerald-50/90 text-xs font-medium">Daily inspiration for exam aspirants</p>
                         </div>
-                        <div class="w-12 h-12 rounded-2xl bg-white/20 backdrop-blur-md flex items-center justify-center text-white text-lg z-10 shrink-0 group-hover:bg-white group-hover:text-rose-600 transition-colors">
-                            <i class="fa-solid fa-bolt"></i>
+                        <div class="w-12 h-12 rounded-2xl bg-white/15 backdrop-blur-md flex items-center justify-center text-white text-lg z-10 shrink-0 group-hover:bg-white group-hover:text-emerald-700 transition-colors border border-white/20">
+                            <i class="fa-solid fa-lightbulb"></i>
                         </div>
                     </div>
                 </div>
@@ -1139,44 +1215,44 @@
             <div class="mb-6">
                 <div class="flex justify-between items-end mb-4">
                     <div>
-                        <p class="text-[10px] text-slate-400 font-extrabold uppercase tracking-widest mb-0.5">Quick Support</p>
-                        <h2 class="text-lg sm:text-xl font-extrabold text-slate-900 dark:text-white tracking-tight">Frequently Asked Questions</h2>
+                        <p class="text-xs text-slate-500 dark:text-slate-400 font-semibold mb-0.5">Learner Helpdesk</p>
+                        <h2 class="font-display text-xl sm:text-2xl font-extrabold text-slate-900 dark:text-white tracking-tight">Frequently Asked Questions</h2>
                     </div>
                 </div>
                 <div class="flex flex-col gap-3">
                     <!-- FAQ 1 -->
-                    <div class="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-2xl p-4 sm:p-5 shadow-soft transition-colors">
+                    <div class="glass-card rounded-2xl p-4 sm:p-5">
                         <button onclick="toggleFaq('faq-1')" class="w-full flex justify-between items-center text-left gap-4">
                             <span class="font-bold text-sm text-slate-800 dark:text-slate-100">How do I access my purchased courses & batch materials?</span>
                             <div class="w-7 h-7 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center shrink-0">
                                 <i id="faq-icon-1" class="fa-solid fa-chevron-down text-xs text-slate-500 transition-transform"></i>
                             </div>
                         </button>
-                        <div id="faq-1" class="hidden mt-3 pt-3 border-t border-slate-100 dark:border-slate-800 text-xs text-slate-500 dark:text-slate-400 leading-relaxed font-medium">
-                            Once enrolled, all your batches appear inside the "My Course" tab in the bottom navigation bar. Open any batch to watch video lectures, download PDF notes, and attempt linked mock tests.
+                        <div id="faq-1" class="hidden mt-3 pt-3 border-t border-slate-200/60 dark:border-slate-800 text-xs text-slate-600 dark:text-slate-400 leading-relaxed font-medium">
+                            Once enrolled, all your batches appear inside the "My Course" tab. Open any batch to watch video lectures, download PDF notes, and attempt linked mock tests.
                         </div>
                     </div>
                     <!-- FAQ 2 -->
-                    <div class="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-2xl p-4 sm:p-5 shadow-soft transition-colors">
+                    <div class="glass-card rounded-2xl p-4 sm:p-5">
                         <button onclick="toggleFaq('faq-2')" class="w-full flex justify-between items-center text-left gap-4">
                             <span class="font-bold text-sm text-slate-800 dark:text-slate-100">Are the live classes recorded if I miss a session?</span>
                             <div class="w-7 h-7 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center shrink-0">
                                 <i id="faq-icon-2" class="fa-solid fa-chevron-down text-xs text-slate-500 transition-transform"></i>
                             </div>
                         </button>
-                        <div id="faq-2" class="hidden mt-3 pt-3 border-t border-slate-100 dark:border-slate-800 text-xs text-slate-500 dark:text-slate-400 leading-relaxed font-medium">
+                        <div id="faq-2" class="hidden mt-3 pt-3 border-t border-slate-200/60 dark:border-slate-800 text-xs text-slate-600 dark:text-slate-400 leading-relaxed font-medium">
                             Yes! Every live session is automatically saved under the "Recorded" tab in Live Classes and inside your batch curriculum so you can revise anytime at your own pace.
                         </div>
                     </div>
                     <!-- FAQ 3 -->
-                    <div class="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-2xl p-4 sm:p-5 shadow-soft transition-colors">
+                    <div class="glass-card rounded-2xl p-4 sm:p-5">
                         <button onclick="toggleFaq('faq-3')" class="w-full flex justify-between items-center text-left gap-4">
                             <span class="font-bold text-sm text-slate-800 dark:text-slate-100">How does the 7-day study streak work?</span>
                             <div class="w-7 h-7 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center shrink-0">
                                 <i id="faq-icon-3" class="fa-solid fa-chevron-down text-xs text-slate-500 transition-transform"></i>
                             </div>
                         </button>
-                        <div id="faq-3" class="hidden mt-3 pt-3 border-t border-slate-100 dark:border-slate-800 text-xs text-slate-500 dark:text-slate-400 leading-relaxed font-medium">
+                        <div id="faq-3" class="hidden mt-3 pt-3 border-t border-slate-200/60 dark:border-slate-800 text-xs text-slate-600 dark:text-slate-400 leading-relaxed font-medium">
                             Simply open the portal and study for 7 consecutive days. Your daily progress is tracked at the top of the dashboard, celebrating every 7-day milestone!
                         </div>
                     </div>
@@ -2357,26 +2433,23 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/fireba
             const hasAccess = (userData && userData.purchased && userData.purchased[id]) || c.type === 'Free';
             const isPending = pendingPurchases.has(id);
             const priceVal = c.discount > 0 ? Math.round(c.price * (1 - c.discount/100)) : c.price;
+            const fallbackImg = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='640' height='360' viewBox='0 0 640 360'><defs><linearGradient id='g' x1='0%' y1='0%' x2='100%' y2='100%'><stop offset='0%' stop-color='%230f172a'/><stop offset='100%' stop-color='%231e3a8a'/></linearGradient></defs><rect width='640' height='360' fill='url(%23g)'/><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' fill='%2393c5fd' font-family='sans-serif' font-weight='800' font-size='22'>THE ONLINE CLASSES</text></svg>";
             return `
-                <div onclick="openCourse('${id}', '${c.type}')" class="course-card group flex flex-col cursor-pointer bg-white dark:bg-slate-900 rounded-3xl overflow-hidden border border-slate-200/80 dark:border-slate-800 hover:border-blue-500/50 transition-all duration-300 shadow-soft hover:shadow-elevated">
+                <div onclick="openCourse('${id}', '${c.type}')" class="glass-card course-card group flex flex-col cursor-pointer rounded-3xl overflow-hidden">
                     <!-- 16:9 Batch Banner -->
                     <div class="relative w-full aspect-[16/9] shrink-0 overflow-hidden bg-slate-900">
-                        <img src="${c.thumbnail}" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" alt="${c.title}">
-                        <div class="absolute inset-0 bg-gradient-to-t from-slate-950/75 via-transparent to-slate-950/20"></div>
-                        <div class="absolute top-3.5 left-3.5 flex items-center gap-2 z-10">
-                            <span class="bg-white/95 dark:bg-slate-900/95 backdrop-blur-md text-blue-600 dark:text-blue-400 text-[10px] font-extrabold px-2.5 py-1 rounded-lg shadow-sm uppercase tracking-wider">${c.category}</span>
-                            ${c.tag ? `<span class="${c.tag === 'NEW' ? 'bg-emerald-500' : 'bg-amber-500'} text-[10px] font-extrabold px-2.5 py-1 rounded-lg text-white shadow-sm uppercase tracking-wider">${c.tag}</span>` : ''}
-                        </div>
-                        <button onclick="event.stopPropagation(); shareCourse('${id}', '${c.title.replace(/'/g, "\\'")}')" class="absolute top-3.5 right-3.5 w-8 h-8 rounded-xl bg-slate-950/50 hover:bg-blue-600 backdrop-blur-md text-white flex items-center justify-center transition-colors z-10 border border-white/15" title="Share Batch">
+                        <img src="${c.thumbnail || fallbackImg}" onerror="this.onerror=null;this.src='${fallbackImg}'" referrerPolicy="no-referrer" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" alt="${c.title}">
+                        <div class="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-slate-950/20 to-transparent"></div>
+                        <button onclick="event.stopPropagation(); shareCourse('${id}', '${c.title.replace(/'/g, "\\'")}')" class="absolute top-3.5 right-3.5 w-8 h-8 rounded-xl bg-slate-950/60 hover:bg-blue-600 backdrop-blur-md text-white flex items-center justify-center transition-colors z-10 border border-white/15" title="Share Batch">
                             <i class="fa-solid fa-share-nodes text-xs"></i>
                         </button>
-                        <div class="absolute bottom-3 left-3.5 right-3.5 flex items-center justify-between text-white z-10">
-                            <span class="text-[11px] font-bold flex items-center gap-1.5 text-slate-100 truncate">
-                                <i class="fa-solid fa-chalkboard-user text-blue-400"></i> ${c.instructor || 'Top Educators'}
+                        <div class="absolute bottom-3 left-4 right-4 flex items-center justify-between text-white z-10">
+                            <span class="text-xs font-semibold flex items-center gap-1.5 text-slate-100 truncate">
+                                <i class="fa-solid fa-chalkboard-user text-emerald-400"></i> ${c.instructor || 'Top Educators'}
                             </span>
-                            <div class="bg-slate-950/70 backdrop-blur-md px-2 py-0.5 rounded-md flex items-center gap-1 border border-white/15 shrink-0">
+                            <div class="flex items-center gap-1 text-xs font-bold text-amber-300 tabular-nums shrink-0">
                                 <i class="fa-solid fa-star text-[10px] text-amber-400"></i>
-                                <span class="text-[11px] font-extrabold text-white">${c.rating || '4.9'}</span>
+                                <span>${c.rating || '4.9'}</span>
                             </div>
                         </div>
                     </div>
@@ -2384,43 +2457,38 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/fireba
                     <!-- Batch Body -->
                     <div class="p-5 flex-1 flex flex-col justify-between">
                         <div>
-                            <h3 class="font-extrabold text-base sm:text-lg leading-snug mb-2 line-clamp-2 text-slate-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">${c.title}</h3>
-                            <p class="text-xs text-slate-500 dark:text-slate-400 line-clamp-2 leading-relaxed font-medium mb-4">${c.description || 'Complete syllabus coverage with live lectures, PDF study notes & CBT mock tests.'}</p>
-                            
-                            <!-- Included Features Pills -->
-                            <div class="flex items-center gap-2 flex-wrap mb-4">
-                                <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-slate-800 text-[10px] font-bold text-slate-600 dark:text-slate-300">
-                                    <i class="fa-solid fa-circle-play text-blue-500"></i> Lectures
-                                </span>
-                                <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-slate-800 text-[10px] font-bold text-slate-600 dark:text-slate-300">
-                                    <i class="fa-solid fa-file-pdf text-rose-500"></i> PDF Notes
-                                </span>
-                                <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-slate-800 text-[10px] font-bold text-slate-600 dark:text-slate-300">
-                                    <i class="fa-solid fa-clipboard-check text-emerald-500"></i> CBT Tests
-                                </span>
+                            <!-- Clean Unboxed Metadata Line -->
+                            <div class="flex items-center gap-2 text-xs font-semibold text-blue-600 dark:text-blue-400 mb-1.5 flex-wrap">
+                                <span>${c.category || 'Target Batch'}</span>
+                                <span aria-hidden="true" class="text-slate-300 dark:text-slate-600">·</span>
+                                <span class="text-slate-500 dark:text-slate-400">Lectures · PDF Notes · CBT Tests</span>
+                                ${c.tag ? `<span aria-hidden="true" class="text-slate-300 dark:text-slate-600">·</span><span class="text-emerald-600 dark:text-emerald-400">${c.tag}</span>` : ''}
                             </div>
+                            <h3 class="font-display font-extrabold text-base sm:text-lg leading-snug mb-2 line-clamp-2 text-slate-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">${c.title}</h3>
+                            <p class="text-xs text-slate-500 dark:text-slate-400 line-clamp-2 leading-relaxed font-medium mb-4">${c.description || 'Complete syllabus coverage with live lectures, PDF study notes & CBT mock tests.'}</p>
                         </div>
 
                         <!-- Pricing & CTA Footer -->
-                        <div class="flex justify-between items-center pt-3.5 border-t border-slate-100 dark:border-slate-800 gap-2">
+                        <div class="flex justify-between items-center pt-3.5 border-t border-slate-200/60 dark:border-slate-800 gap-2">
                             <div class="flex flex-col">
                                 ${c.discount > 0 && c.price > 0 ? `
-                                    <div class="flex items-center gap-1.5">
-                                        <span class="text-slate-400 line-through text-[11px] font-semibold">₹${c.price}</span>
-                                        <span class="bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 text-[10px] font-extrabold px-1.5 py-0.5 rounded">${c.discount}% OFF</span>
+                                    <div class="flex items-center gap-1.5 text-xs">
+                                        <span class="text-slate-400 line-through font-medium tabular-nums">₹${c.price}</span>
+                                        <span aria-hidden="true" class="text-slate-300 dark:text-slate-600">·</span>
+                                        <span class="text-emerald-600 dark:text-emerald-400 font-bold tabular-nums">${c.discount}% Off</span>
                                     </div>
-                                    <span class="text-slate-900 dark:text-white font-black text-xl leading-tight tracking-tight">₹${priceVal}</span>
+                                    <span class="text-slate-900 dark:text-white font-display font-black text-xl leading-tight tracking-tight tabular-nums">₹${priceVal}</span>
                                 ` : `
-                                    <span class="text-[10px] font-bold text-slate-400 uppercase">Batch Fee</span>
-                                    <span class="${c.price > 0 ? 'text-slate-900 dark:text-white' : 'text-emerald-600 dark:text-emerald-400'} font-black text-xl leading-tight tracking-tight">${c.price > 0 ? '₹' + c.price : 'FREE'}</span>
+                                    <span class="text-[11px] font-medium text-slate-400">Batch Fee</span>
+                                    <span class="${c.price > 0 ? 'text-slate-900 dark:text-white' : 'text-emerald-600 dark:text-emerald-400'} font-display font-black text-xl leading-tight tracking-tight tabular-nums">${c.price > 0 ? '₹' + c.price : 'FREE'}</span>
                                 `}
                             </div>
-                            <div>
+                            <div class="shrink-0">
                                 ${hasAccess ? 
-                                    '<span class="text-emerald-600 dark:text-emerald-400 font-extrabold text-xs flex items-center gap-1.5 bg-emerald-50 dark:bg-emerald-950/50 px-4 py-2.5 rounded-xl border border-emerald-200/60 dark:border-emerald-800/50"><i class="fa-solid fa-circle-check text-emerald-500"></i> Study Now</span>' :
+                                    '<span class="text-emerald-600 dark:text-emerald-400 font-bold text-xs flex items-center gap-1.5 bg-emerald-500/10 px-4 py-2.5 rounded-xl border border-emerald-500/20 whitespace-nowrap"><i class="fa-solid fa-circle-check text-emerald-500"></i> Study Now</span>' :
                                     (isPending ?
-                                        '<span class="text-amber-600 dark:text-amber-400 font-extrabold text-xs flex items-center gap-1.5 bg-amber-50 dark:bg-amber-950/50 px-4 py-2.5 rounded-xl border border-amber-200/60 dark:border-amber-800/50"><i class="fa-solid fa-clock text-amber-500"></i> Pending</span>' :
-                                        '<button class="btn-blue text-white font-extrabold text-xs flex items-center gap-2 px-5 py-2.5 rounded-xl shadow-sm transition-all active:scale-95"><span>Explore Batch</span> <i class="fa-solid fa-arrow-right text-[10px]"></i></button>'
+                                        '<span class="text-amber-600 dark:text-amber-400 font-bold text-xs flex items-center gap-1.5 bg-amber-500/10 px-4 py-2.5 rounded-xl border border-amber-500/20 whitespace-nowrap"><i class="fa-solid fa-clock text-amber-500"></i> Pending</span>' :
+                                        '<button class="btn-blue text-white font-bold text-xs flex items-center gap-2 px-5 py-2.5 rounded-xl shadow-sm transition-all active:scale-95 whitespace-nowrap"><span>Explore Batch</span> <i class="fa-solid fa-arrow-right text-[10px]"></i></button>'
                                     )
                                 }
                             </div>
@@ -3074,18 +3142,18 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/fireba
                 visibleCount++;
                 const timeStr = new Date(n.time || n.timestamp || Date.now()).toLocaleDateString([], { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
                 nList.innerHTML += `
-                    <div class="bg-white p-3 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm border-l-4 border-l-blue-600 relative group animate-in fade-in slide-in-from-bottom-2 duration-300">
-                        <button onclick="hideNotification('${id}')" class="absolute top-2 right-2 w-6 h-6 rounded-md bg-slate-50 dark:bg-slate-900 text-slate-400 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all hover:bg-rose-50 hover:text-rose-500">
+                    <div class="glass-card p-3.5 rounded-2xl relative group animate-in fade-in slide-in-from-bottom-2 duration-300">
+                        <button onclick="hideNotification('${id}')" class="absolute top-2.5 right-2.5 w-6 h-6 rounded-lg bg-slate-100/80 dark:bg-slate-800/80 text-slate-400 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all hover:bg-rose-50 hover:text-rose-500">
                             <i class="fa-solid fa-xmark text-[10px]"></i>
                         </button>
-                        <div class="flex flex-col mb-1">
-                            <span class="text-[8px] font-black text-blue-400 uppercase tracking-widest bg-blue-50 dark:bg-blue-900/30 px-1.5 py-0.5 rounded w-fit mb-1">${n.category || 'Global'}</span>
-                            <div class="flex justify-between items-center gap-2">
-                                <h3 class="font-black text-xs text-blue-600 dark:text-blue-400 uppercase tracking-tight line-clamp-1">${n.title}</h3>
-                                <span class="text-[9px] font-bold text-slate-400 shrink-0">${timeStr}</span>
-                            </div>
+                        <div class="flex items-center gap-1.5 text-[10px] font-bold text-slate-400 dark:text-slate-500 mb-1 pr-6">
+                            <span class="w-1.5 h-1.5 rounded-full bg-blue-600 shrink-0"></span>
+                            <span class="text-blue-600 dark:text-blue-400 font-extrabold uppercase tracking-wider">${n.category || 'Global'}</span>
+                            <span>·</span>
+                            <span class="tabular-nums">${timeStr}</span>
                         </div>
-                        <p class="text-xs text-slate-600 dark:text-slate-400 font-medium leading-relaxed line-clamp-2">${n.message}</p>
+                        <h3 class="font-display font-bold text-xs text-slate-900 dark:text-white tracking-tight line-clamp-1 mb-0.5">${n.title}</h3>
+                        <p class="text-[11px] text-slate-600 dark:text-slate-400 font-medium leading-relaxed line-clamp-2">${n.message}</p>
                     </div>
                 `;
             });
@@ -3251,22 +3319,24 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/fireba
                 return;
             }
 
+            const demoFallbackThumb = "data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='640' height='360' viewBox='0 0 640 360'%3E%3Cdefs%3E%3ClinearGradient id='dg' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%23064e3b'/%3E%3Cstop offset='100%25' stop-color='%230f172a'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='640' height='360' fill='url(%23dg)'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-family='sans-serif' font-weight='800' font-size='22' fill='%2334d399'%3EFREE DEMO CLASS%3C/text%3E%3C/svg%3E";
             snapshot.forEach(child => {
                 const d = child.val();
                 const id = child.key;
                 list.innerHTML += `
-                    <div onclick="openDemo('${id}', '${d.playMode}', '${d.videoUrl}')" class="min-w-[260px] max-w-[260px] bg-white dark:bg-slate-900 rounded-2xl overflow-hidden border border-slate-200/80 dark:border-slate-800 shadow-soft flex flex-col hover:-translate-y-1 hover:shadow-elevated transition-all duration-300 active:scale-[0.98] cursor-pointer group">
+                    <div onclick="openDemo('${id}', '${d.playMode}', '${d.videoUrl}')" class="min-w-[260px] max-w-[260px] glass-card rounded-2xl overflow-hidden flex flex-col hover:-translate-y-1 hover:shadow-elevated transition-all duration-300 active:scale-[0.98] cursor-pointer group">
                         <div class="relative aspect-video overflow-hidden bg-slate-900">
-                            <img src="${d.thumbnail}" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105">
-                            <div class="absolute inset-0 bg-gradient-to-t from-slate-950/75 via-slate-950/20 to-transparent flex items-center justify-center">
-                                <div class="w-11 h-11 bg-white/95 text-blue-600 rounded-full flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+                            <img src="${d.thumbnail || demoFallbackThumb}" onerror="this.onerror=null;this.src='${demoFallbackThumb}';" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105">
+                            <div class="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-slate-950/20 to-transparent flex items-center justify-center">
+                                <div class="w-11 h-11 bg-white/95 text-emerald-600 rounded-full flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
                                     <i class="fa-solid fa-play ml-0.5 text-sm"></i>
                                 </div>
                             </div>
-                            <span class="absolute top-2.5 left-2.5 px-2 py-0.5 rounded-md bg-emerald-500 text-white text-[9px] font-extrabold uppercase tracking-wider shadow-sm">Free Demo</span>
+                            <span class="absolute top-2.5 left-2.5 px-2.5 py-0.5 rounded-md bg-emerald-500/95 backdrop-blur-md text-white text-[9px] font-extrabold uppercase tracking-wider shadow-sm">Free Demo</span>
                         </div>
                         <div class="p-3.5">
-                            <h3 class="font-extrabold text-xs sm:text-sm text-slate-900 dark:text-white line-clamp-1 leading-snug group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">${d.title}</h3>
+                            <div class="text-[10px] font-semibold text-emerald-600 dark:text-emerald-400 mb-0.5">Concept Preview · HD Video</div>
+                            <h3 class="font-display font-bold text-xs sm:text-sm text-slate-900 dark:text-white line-clamp-1 leading-snug group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">${d.title}</h3>
                             <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-1 line-clamp-1 font-medium">${d.description || 'Experience our classroom teaching methodology'}</p>
                         </div>
                     </div>
@@ -3422,22 +3492,24 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/fireba
             }
             section.classList.remove('hidden');
 
+            const upcomingFallbackThumb = "data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='640' height='360' viewBox='0 0 640 360'%3E%3Cdefs%3E%3ClinearGradient id='ug' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%231e1b4b'/%3E%3Cstop offset='100%25' stop-color='%23312e81'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='640' height='360' fill='url(%23ug)'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-family='sans-serif' font-weight='800' font-size='22' fill='%23fbbf24'%3ELAUNCHING SOON%3C/text%3E%3C/svg%3E";
             filtered.forEach(u => {
                 list.innerHTML += `
-                    <div class="min-w-[270px] max-w-[270px] bg-white dark:bg-slate-900 rounded-3xl overflow-hidden border border-slate-200/80 dark:border-slate-800 shadow-soft flex flex-col group cursor-pointer hover:-translate-y-1 hover:shadow-elevated transition-all duration-300 active:scale-[0.98]">
+                    <div class="min-w-[270px] max-w-[270px] glass-card rounded-3xl overflow-hidden flex flex-col group cursor-pointer hover:-translate-y-1 hover:shadow-elevated transition-all duration-300 active:scale-[0.98]">
                         <div class="relative aspect-[16/9] overflow-hidden bg-slate-900">
-                            <img src="${u.thumbnail || 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800'}" class="w-full h-full object-cover transition-transform group-hover:scale-105 duration-700">
+                            <img src="${u.thumbnail || upcomingFallbackThumb}" onerror="this.onerror=null;this.src='${upcomingFallbackThumb}';" class="w-full h-full object-cover transition-transform group-hover:scale-105 duration-700">
                             <div class="absolute inset-0 bg-gradient-to-t from-slate-950/85 via-slate-950/20 to-transparent"></div>
                             <div class="absolute top-3 left-3">
                                 <span class="px-2.5 py-1 rounded-lg bg-amber-500 text-white text-[9px] font-extrabold uppercase tracking-wider shadow-sm">Launching Soon</span>
                             </div>
                             <div class="absolute bottom-3 left-3.5 flex items-center gap-1.5 text-white">
                                 <i class="fa-regular fa-calendar text-amber-300 text-[10px]"></i>
-                                <span class="text-[11px] font-extrabold tracking-tight">${u.launchDate || 'Dates Announced Soon'}</span>
+                                <span class="text-[11px] font-bold tracking-tight tabular-nums">${u.launchDate || 'Dates Announced Soon'}</span>
                             </div>
                         </div>
                         <div class="p-4">
-                            <h3 class="font-extrabold text-sm text-slate-900 dark:text-white line-clamp-1 mb-1">${u.title}</h3>
+                            <div class="text-[10px] font-semibold text-amber-600 dark:text-amber-400 mb-0.5">${u.category || 'New Target Batch'} · Pre-Launch</div>
+                            <h3 class="font-display font-bold text-sm text-slate-900 dark:text-white line-clamp-1 mb-1">${u.title}</h3>
                             <p class="text-[11px] text-slate-500 dark:text-slate-400 line-clamp-2 leading-relaxed font-medium">${u.description || 'New foundation & target batch starting soon with expert educators.'}</p>
                         </div>
                     </div>`;
@@ -3963,11 +4035,12 @@ function renderLive() {
         function generateLiveCard(l, hasAccess) {
             const isScheduled = l.startTime && new Date(l.startTime) > new Date();
             const timeStr = isScheduled ? new Date(l.startTime).toLocaleString([], { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : '';
+            const liveFallbackThumb = "data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='640' height='360' viewBox='0 0 640 360'%3E%3Cdefs%3E%3ClinearGradient id='lg' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%230f172a'/%3E%3Cstop offset='50%25' stop-color='%231e1b4b'/%3E%3Cstop offset='100%25' stop-color='%2331102f'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='640' height='360' fill='url(%23lg)'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-family='sans-serif' font-weight='800' font-size='22' fill='%23f43f5e'%3ELIVE INTERACTIVE CLASS%3C/text%3E%3C/svg%3E";
             
             return `
-                <div onclick="openLive('${l.id}')" class="relative rounded-2xl overflow-hidden group transition-all active:scale-[0.98] shadow-soft hover:shadow-elevated border border-slate-200/80 dark:border-slate-800 hover:border-blue-300 dark:hover:border-blue-800 bg-white dark:bg-slate-900 cursor-pointer">
+                <div onclick="openLive('${l.id}')" class="relative rounded-2xl overflow-hidden group transition-all active:scale-[0.98] glass-card hover:shadow-elevated hover:border-blue-400/60 dark:hover:border-blue-500/50 cursor-pointer">
                     <div class="relative aspect-video overflow-hidden bg-slate-900">
-                        <img src="${l.thumbnail || 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800'}" class="w-full h-full object-cover transition-transform group-hover:scale-105 duration-700">
+                        <img src="${l.thumbnail || liveFallbackThumb}" onerror="this.onerror=null;this.src='${liveFallbackThumb}';" class="w-full h-full object-cover transition-transform group-hover:scale-105 duration-700">
                         <div class="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-900/20 to-transparent"></div>
                         
                         ${!hasAccess ? `
@@ -3987,7 +4060,7 @@ function renderLive() {
                         </div>
 
                         ${isScheduled ? `
-                            <div class="absolute top-3.5 right-3.5 bg-slate-900/85 backdrop-blur-md px-3 py-1 rounded-lg text-[10px] font-black tracking-wider text-white shadow-lg border border-white/15 flex items-center gap-1.5 z-10 font-mono">
+                            <div class="absolute top-3.5 right-3.5 bg-slate-900/85 backdrop-blur-md px-3 py-1 rounded-lg text-[10px] font-black tracking-wider text-white shadow-lg border border-white/15 flex items-center gap-1.5 z-10 tabular-nums">
                                 <i class="fa-solid fa-clock text-blue-400 text-[9px]"></i>
                                 <span class="live-countdown" data-time="${l.startTime}">00:00:00</span>
                             </div>
@@ -3997,19 +4070,19 @@ function renderLive() {
                             <span class="px-2.5 py-1 bg-white/15 backdrop-blur-md text-white border border-white/15 rounded-md text-[9px] font-extrabold uppercase tracking-wider">
                                 <i class="fa-solid fa-book-open text-[8px] mr-1 text-blue-300"></i> ${l.subject || l.category || 'General'}
                             </span>
-                            ${timeStr ? `<span class="text-[9px] font-bold text-slate-200 bg-slate-900/70 px-2 py-0.5 rounded">${timeStr}</span>` : ''}
+                            ${timeStr ? `<span class="text-[9px] font-bold text-slate-200 bg-slate-900/70 px-2 py-0.5 rounded tabular-nums">${timeStr}</span>` : ''}
                         </div>
                     </div>
 
-                    <div class="p-4 bg-white dark:bg-slate-900">
-                        <div class="flex items-center gap-1.5 mb-1.5 flex-wrap">
-                            ${l.category && l.category !== l.subject ? `<span class="text-[9px] font-extrabold text-blue-600 dark:text-blue-400 uppercase tracking-wider">${l.category}</span>` : ''}
-                            ${l.courseName ? `<span class="text-[9px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">• ${l.courseName}</span>` : ''}
+                    <div class="p-4">
+                        <div class="flex items-center gap-1.5 text-[10px] font-semibold text-slate-500 dark:text-slate-400 mb-1 flex-wrap">
+                            ${l.category ? `<span class="text-blue-600 dark:text-blue-400 font-bold">${l.category}</span>` : '<span>Live Session</span>'}
+                            ${l.courseName ? `<span>·</span><span>${l.courseName}</span>` : ''}
                         </div>
-                        <h3 class="text-base font-extrabold tracking-tight leading-snug text-slate-900 dark:text-white mb-1.5 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors line-clamp-2">${l.title}</h3>
+                        <h3 class="font-display text-base font-bold tracking-tight leading-snug text-slate-900 dark:text-white mb-1.5 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors line-clamp-2">${l.title}</h3>
                         <p class="text-[11px] text-slate-500 dark:text-slate-400 font-medium leading-relaxed mb-4 line-clamp-2">${l.description || 'Interactive live classroom session with real-time doubt solving & concept mastery.'}</p>
                         
-                        <div class="flex items-center justify-between pt-3 border-t border-slate-100 dark:border-slate-800/80">
+                        <div class="flex items-center justify-between pt-3 border-t border-slate-200/60 dark:border-slate-800/80">
                             <div class="flex items-center gap-2.5">
                                 <div class="w-8 h-8 bg-blue-50 dark:bg-slate-800 rounded-xl flex items-center justify-center overflow-hidden border border-blue-100 dark:border-slate-700 text-blue-600 dark:text-blue-400 text-xs font-black">
                                     <i class="fa-solid fa-chalkboard-user"></i>
@@ -5978,7 +6051,7 @@ function showToast(msg) {
             const countText = document.getElementById('streakCountText');
             const daysContainer = document.getElementById('streakDaysContainer');
             
-            if(countText) countText.innerText = `${streak} Day Streak!`;
+            if(countText) countText.innerText = `${streak} Day Streak`;
             
             if(daysContainer) {
                 daysContainer.innerHTML = '';
@@ -5987,12 +6060,16 @@ function showToast(msg) {
                     const isCompleted = i <= currentWeekStreak;
                     const isToday = i === currentWeekStreak;
                     
-                    let bg = isCompleted ? 'bg-white text-orange-500' : 'bg-orange-600/50 text-orange-200 border border-orange-400/30';
-                    let scale = isToday ? 'scale-110 shadow-md' : 'scale-100';
-                    let icon = isCompleted ? '<i class="fa-solid fa-check text-[8px]"></i>' : `<span class="text-[8px] font-bold">${i}</span>`;
+                    let bg = isCompleted
+                        ? 'bg-emerald-500 text-white shadow-sm shadow-emerald-500/30 border border-emerald-400/50'
+                        : 'bg-white/10 text-slate-400 border border-white/10';
+                    let scale = isToday ? 'ring-2 ring-amber-400/80 scale-105' : 'scale-100';
+                    let icon = isCompleted
+                        ? '<i class="fa-solid fa-check text-[9px]"></i>'
+                        : `<span class="text-[9px] font-bold tabular-nums">D${i}</span>`;
                     
                     daysContainer.innerHTML += `
-                        <div class="w-6 h-6 rounded-full flex items-center justify-center ${bg} ${scale} transition-all">
+                        <div class="w-7 h-7 rounded-lg flex items-center justify-center ${bg} ${scale} transition-all">
                             ${icon}
                         </div>
                     `;
