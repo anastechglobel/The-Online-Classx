@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://asuclasses.in/sitemap.xml

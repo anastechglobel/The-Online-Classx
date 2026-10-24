@@ -1,0 +1,139 @@
+================================================================================
+          LMS SUBJECT MANAGEMENT SYSTEM MASTER PROMPT (ADVANCE EDITION)
+        (Admin Portal Creator + Category Linkage + Android App Filter)
+================================================================================
+
+Act as a Principal Full-Stack Engineer and Android LMS Architect.
+
+I want to build a 100% dynamic, production-grade Subject Management System for an Educational LMS (App + Web Admin Panel).
+
+All academic subjects (e.g., "Physics", "Chemistry", "Mathematics", "Biology", "History", "Polity", "English", "Reasoning") must be created, edited, categorized, re-ordered, and deleted exclusively from `admin.html`. 
+These subjects must automatically populate all admin creation modals (Courses, Tests, Notes, Live Classes) and drive student-side chapter & topic filtering in the Android App in real-time.
+
+---
+
+### 🛠️ TECH STACK & ARCHITECTURE:
+- Frontend: HTML5, Tailwind CSS, FontAwesome 6 Icons
+- Database: Firebase Realtime Database (`/subjects/{subjectId}`)
+- Real-time Sync: Modular Firebase SDK (`onValue`, `push`, `update`, `remove`)
+- Target Clients: Web Admin Panel (`admin.html`) + Android App (Kotlin / Jetpack Compose)
+
+---
+
+### 📦 1. DATABASE SCHEMA (`subjects/{subjectId}`):
+Each subject record stored in Firebase Realtime Database must follow this rich schema:
+```json
+{
+  "id": "-Nsub_phys_9921",
+  "name": "Physics",
+  "hindiName": "भौतिक विज्ञान",
+  "slug": "physics",
+  "category": "Class 12th PCM",
+  "applicableCategories": ["Class 11th PCM", "Class 12th PCM", "NEET", "JEE"],
+  "icon": "fa-solid fa-atom",
+  "color": "from-blue-600 to-indigo-600",
+  "thumbnail": "https://example.com/physics_vector_banner.png",
+  "orderIndex": 1,
+  "status": "active",
+  "totalChapters": 15,
+  "totalNotes": 28,
+  "totalTests": 14,
+  "createdAt": 1725500000000,
+  "updatedAt": 1725500000000
+}
+```
+
+---
+
+### 🖥️ 2. ADMIN PANEL IMPLEMENTATION (`admin.html`):
+
+#### A. Subject Management Tab UI (`#tab-subjects`):
+1. **Header Section:**
+   - Title: "Manage Subjects"
+   - Subtitle: "Create and organize subjects across courses, notes, and tests"
+   - Badge: Dynamic counter showing total registered subjects.
+   - Primary Action Button: `+ Add Subject` (opens `#subjectModal`).
+   - Quick Filter Bar: Dropdown to filter subjects by Category (e.g., "All Categories", "Class 10th", "NEET").
+
+2. **Subjects Table & Card Grid:**
+   - Clean, modern layout showing:
+     - Color-coded Subject Avatar / Icon Badge (e.g., atom icon with blue gradient).
+     - Subject Name (English + Optional Hindi/Regional name).
+     - Linked Category / Applicable Classes badge.
+     - Live Resource Badges: Number of linked Notes (PDFs), Tests (MCQs), and Course Chapters.
+     - Status Indicator: Active (Green pill) vs Inactive (Gray pill).
+     - Action Buttons: `Edit (pen icon)` and `Delete (trash icon with confirmation dialog)`.
+
+#### B. Advanced Subject Creation & Edit Modal (`#subjectModal`):
+A clean, responsive popup modal containing:
+1. **Subject Name (English):**
+   - Text input (e.g., `Physics`, `Chemistry`, `General Knowledge`).
+2. **Subject Name (Hindi / Regional - Optional):**
+   - Text input (e.g., `भौतिक विज्ञान`).
+3. **Primary Category Linkage:**
+   - Dropdown dynamically populated from Firebase `/categories` (or "Global / All Categories").
+4. **Visual Branding (Icon & Accent Color):**
+   - FontAwesome Icon class input or preset buttons:
+     - ⚛️ Physics (`fa-solid fa-atom`)
+     - 🧪 Chemistry (`fa-solid fa-flask-vial`)
+     - 📐 Mathematics (`fa-solid fa-calculator`)
+     - 🧬 Biology (`fa-solid fa-dna`)
+     - 🌍 History / Geo (`fa-solid fa-earth-americas`)
+     - 💻 Computer (`fa-solid fa-laptop-code`)
+   - Accent Gradient Selector: Presets (`Blue-Indigo`, `Emerald-Teal`, `Amber-Orange`, `Rose-Red`, `Purple-Violet`).
+5. **Thumbnail / Illustration Image URL:**
+   - Input for Image URL + live image preview container with fallback avatar.
+6. **Display Order Index:**
+   - Number input (e.g., `1`, `2`, `3`) to prioritize sorting order in the Android app.
+7. **Action Buttons:**
+   - "Save Subject" primary gradient button (handles both `create` via `fb.push` and `update` via `fb.update`).
+   - "Cancel" button.
+
+#### C. Auto-Population in All Other Admin Modals:
+- When a new subject is added, all subject dropdowns across the Admin panel MUST immediately re-render in real-time:
+  - Course Creation Modal (`#cSubject`)
+  - PDF Notes Modal (`#nSubject`)
+  - Test Creation Modal (`#tSubject`, `#advTSubject`)
+  - Question Creator Modal (`#qSubject`)
+  - Live Classes Modal (`#lSubject`)
+- Implement category-aware auto-filtering: If a user selects "Class 10" in the Course modal, only subjects tagged with "Class 10" or "All" are displayed in the Subject dropdown.
+
+---
+
+### 📱 3. ANDROID CLIENT APP INTEGRATION (Kotlin / Jetpack Compose / XML):
+
+1. **Subject Exploration Grid (Home / Course / Study Material Screen):**
+   - Fetch `/subjects` ordered by `orderIndex`.
+   - Display a responsive 2-column or 3-column bento grid of Subject Cards:
+     - Gradient background matching `subject.color`.
+     - Subject vector icon + Title (English + Hindi).
+     - Sub-text showing content count (e.g., "12 Chapters • 30 Notes").
+2. **Subject Details Screen (Deep-Dive View):**
+   - When a student taps "Physics":
+     - Opens `SubjectDetailActivity` / Composable.
+     - Top App Bar with Subject Title and gradient header.
+     - 3 Main Tabs:
+       - 📑 **Tab 1: PDF Notes:** Displays all notes where `note.subject == "Physics"`.
+       - 📝 **Tab 2: Mock Tests:** Displays all test series where `test.subject == "Physics"`.
+       - 🎥 **Tab 3: Video Lectures:** Displays course chapters/lectures dedicated to Physics.
+3. **Category-Subject Reactive Sync:**
+   - If student has selected "Class 12th" at the top category bar, the Subject list automatically filters to only show Class 12th subjects.
+
+---
+
+### ⚙️ 4. REQUIRED DELIVERABLES:
+1. **HTML & Tailwind CSS:**
+   - Full markup for `#tab-subjects` and `#subjectModal` for `admin.html`.
+2. **JavaScript Functions (Firebase v9/v10 Modular):**
+   - `showSubjectModal()`
+   - `editSubject(subjectId)`
+   - `saveSubject()`
+   - `deleteSubject(subjectId)`
+   - `renderAdminSubjects()`
+   - `rebuildAllSubjectSelects(activeCategoryId)`
+3. **Android Kotlin Data Model:**
+   - `Subject.kt` data class with Parcelable and Firebase Deserializer.
+4. **Android Jetpack Compose UI:**
+   - `SubjectCard` composable with gradient styling and ripple click effect.
+   - `SubjectScreen` with Tabs for Notes, Tests, and Videos.
+================================================================================

@@ -1,0 +1,142 @@
+================================================================================
+          LMS FREE DEMO CLASSES SYSTEM MASTER PROMPT
+  (Admin Demo Manager + Android Home Feed + In-App Video Player & Redirect)
+================================================================================
+
+Act as a Principal Full-Stack Engineer and Android LMS Architect.
+
+I want to build a complete "Free Demo Classes / Sample Lectures" system for an Educational LMS (Android App + Web Admin Panel).
+
+Admins should be able to manage free demo video lectures from `admin.html` by providing a title, description, thumbnail, video URL (YouTube video or ID), and selecting a playback mode (`In-App` vs `Redirect`).
+The Android App must display these demo lectures on the Home screen in a horizontal carousel, as well as in a dedicated "Free Demos" screen. When a student taps a demo class, the app should either seamlessly play the video inside the app using an embedded video player or redirect them to the YouTube app based on the Admin's configuration.
+
+---
+
+### 🛠️ TECH STACK & ARCHITECTURE:
+- Frontend Web Admin: HTML5, Tailwind CSS, FontAwesome 6 Icons
+- Database: Firebase Realtime Database (`/demo/{demoId}`)
+- Real-time Sync: Modular Firebase SDK (`onValue`, `push`, `set`, `remove`)
+- Target Android Client: Kotlin, Jetpack Compose or XML Views
+- Video Playback: Android YouTube Player library (`com.pierfrancescosoffritti.androidyoutubeplayer:core`) or ExoPlayer / WebView Embed
+- Architecture: MVVM (Model-View-ViewModel with StateFlow).
+
+---
+
+### 📦 1. DATABASE SCHEMA (`demo/{demoId}`):
+Each demo class record stored in Firebase Realtime Database must follow this schema:
+```json
+{
+  "id": "-Ndemo_physics_kinematics",
+  "title": "Kinematics 1D - Free Demo Lecture",
+  "description": "Master the basics of motion, velocity, and acceleration with live problem solving.",
+  "thumbnail": "https://storage.example.com/thumbnails/demo_kinematics.jpg",
+  "videoUrl": "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+  "playMode": "In-App",
+  "createdAt": 1725500000000,
+  "updatedAt": 1725500000000
+}
+```
+
+*Playback Modes (`playMode`):*
+- `"In-App"`: The video plays directly inside the Android application without forcing the student to leave.
+- `"Redirect"`: The app launches an external intent to open the lecture inside the official YouTube app or Web Browser.
+
+---
+
+### 🖥️ 2. ADMIN PANEL IMPLEMENTATION (`admin.html`):
+
+#### A. Demo Classes Management UI (`#tab-demo`):
+1. **Header Section:**
+   - Title: "Free Demo Classes"
+   - Subtitle: "Publish free sample lectures to convert visitors into enrolled students"
+   - Primary Action Button: `+ Add Demo Class` (opens `#demoModal`).
+2. **Demo Grid / Cards:**
+   - Thumbnail with 16:9 aspect ratio and play icon overlay.
+   - Title & brief description.
+   - Badge for Playback Mode: `In-App Player` (Green badge) vs `YouTube Redirect` (Red badge).
+   - Action Buttons: `Edit` (opens modal with prepopulated data) and `Delete` (with confirmation alert).
+
+#### B. Add/Edit Demo Modal (`#demoModal`):
+A clean popup modal containing:
+1. **Hidden ID Input:** `<input type="hidden" id="demoId">`
+2. **Class Title Input:** `<input type="text" id="dTitle" placeholder="Demo Class Title">` (Required)
+3. **Description Textarea:** `<textarea id="dDesc" placeholder="Key concepts covered...">` (Optional)
+4. **Thumbnail Image URL:** `<input type="text" id="dThumb" placeholder="Thumbnail URL">` (Required)
+5. **Video URL or ID:** `<input type="text" id="dVideo" placeholder="YouTube Video URL or 11-char Video ID">` (Required)
+6. **Playback Mode Dropdown:**
+   ```html
+   <select id="dPlayMode">
+       <option value="In-App">Play In-App (Embedded Player)</option>
+       <option value="Redirect">Open in YouTube App (Redirect)</option>
+   </select>
+   ```
+7. **Action Buttons:**
+   - "Save Demo Class" button invoking `saveDemo()` (validates fields and calls `fb.push` or `fb.set`).
+   - "Cancel" button to dismiss the modal.
+
+---
+
+### 📱 3. ANDROID CLIENT APP INTEGRATION (Kotlin & Jetpack Compose):
+
+#### A. Home Screen Section (`DemoClassesSection.kt`):
+1. **Header Row:**
+   - Section Title: "🎬 Free Demo Lectures"
+   - "View All" text button navigating to full demo lectures grid.
+2. **Horizontal Scrolling Carousel (LazyRow):**
+   - Renders `DemoClassCard` composables.
+3. **`DemoClassCard` UI Design:**
+   - Fixed width (e.g. `240.dp`) and 16:9 aspect ratio.
+   - Thumbnail banner rendered using Coil's `AsyncImage`.
+   - Centered frosted-glass circular play button icon (`Icons.Default.PlayArrow`).
+   - Title (bold, max 1 line with ellipsis).
+   - Subtitle/Description (small muted text, max 2 lines).
+   - "Free Lecture" pill tag in corner.
+
+#### B. Video Playback & Routing Architecture (`DemoPlayerActivity.kt` / `DemoPlayerScreen.kt`):
+When a user clicks on a `DemoClassCard`:
+1. **Extract Video ID Helper:**
+   Create a regex helper function `extractYoutubeVideoId(url: String): String?` to support formats:
+   - `https://youtu.be/<ID>`
+   - `https://www.youtube.com/watch?v=<ID>`
+   - `https://www.youtube.com/embed/<ID>`
+   - `https://www.youtube.com/shorts/<ID>`
+   - Raw 11-character string.
+
+2. **Branching based on `demo.playMode`:**
+   - **Case 1: `demo.playMode == "Redirect"`**:
+     ```kotlin
+     val intent = Intent(Intent.ACTION_VIEW, Uri.parse(demo.videoUrl)).apply {
+         // Attempt to open directly in YouTube app if installed
+         setPackage("com.google.android.youtube")
+     }
+     try {
+         context.startActivity(intent)
+     } catch (e: ActivityNotFoundException) {
+         // Fallback to default browser
+         context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(demo.videoUrl)))
+     }
+     ```
+   - **Case 2: `demo.playMode == "In-App"`**:
+     - Navigate to `DemoPlayerScreen(demoId = demo.id)`.
+     - In `DemoPlayerScreen`:
+       - Embed `AndroidView` holding `YouTubePlayerView` from `com.pierfrancescosoffritti.androidyoutubeplayer:core:12.1.0`.
+       - Automatically cue or play the extracted video ID.
+       - Display lecture title, full description, and faculty details below the video player.
+       - Include a "Join Full Batch" / "Explore Courses" call-to-action button to drive course conversions.
+
+#### C. Dedicated "All Demo Classes" Screen (`DemoListScreen.kt`):
+- 2-column Grid (LazyVerticalGrid) or vertical scroll list of all available demo lectures fetched from Firebase node `/demo`.
+- Includes pull-to-refresh and empty-state placeholders.
+
+---
+
+### ⚙️ 4. REQUIRED DELIVERABLES:
+1. **Web Admin Panel Code (`admin.html`):**
+   - Complete markup for `#demoModal` and `#tab-demo`.
+   - JavaScript CRUD methods: `showDemoModal()`, `editDemo(id)`, `saveDemo()`, `deleteItem('demo', id)`.
+2. **Android Kotlin Implementation:**
+   - `DemoClass.kt` data model.
+   - `DemoViewModel.kt` listening to Firebase Realtime Database reference `/demo` via Coroutines/Flow.
+   - `DemoClassCard.kt` Jetpack Compose card component.
+   - `DemoPlayerScreen.kt` featuring the in-app player integration and fallback redirect logic.
+================================================================================

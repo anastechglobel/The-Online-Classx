@@ -1,0 +1,114 @@
+================================================================================
+          LMS UPCOMING COURSE LAUNCH SYSTEM MASTER PROMPT
+   (Admin Launch Studio + Android Home Screen Integration + Countdown)
+================================================================================
+
+Act as a Principal Full-Stack Engineer and Android LMS Architect.
+
+I want to build a "Coming Soon / Upcoming Courses" teaser system for an Educational LMS (Android App + Web Admin Panel).
+
+Admins should be able to announce new batches or courses before they actually start. They can add a title, description, cover image, launch date text, and an exact countdown time from the `admin.html` panel. 
+The Android App must display these upcoming courses on the Home screen as visually appealing horizontal scroll cards. When clicked, it should open a detailed "Pre-Launch Info" Bottom Sheet or Screen with a live ticking countdown timer.
+
+---
+
+### 🛠️ TECH STACK & ARCHITECTURE:
+- Frontend Web Admin: HTML5, Tailwind CSS, FontAwesome 6 Icons
+- Database: Firebase Realtime Database (`/upcoming_courses/{upcomingId}`)
+- Real-time Sync: Modular Firebase SDK (`onValue`, `push`, `update`, `remove`)
+- Target Android Client: Kotlin, Jetpack Compose / XML View
+- Architecture: MVVM with Coroutines/Flow for live countdown timer ticking.
+
+---
+
+### 📦 1. DATABASE SCHEMA (`upcoming_courses/{upcomingId}`):
+Each upcoming course record stored in Firebase Realtime Database must follow this schema:
+```json
+{
+  "id": "-Nupcoming_batch_01",
+  "title": "Droppers Batch 2026 - NEET Target",
+  "description": "Complete year-long batch for NEET 2026 aspirants with top faculty.",
+  "thumbnail": "https://storage.example.com/thumbnails/droppers_batch.png",
+  "category": "NEET",
+  "subject": "General",
+  "launchDate": "15th Aug",
+  "launchTime": "2024-08-15T10:00",
+  "type": "Paid",
+  "price": 2999,
+  "instructor": "Dr. Ramesh Sir",
+  "status": "published",
+  "createdAt": 1725500000000,
+  "updatedAt": 1725500000000
+}
+```
+
+---
+
+### 🖥️ 2. ADMIN PANEL IMPLEMENTATION (`admin.html`):
+
+#### A. Upcoming Courses Tab UI (`#tab-upcoming`):
+1. **Header Section:**
+   - Title: "Upcoming Courses & Batches"
+   - Subtitle: "Tease new batches, set launch dates, and build anticipation"
+   - Primary Action Button: `+ Add Upcoming Course` (opens `#upcomingModal`).
+2. **Courses Table/Grid:**
+   - Layout showing Thumbnail, Title, Category, and the specific `launchDate` text.
+   - Status badge (Published / Draft).
+   - Action Buttons: `Edit` and `Delete`.
+
+#### B. Upcoming Course Modal (`#upcomingModal`):
+A clean popup modal containing:
+1. **Basic Details:**
+   - Course Title & Description inputs.
+   - Category Selector (Linked to `/categories`).
+2. **Visuals:**
+   - Thumbnail Image URL input.
+3. **Launch & Timing Specs:**
+   - Launch Date Text (e.g., `15th Aug` - for quick display).
+   - Countdown Date/Time (HTML `<input type="datetime-local">` to drive the actual timer).
+4. **Commercial Details:**
+   - Course Access Type: `Free` vs `Paid`.
+   - Price Input (if Paid).
+   - Instructor Name.
+5. **Publish Status:**
+   - `Published (Visible to Students)` vs `Unpublished (Hidden / Draft)`.
+6. **Action Buttons:**
+   - "Save Course" primary button (handles both `create` and `update`).
+
+---
+
+### 📱 3. ANDROID CLIENT APP INTEGRATION (Kotlin & Jetpack Compose):
+
+#### A. Home Screen Integration (`HomeScreen.kt`):
+1. **Horizontal "Coming Soon" Section:**
+   - Section Title: "🚀 Upcoming Batches"
+   - Horizontal scrolling list (LazyRow) of `UpcomingCourseCard` composables.
+2. **`UpcomingCourseCard` UI:**
+   - Hero Thumbnail with a gradient overlay.
+   - "Coming Soon" badge and `launchDate` text (e.g., "15th Aug") layered over the image.
+   - Course title and brief description below the image.
+   - Click listener to open `UpcomingCourseDetailsScreen` or a Bottom Sheet.
+
+#### B. Pre-Launch Details & Countdown Screen (`UpcomingDetailsBottomSheet`):
+- A visually rich Bottom Sheet or full screen providing hype and details.
+- Header Image with gradient.
+- **Live Countdown Timer:**
+  - Uses Kotlin Coroutines `tickerFlow` or `CountDownTimer`.
+  - Calculates difference between current time and `launchTime` (`2024-08-15T10:00`).
+  - Displays as visual blocks: `[12 Days] : [04 Hrs] : [34 Mins] : [10 Secs]`.
+  - If the timer hits zero, displays a "Live Now! Go to Courses" button.
+- **Details Section:**
+  - Price details, Instructor Name, and Description.
+  - "Notify Me" or "Add to Wishlist" button (Optional local Room DB or FCM topic subscription).
+
+---
+
+### ⚙️ 4. REQUIRED DELIVERABLES:
+1. **Web Admin Code (`admin.html`):**
+   - HTML markup for `#upcomingModal` and `#tab-upcoming`.
+   - JS handlers: `showUpcomingModal()`, `saveUpcoming()`, `editUpcoming()`, `deleteUpcoming()`.
+2. **Android Kotlin Implementation:**
+   - `UpcomingCourse.kt` data class.
+   - `HomeScreen.kt` LazyRow UI for upcoming batches.
+   - `UpcomingDetailsBottomSheet` Jetpack Compose layout featuring the live ticking countdown timer logic.
+================================================================================

@@ -1,0 +1,15 @@
+    <!-- Quote of the Day Modal -->
+    <div id="quoteModal" class="fixed inset-0 bg-slate-900/90 backdrop-blur-sm z-[2000] hidden flex flex-col justify-center items-center p-4 sm:p-8">
+        <div class="bg-gradient-to-br from-orange-400 to-rose-500 w-full max-w-sm rounded-[32px] overflow-hidden shadow-2xl border border-rose-400 flex flex-col relative p-8">
+            <button onclick="closeQuoteModal()" class="absolute top-4 right-4 w-8 h-8 flex items-center justify-center rounded-full bg-white/20 text-white hover:bg-white/30 transition-colors">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            <div class="text-white/30 text-5xl mb-4">
+                <i class="fa-solid fa-quote-left"></i>
+            </div>
+            <h3 class="text-white text-2xl font-black tracking-tight leading-tight mb-6" id="dailyQuoteText">"The expert in anything was once a beginner."</h3>
+            <p class="text-rose-100 font-bold tracking-widest uppercase text-[10px] text-right" id="dailyQuoteAuthor">- Helen Hayes</p>
+            
+            <button onclick="closeQuoteModal()" class="mt-10 bg-white text-rose-600 py-4 rounded-2xl font-black uppercase tracking-widest text-xs hover:bg-rose-50 transition-colors shadow-xl w-full active:scale-95">Stay Focused</button>
+        </div>
+    </div>

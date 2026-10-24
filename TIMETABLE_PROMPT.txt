@@ -1,0 +1,87 @@
+================================================================================
+          LMS DAILY TIMETABLE & SCHEDULE SYSTEM MASTER PROMPT
+   (Admin Image/Date Manager + Android Filterable Schedule Viewer)
+================================================================================
+
+Act as a Principal Full-Stack Engineer and Android LMS Architect.
+
+I want to build a "Daily Timetable & Class Schedule" system for an Educational LMS (Android App + Web Admin Panel).
+
+Admins should be able to upload a timetable image (a banner with the day's class schedule), attach a specific Date, Title, and an optional Contact Number from the `admin.html` panel. 
+The Android App must display a scrollable vertical feed of these timetables. It must include a Date Picker to filter schedules, display the images in a clean card layout, and have a direct "Call to Action" dialer button if a contact number is provided.
+
+---
+
+### 🛠️ TECH STACK & ARCHITECTURE:
+- Frontend Web Admin: HTML5, Tailwind CSS, FontAwesome 6 Icons
+- Database: Firebase Realtime Database (`/timetables/{timetableId}`)
+- Real-time Sync: Modular Firebase SDK (`onValue`, `push`, `update`, `remove`)
+- Target Android Client: Kotlin, Jetpack Compose / XML View
+- Architecture: MVVM (Model-View-ViewModel).
+
+---
+
+### 📦 1. DATABASE SCHEMA (`timetables/{timetableId}`):
+Each timetable record stored in Firebase Realtime Database must follow this simple but robust schema:
+```json
+{
+  "id": "-Ntimetable_aug15",
+  "title": "Dropper Batch & 11th Foundation Schedule",
+  "imageUrl": "https://storage.example.com/timetables/tt_aug15.jpg",
+  "contact": "+919876543210",
+  "date": "2026-08-15",
+  "createdAt": 1725500000000,
+  "updatedAt": 1725500000000
+}
+```
+
+---
+
+### 🖥️ 2. ADMIN PANEL IMPLEMENTATION (`admin.html`):
+
+#### A. Timetable Tab UI (`#tab-timetable`):
+1. **Header Section:**
+   - Title: "Time Tables"
+   - Subtitle: "Manage Class Schedules"
+   - Primary Action Button: `+ Add Time Table` (opens `#timetableModal`).
+2. **Timetables Table/Grid:**
+   - Columns: Image Thumbnail, Title, Contact, Date, Actions.
+   - Action Buttons: `Edit (pen icon)` and `Delete (trash icon)`.
+
+#### B. Add/Edit Timetable Modal (`#timetableModal`):
+A clean popup modal containing:
+1. **Title Input** (Optional, e.g., "Class Schedule").
+2. **Image URL Input** (Required, the actual schedule image banner).
+3. **Contact Number Input** (Optional phone number for students to call for doubts).
+4. **Date Picker Input** (`<input type="date">` - Required, dictates which day the schedule applies to).
+5. **Action Buttons:**
+   - "Save Time Table" (handles both `create` via `fb.push` and `update` via Firebase set/update).
+
+---
+
+### 📱 3. ANDROID CLIENT APP INTEGRATION (Kotlin & Jetpack Compose):
+
+#### A. Timetable Feed Screen UI (`TimetableScreen.kt`):
+1. **Global Date Filter Bar:**
+   - A row at the top featuring a visual Date Picker calendar icon.
+   - Users can tap to select a specific date (e.g., filter `date == '2026-08-15'`).
+   - If no date is selected, it shows all timetables sorted by most recent (`date` descending).
+2. **Timetable Card Component (`TimetableCard.kt`):**
+   - A large, visually appealing card featuring:
+     - **Hero Image:** Full-width `AsyncImage` (Coil library) showing `imageUrl` with rounded corners.
+     - **Title:** Bold header text (`title`).
+     - **Formatted Date:** Parse "2026-08-15" and display as "Sat, 15 Aug 2026" in a colored uppercase tracking pill.
+     - **Contact Phone Number:** A small text layout with a phone icon.
+     - **Call Action Button:** A distinct floating or anchored button (e.g., circular blue FAB-style button) that fires an `Intent.ACTION_DIAL` when clicked.
+
+---
+
+### ⚙️ 4. REQUIRED DELIVERABLES:
+1. **Web Admin Code (`admin.html`):**
+   - HTML markup for `#timetableModal` and `#tab-timetable`.
+   - JS handlers: `showTimetableModal()`, `saveTimetable()`, `editTimetable()`, `deleteItem()`.
+2. **Android Kotlin Implementation:**
+   - `Timetable.kt` data class.
+   - `TimetableViewModel.kt` to load data from Firebase and handle the active date filter state.
+   - `TimetableScreen.kt` Jetpack Compose layout to render the vertical scroll list and handle the `tel:` intent.
+================================================================================

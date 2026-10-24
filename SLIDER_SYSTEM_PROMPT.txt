@@ -1,0 +1,98 @@
+================================================================================
+          LMS HOME SLIDER & BANNER SYSTEM MASTER PROMPT
+   (Admin Banner Manager + Android Interactive Auto-Scrolling Pager)
+================================================================================
+
+Act as a Principal Full-Stack Engineer and Android LMS Architect.
+
+I want to build a "Dynamic Home Slider & Banner" system for an Educational LMS (Android App + Web Admin Panel).
+
+Admins should be able to upload promotional banners from `admin.html` and define "Click Actions" for them. A banner can either do nothing on click (Image Only), open a specific Course, open a PDF Note, open a Test Series, or open an external YouTube link.
+The Android App must display these banners on the Home screen as a high-quality auto-scrolling image carousel. When a user taps a banner, it should natively route them to the correct screen inside the app or open the external link based on the Admin's configuration.
+
+---
+
+### 🛠️ TECH STACK & ARCHITECTURE:
+- Frontend Web Admin: HTML5, Tailwind CSS, FontAwesome 6 Icons
+- Database: Firebase Realtime Database (`/sliders/{sliderId}`)
+- Real-time Sync: Modular Firebase SDK (`onValue`, `push`, `update`, `remove`)
+- Target Android Client: Kotlin, Jetpack Compose (`HorizontalPager`) or XML `ViewPager2`
+- Architecture: MVVM (Model-View-ViewModel).
+
+---
+
+### 📦 1. DATABASE SCHEMA (`sliders/{sliderId}`):
+Each banner record stored in Firebase Realtime Database must follow this schema:
+```json
+{
+  "id": "-Nslider_diwali_sale",
+  "url": "https://storage.example.com/banners/diwali_offer.jpg",
+  "action": "course",
+  "target": "-Ncourse_jee_01",
+  "createdAt": 1725500000000,
+  "updatedAt": 1725500000000
+}
+```
+*Note on Actions:*
+- `action`: Can be `"none"`, `"course"`, `"note"`, `"test"`, or `"youtube"`.
+- `target`: Holds the corresponding `courseId`, `noteId`, `testId`, or full YouTube URL.
+
+---
+
+### 🖥️ 2. ADMIN PANEL IMPLEMENTATION (`admin.html`):
+
+#### A. Banner Management UI:
+1. **Banner List/Grid:**
+   - Display existing banners as thumbnail images.
+   - Show badge indicating the mapped action (e.g., "Linked to Course", "YouTube Link").
+   - Action Buttons: `Edit` and `Delete`.
+
+#### B. Add/Edit Slider Modal (`#sliderModal`):
+A clean popup modal containing:
+1. **Banner Image URL Input** (Required).
+2. **Banner Click Action Dropdown:**
+   - `<option value="none">No Action (Image Only)</option>`
+   - `<option value="course">Open Course</option>`
+   - `<option value="note">Open PDF Note</option>`
+   - `<option value="test">Open Test Series</option>`
+   - `<option value="youtube">External YouTube Link</option>`
+3. **Dynamic Target Selector:**
+   - If `course`, `note`, or `test` is selected: Show a `<select>` dropdown populated with existing items from Firebase.
+   - If `youtube` is selected: Show a text `<input>` for the video URL.
+   - If `none`: Hide target selector entirely.
+4. **Action Buttons:**
+   - "Save Banner" (handles `push` or `update` to `/sliders`).
+
+---
+
+### 📱 3. ANDROID CLIENT APP INTEGRATION (Kotlin & Jetpack Compose):
+
+#### A. Home Screen Carousel UI (`HomeBannerSlider.kt`):
+1. **Horizontal Pager Integration:**
+   - Use Compose `HorizontalPager` (or `ViewPager2` with CircleIndicator).
+   - Display `AsyncImage` (Coil) filling the width with a standard aspect ratio (e.g., 16:9 or 21:9).
+   - Rounded corners and subtle shadows for a premium look.
+2. **Auto-Scroll Logic:**
+   - Implement a `LaunchedEffect` loop with `delay(3000L)` that automatically scrolls to the next page, and loops back to 0 when it reaches the end.
+3. **Dot Indicator:**
+   - A row of small dots underneath or layered over the bottom-center of the banner to show the current active page.
+
+#### B. Action Routing Logic (Click Handler):
+When the user clicks the banner, evaluate the `action` and `target` variables:
+- `action == "none"`: Do nothing.
+- `action == "course"`: Navigate to `CourseDetailsScreen(courseId = target)`.
+- `action == "note"`: Navigate to `PdfViewerScreen(noteId = target)`.
+- `action == "test"`: Navigate to `TestInstructionsScreen(testId = target)`.
+- `action == "youtube"`: Trigger `Intent.ACTION_VIEW` with the parsed YouTube URL (`Uri.parse(target)`).
+
+---
+
+### ⚙️ 4. REQUIRED DELIVERABLES:
+1. **Web Admin Code (`admin.html`):**
+   - HTML markup for `#sliderModal`.
+   - JS handlers: `showSliderModal()`, `toggleSliderTarget()` (to swap between `<select>` and `<input>`), `saveSlider()`.
+2. **Android Kotlin Implementation:**
+   - `BannerSlider.kt` data class.
+   - Jetpack Compose `HomeBannerSlider` component with Auto-scroll `LaunchedEffect` and Dot Indicators.
+   - Click routing logic `fun onBannerClick(banner: BannerSlider, navController: NavController, context: Context)`.
+================================================================================

@@ -1,0 +1,140 @@
+================================================================================
+          LMS STUDY PDF NOTES MANAGEMENT SYSTEM MASTER PROMPT
+   (Admin Panel CRUD + Secure Android In-App PDF Reader + DRM Protection)
+================================================================================
+
+Act as a Principal Full-Stack Engineer and Android LMS Architect.
+
+I want to build a 100% comprehensive, production-grade Study Material & PDF Notes System for an Educational LMS (Android App + Web Admin Panel).
+
+All academic PDF notes (handwritten notes, chapter formula sheets, revision summaries, DPP question banks) must be created, edited, categorized, and deleted from `admin.html`. 
+The Android App must provide a responsive Study Notes Hub, reactive category/subject filtering, search, lock/unlock validation for paid courses, offline caching/download controls, and a high-performance, secure In-App PDF Reader with DRM protection (screenshot and screen-recording prevention).
+
+---
+
+### 🛠️ TECH STACK & ARCHITECTURE:
+- Frontend Web Admin: HTML5, Tailwind CSS, FontAwesome 6 Icons
+- Database: Firebase Realtime Database (`/notes/{noteId}`)
+- Real-time Sync: Modular Firebase SDK (`onValue`, `push`, `update`, `remove`)
+- Target Android Client: Kotlin, Jetpack Compose / XML View
+- PDF Rendering Engine: AndroidPdfViewer (`com.github.barteksc:android-pdf-viewer:3.2.0-beta.1`) OR Android native `PdfRenderer`
+- DRM Security: `FLAG_SECURE` window protection against screen grabs.
+
+---
+
+### 📦 1. DATABASE SCHEMA (`notes/{noteId}`):
+Each study note record stored in Firebase Realtime Database must follow this rich schema:
+```json
+{
+  "id": "-Nnote_chem_4421",
+  "title": "Chemical Bonding & Molecular Structure: Hand-Written Revision Notes",
+  "category": "Class 11th",
+  "subject": "Chemistry",
+  "courseId": "-Ncourse_jee_01",
+  "courseName": "JEE Main Chemistry Mastery 2026",
+  "type": "Paid",
+  "isFree": false,
+  "url": "https://storage.example.com/notes/chemical_bonding_rev.pdf",
+  "thumbnail": "https://storage.example.com/thumbnails/chem_bonding.png",
+  "fileSize": "5.4 MB",
+  "totalPages": 28,
+  "allowDownload": false,
+  "viewsCount": 1420,
+  "createdAt": 1725500000000,
+  "updatedAt": 1725500000000
+}
+```
+
+---
+
+### 🖥️ 2. ADMIN PANEL IMPLEMENTATION (`admin.html`):
+
+#### A. Study Notes Tab UI (`#tab-notes`):
+1. **Header Section:**
+   - Title: "Study Notes & Materials"
+   - Subtitle: "Upload, organize, and manage chapter notes, formula sheets, and PDF materials"
+   - Counter Badge: Dynamic pill showing total published notes.
+   - Primary Action Button: `+ Add Study Note` (opens `#noteModal`).
+   - Quick Filters: Dropdown filters for Category, Subject, and Fee Type (`All`, `Free Only`, `Paid Only`).
+
+2. **Notes Table & Card Grid:**
+   - Clean, modern layout showing:
+     - PDF Icon Badge with accent background (Rose/Red color coding).
+     - Note Title, Linked Subject & Academic Category pill.
+     - Linked Course badge (or "General / All Students").
+     - File details: Direct link preview button, File Size (`5.4 MB`), and Page count (`28 Pages`).
+     - Access status badge: `FREE` (Emerald green pill) vs `PRO / PAID` (Amber/Lock badge).
+     - Action Buttons: `Edit (pen icon)`, `Preview PDF (eye icon in new tab/modal)`, and `Delete (trash icon with confirmation dialog)`.
+
+#### B. Advanced PDF Notes Modal (`#noteModal`):
+A clean, responsive popup modal containing:
+1. **Note Title:**
+   - Text input (e.g., `Organic Chemistry Hydrocarbons Revision Hand-Written Notes`).
+2. **Academic Categorization (Cascade Linkage):**
+   - Linked Course: Dropdown dynamically populated from `/courses` (with "General / Standalone" option).
+   - Subject: Dropdown dynamically populated from `/subjects`.
+   - Category: Dropdown dynamically populated from `/categories`.
+3. **Access Control & Fee Type:**
+   - Dropdown: `Free Access (Open to all students)` vs `Paid (Enrolled course students only)`.
+4. **PDF File Source & Metadata:**
+   - Direct PDF URL input field (Supports Firebase Storage, Google Drive direct links, AWS S3, Cloudflare R2, or custom HTTPS CDN).
+   - Google Drive link auto-formatter: Automatically converts standard Google Drive sharing links (`/view?usp=sharing`) into embeddable direct preview links (`/preview`).
+   - Thumbnail / Cover Image URL (Optional preview image).
+   - File Size input (e.g., `4.2 MB`).
+   - Total Pages count (e.g., `18`).
+5. **Download Security Control:**
+   - Toggle switch: `Allow Offline PDF Download` (Yes / No). If No, students can only read inside the protected in-app viewer without saving raw PDF files to their device storage.
+6. **Action Buttons:**
+   - "Save Study Note" primary button (handles both `create` via `fb.push` and `update` via `fb.update`).
+   - "Cancel" button.
+
+---
+
+### 📱 3. ANDROID CLIENT APP INTEGRATION (Kotlin & Jetpack Compose):
+
+#### A. Notes Exploration Screen UI (`NotesScreen.kt`):
+1. **Search & Filter Bar:**
+   - Search bar with live keyword filtering (matches title, subject, and category).
+   - Horizontal scrolling pills for Subjects (e.g., `All`, `Physics`, `Chemistry`, `Mathematics`, `Biology`).
+   - Filter segmented buttons: `All Notes` | `Free Notes` | `My Course Notes`.
+2. **Note Card Component (`NoteCard.kt`):**
+   - High-contrast card with PDF vector badge.
+   - Subject pill, Category label, and File size badge.
+   - Access indicator:
+     - Green `FREE` pill or unlocked status.
+     - Amber `PRO / LOCKED` badge if the student has not purchased the linked course.
+   - Action click handler:
+     - If unlocked: Launches `PdfReaderActivity`.
+     - If locked: Triggers Course Purchase BottomSheet/Dialog ("Enroll in course to unlock these study notes").
+
+#### B. In-App Secure PDF Reader Screen (`PdfReaderActivity.kt`):
+- High-performance, butter-smooth PDF viewing using `AndroidPdfViewer` or Jetpack Compose Canvas / native `PdfRenderer`.
+- **DRM & Anti-Piracy Security:**
+  - Enforce `window.setFlags(WindowManager.LayoutParams.FLAG_SECURE, WindowManager.LayoutParams.FLAG_SECURE)` in `onCreate()` to completely block screenshots and third-party screen recordings.
+- **Reader Features:**
+  - Vertical continuous scrolling with pinch-to-zoom (up to 4x).
+  - Sticky Top Bar: Note title, back navigation arrow, and page counter indicator (e.g., `Page 14 / 28`).
+  - Search within document text (if rendered via text-extractable engine).
+  - Night Mode / Invert Colors toggle for comfortable night reading.
+  - Conditional Download Button: Only visible if `note.allowDownload == true`. When clicked, safely saves the PDF using Android `DownloadManager` or Scoped Storage.
+
+#### C. Smart Offline Caching (OkHttp Cache / Room):
+- Once a student opens a note, cache the downloaded byte stream locally in the app's encrypted private cache directory (`context.cacheDir`) so subsequent opens are instantaneous even without internet access.
+
+---
+
+### ⚙️ 4. REQUIRED DELIVERABLES:
+1. **Web Admin Code (`admin.html`):**
+   - Complete HTML markup for `#noteModal` and `#tab-notes`.
+   - JavaScript functions:
+     - `showNoteModal()`
+     - `editNote(noteId)`
+     - `saveNote()`
+     - `deleteNote(noteId)`
+     - `renderAdminNotes()`
+     - `autoFormatDriveLink(url)`
+2. **Android Kotlin Implementation:**
+   - `StudyNote.kt` data class with Firebase Realtime Database deserializer.
+   - `NotesScreen.kt` Jetpack Compose layout with Category & Subject filters.
+   - `PdfReaderActivity.kt` implementing the secure PDF reader with `FLAG_SECURE`, pinch-to-zoom, page indicator, and local caching.
+================================================================================

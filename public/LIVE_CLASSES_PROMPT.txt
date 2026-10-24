@@ -1,0 +1,139 @@
+================================================================================
+          LMS LIVE CLASSES STREAMING & SCHEDULING SYSTEM MASTER PROMPT
+   (Admin Live Control + YouTube In-App Player + Lock/Access Engine + Android App)
+================================================================================
+
+Act as a Principal Full-Stack Engineer and Android LMS Streaming Architect.
+
+I want to build a 100% comprehensive, production-grade Live Classes System for an Educational LMS (Android App + Web Admin Panel).
+
+All live classes must be scheduled, started, managed, and recorded through `admin.html`. 
+The Android App must provide an interactive Live Classes Hub with 3 tabs ("Live Now", "Upcoming / Scheduled", "Recorded Replays"), real-time countdowns, in-app seamless YouTube player, lock/access validation for paid courses, and instant push notification triggers.
+
+---
+
+### 🛠️ TECH STACK & ARCHITECTURE:
+- Web Admin Panel: HTML5, Tailwind CSS, FontAwesome 6 Icons
+- Database: Firebase Realtime Database (`/live/{liveId}` and `/live_chat/{liveId}`)
+- Real-time Sync: Modular Firebase SDK (`onValue`, `push`, `update`, `remove`)
+- Android Client: Kotlin, Jetpack Compose / XML with Android YouTube Player Library (`com.pierfrancescosoffritti.androidyoutubeplayer:core:12.1.0`)
+- Notifications: Firebase Cloud Messaging (FCM)
+
+---
+
+### 📦 1. DATABASE SCHEMA (`live/{liveId}`):
+Each live session record stored in Firebase Realtime Database must follow this structure:
+```json
+{
+  "id": "-Nlive_math_7781",
+  "title": "Trigonometry & Heights: Live Problem Solving Masterclass",
+  "description": "Complete NCERT + Previous Years Questions with shortcut tricks and live doubt clearance.",
+  "category": "Class 10th",
+  "subject": "Mathematics",
+  "courseId": "-Ncourse12345",
+  "courseName": "Class 10th Board Booster 2026",
+  "type": "Paid",
+  "mode": "In-App",
+  "youtubeUrl": "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+  "embedUrl": "https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1",
+  "thumbnail": "https://example.com/live_trig_banner.jpg",
+  "instructor": "Er. Aman Sharma",
+  "instructorPhoto": "https://example.com/aman_sir.jpg",
+  "startTime": "2026-10-15T18:30:00",
+  "status": "scheduled",
+  "liveViewersCount": 240,
+  "chatEnabled": true,
+  "createdAt": 1725500000000,
+  "updatedAt": 1725500000000
+}
+```
+
+---
+
+### 🖥️ 2. ADMIN PANEL IMPLEMENTATION (`admin.html`):
+
+#### A. Live Classes Tab UI (`#tab-live`):
+1. **Header Section:**
+   - Title: "Live Classes Studio"
+   - Subtitle: "Schedule upcoming streams, broadcast live lectures, and manage recordings"
+   - Action Button: `+ Schedule Live Class` (opens `#liveModal`).
+   - Quick Filter: Filter by Course, Subject, or Category.
+
+2. **Live Classes Table / Grid:**
+   - Visual display showing:
+     - 16:9 Thumbnail banner with status badge:
+       - 🔴 `LIVE NOW` (Pulsing red badge when active).
+       - 🔵 `SCHEDULED` (Blue badge with start date & time).
+       - ⚫ `RECORDED` (Gray badge for completed sessions).
+     - Session Title, Faculty Name, Linked Course & Subject tags.
+     - Fee type badge: `Free (Public)` vs `Paid (Enrolled Only)`.
+     - Streaming Mode: `In-App YouTube Player` vs `Direct Deep Link`.
+     - Action Buttons: `Go Live / Toggle Status`, `Edit (pen icon)`, and `Delete (trash icon)`.
+
+#### B. Schedule & Edit Live Modal (`#liveModal`):
+A clean popup modal covering:
+1. **Class Title & Description:**
+   - Title input (required).
+   - Multi-line textarea for topics covered, homework, and session notes.
+2. **Academic Categorization:**
+   - Linked Course selector: Dropdown from `/courses` (or "General / Standalone").
+   - Subject selector: Dropdown dynamically populated from `/subjects`.
+   - Category selector: Dropdown from `/categories`.
+3. **Access Control & Fee Type:**
+   - Dropdown: `Free (Available to all students)` vs `Paid (Enrolled in linked course only)`.
+4. **Streaming Configuration:**
+   - Streaming Mode selector: `In-App Player (Embedded inside App)` vs `Direct (Opens in YouTube App)`.
+   - YouTube Video URL input (Accepts all formats: `youtube.com/watch?v=...`, `youtu.be/...`, `youtube.com/live/...`).
+   - Automatic YouTube ID parser that generates the embed URL with autoplay.
+5. **Schedule & Media:**
+   - Thumbnail URL input + live image preview.
+   - Live Start Date & Time picker (`<input type="datetime-local">`).
+   - Live Chat toggle switch: Enable / Disable real-time chat for students.
+6. **Action Buttons:**
+   - "Schedule Now / Update Class" primary button.
+   - Calls `saveLive()`, updates Firebase, and triggers automated push notification via FCM topic `all_students`.
+
+---
+
+### 📱 3. ANDROID CLIENT APP INTEGRATION (Kotlin & Jetpack Compose):
+
+#### A. Live Hub Screen UI (`LiveClassesScreen.kt`):
+1. **Header & Category/Subject Filter:**
+   - Horizontal scrolling pills for Subjects (e.g., "All", "Physics", "Maths", "Chemistry").
+2. **Three-Tier Categorized Lists:**
+   - 🔴 **Section 1: Live Now:**
+     - Pulsing red "LIVE" indicator with viewer counter.
+     - "Join Class Now" prominent button.
+   - ⏳ **Section 2: Upcoming Sessions:**
+     - Live ticking countdown timer: `HH:MM:SS` (Updates every second).
+     - "Remind Me / Set Alarm" button (adds to Android Calendar / local notification).
+   - 📼 **Section 3: Past Recorded Classes:**
+     - List of previous lectures accessible for revision anytime.
+
+#### B. Access & Lock Gate Engine:
+- Before opening a live class:
+  - If `class.type == "Free"` -> Instant playback.
+  - If `class.type == "Paid"`:
+    - Check if student UID exists in `/courses/{courseId}/enrolled_users/{uid}` OR active subscription.
+    - If NOT enrolled: Display lock overlay with "Course Required" badge and a single-tap button: "Enroll Now to Unlock Live Class" opening course checkout.
+
+#### C. In-App Video Player Screen (`LivePlayerActivity.kt` / Composable):
+- Seamless In-App playback using `YouTubePlayerView` (`com.pierfrancescosoffritti.androidyoutubeplayer:core`).
+- Features:
+  - Fullscreen toggle with auto landscape rotation.
+  - Live stream auto-resume and quality controls.
+  - Optional Live Chat panel below or beside video in landscape.
+  - Anti-Screen Recording & Screenshot blocking (`FLAG_SECURE`) for DRM protection.
+
+---
+
+### ⚙️ 4. REQUIRED DELIVERABLES:
+1. **Web Admin Code (`admin.html`):**
+   - Complete HTML markup for `#liveModal` and `#tab-live`.
+   - JavaScript implementation: `showLiveModal()`, `editLive()`, `saveLive()`, `deleteLive()`, and automatic YouTube ID parser regex.
+2. **Android Kotlin Implementation:**
+   - `LiveClass.kt` data model.
+   - `LivePlayerActivity.kt` using Android YouTube Player with fullscreen and lifecycle observer.
+   - `LiveCard` Composable with countdown timer and lock badges.
+   - FCM Background Notification receiver for newly scheduled live streams.
+================================================================================

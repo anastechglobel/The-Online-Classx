@@ -1,0 +1,1255 @@
+================================================================================
+                    LMS ADMIN & APP SYSTEM MASTER PROMPTS
+(Categories + Courses + Subjects + Live + Study Notes + Test Series)
+================================================================================
+
+--------------------------------------------------------------------------------
+PROMPT 1: DYNAMIC CATEGORY SYSTEM (Class 10, Class 12, NEET, JEE, etc.)
+Admin Creator & Realtime Student App Filter
+--------------------------------------------------------------------------------
+
+Act as a Senior Full-Stack Engineer and Android Architect.
+
+I want to build a 100% dynamic, production-grade Category Management & Filtering System for an Educational LMS (App + Web Admin Panel).
+
+All categories (e.g., "Class 9", "Class 10", "Class 11", "Class 12", "NEET", "JEE", "Foundation") must be created, edited, sorted, and deleted exclusively from `admin.html`, and they must instantly reflect across the entire Android/Web student application in real-time.
+
+---
+
+### TECH STACK & ARCHITECTURE:
+- Frontend: HTML5, Tailwind CSS, FontAwesome 6 Icons
+- Database: Firebase Realtime Database / Cloud Firestore
+- Synchronization: Real-time listeners (`onValue` / snapshot listeners)
+- Scope: Admin Management Module (`admin.html`) + Student App Filtering Layer
+
+---
+
+### 1. DATABASE SCHEMA (`categories/{categoryId}`):
+Each category record stored in Firebase must follow this structure:
+```json
+{
+  "id": "-Ncat_class10_abc",
+  "name": "Class 10th",
+  "slug": "class-10",
+  "description": "CBSE & State Board Preparation with NCERT Solutions",
+  "icon": "fa-solid fa-graduation-cap",
+  "color": "from-blue-600 to-indigo-600",
+  "bannerUrl": "https://example.com/class10_banner.png",
+  "orderIndex": 1,
+  "status": "active",
+  "coursesCount": 12,
+  "createdAt": 1725500000000,
+  "updatedAt": 1725500000000
+}
+```
+
+---
+
+### 2. ADMIN PANEL IMPLEMENTATION (`admin.html`):
+
+#### A. Category Management Tab UI (`#tab-categories`):
+1. Header Section:
+   - Title: "Category Management"
+   - Subtitle: "Create and organize academic classes and target exams"
+   - Primary Action Button: "+ Add New Category" (opens `#categoryModal`)
+   - Search & Filter bar to quickly find categories.
+
+2. Category Cards / Table Grid:
+   - Visual display showing:
+     - Category Icon / Banner Thumbnail.
+     - Category Name (e.g., Class 10th).
+     - Display order number / badge.
+     - Linked items counter (number of courses, subjects, or notes under this category).
+     - Active / Inactive status toggle switch.
+     - Action Buttons: Edit (pen icon) and Delete (trash icon with confirmation dialog).
+
+#### B. Category Creation & Edit Modal (`#categoryModal`):
+A clean popup modal containing:
+1. Category Name:
+   - Text input (e.g., Class 10th Board, Class 12th PCM, NEET 2026).
+2. Category Slug / Identifier:
+   - Auto-generated slug (e.g., class-10th) or custom ID.
+3. Category Icon / Theme:
+   - Icon selector (e.g., FontAwesome class input or quick icon picker: Graduation Cap, Book, Atom, Stethoscope, Laptop Code).
+   - Theme Accent Color (gradient picker or presets: Blue, Emerald, Purple, Amber, Rose).
+4. Thumbnail / Banner Image URL:
+   - URL input with a live 1:1 or 16:9 image preview box.
+5. Display Order Index:
+   - Number input (e.g., 1, 2, 3) to control the display sequence in the student app.
+6. Description (Optional):
+   - Short tagline or syllabus overview.
+7. Status Selector:
+   - Active (Visible to Students) vs Disabled / Hidden.
+8. Save Button:
+   - Calls `saveCategory()` with Firebase push/update and instant feedback toast.
+
+---
+
+### 3. STUDENT APP INTEGRATION (Android App / Web Client):
+
+1. Dynamic Category Bar / Pills:
+   - Fetch all categories where `status == "active"` sorted by `orderIndex`.
+   - Render a horizontal scrollable chip/pill bar at the top of the Home Screen (including an "All" chip at the start).
+   - Show category icon/emoji next to each chip label.
+2. Global Reactive Filtering:
+   - When a student taps a category (e.g., "Class 10"):
+     - Courses: Filter courses where `course.category == selectedCategory`.
+     - Subjects: Display only subjects linked to Class 10.
+     - Test Series: Show only mock tests created for Class 10.
+     - Study Notes & PDF: Filter notes matching Class 10.
+     - Live Classes & Timetables: Show schedules specifically for Class 10.
+3. Dependent Dropdown System in Admin:
+   - When an Admin creates a Course, Subject, or Test in other modals, the Category dropdown must dynamically pull directly from this `/categories` node (no hardcoded options).
+
+---
+
+### 4. REQUIRED DELIVERABLES:
+1. Complete HTML markup for the Category Section and Category Modal in `admin.html`.
+2. Tailwind CSS styling ensuring a sleek, high-contrast, modern interface.
+3. Complete JavaScript code implementing:
+   - `showCategoryModal()` (Reset form & open modal)
+   - `editCategory(id)` (Fetch from Firebase and populate form)
+   - `saveCategory()` (Validation, slug generation, Firebase push/update)
+   - `deleteCategory(id)` (Confirm prompt, check for linked courses, delete from Firebase)
+   - `renderAdminCategories()` (Real-time listener updating the admin table/grid)
+4. Client-side Category horizontal filter bar component code that triggers the reactive category switch.
+
+
+================================================================================
+PROMPT 2: FULL COURSE CREATION & LAUNCHING SYSTEM
+(Title, Description, YouTube Intro, Pricing, Chapters & Lessons, Test Linking)
+================================================================================
+
+Act as an Expert Full-Stack Developer and UI/UX Designer.
+
+I want to implement a 100% comprehensive, production-grade Course Creation & Launching Modal System into my educational LMS admin panel (admin.html), connected to Firebase Realtime Database.
+
+The system must allow administrators and teachers to create, edit, draft, and publish rich, multi-chapter academic courses with video lessons, pricing controls, and linked resources.
+
+---
+
+### TECH STACK & REQUIREMENTS:
+- HTML5, Tailwind CSS, FontAwesome 6 icons.
+- Firebase Realtime Database (Modular SDK v9/v10).
+- Fully responsive modal with a sticky header, scrollable body, and sticky action footer.
+- Real-time calculations, image previews, and dynamic nested list builders.
+
+---
+
+### 1. DATABASE SCHEMA (`courses/{courseId}`):
+```json
+{
+  "id": "-Ncourse12345",
+  "title": "NEET Biology Masterclass 2026",
+  "category": "Medical / NEET",
+  "subject": "Biology",
+  "tag": "Bestseller",
+  "isFree": false,
+  "originalPrice": 4999,
+  "sellingPrice": 1999,
+  "discountPercent": 60,
+  "validity": "1 Year",
+  "thumbnail": "https://example.com/thumb.jpg",
+  "introVideoUrl": "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+  "description": "Comprehensive full syllabus video lectures with high-yield notes and question bank.",
+  "features": [
+    "500+ Hours Recorded Lectures",
+    "Chapter-wise DPP & PDF Notes",
+    "24/7 Doubt Resolution"
+  ],
+  "curriculum": [
+    {
+      "chapterId": "chap_1",
+      "chapterTitle": "Chapter 1: Cell Structure & Function",
+      "lessons": [
+        {
+          "lessonId": "les_1",
+          "title": "Lesson 1: Introduction to Cell Theory",
+          "videoUrl": "https://youtube.com/embed/xyz123",
+          "duration": "45 mins",
+          "isFreeDemo": true,
+          "pdfUrl": "https://example.com/notes_ch1.pdf"
+        }
+      ]
+    }
+  ],
+  "linkedTests": ["test_id_101", "test_id_102"],
+  "linkedLiveClasses": ["live_batch_a"],
+  "status": "published",
+  "enrolledStudents": 0,
+  "createdAt": 1725500000000,
+  "updatedAt": 1725500000000
+}
+```
+
+---
+
+### 2. UI STRUCTURE OF THE COURSE CREATION MODAL (`#courseModal`):
+
+Build a modern popup modal (`w-full max-w-4xl max-h-[90vh] rounded-3xl overflow-hidden flex flex-col bg-white`) with:
+
+#### Sticky Modal Header:
+- Graduation cap icon badge.
+- Title: "Course Management" (Changes to "Edit Course" when editing).
+- Subtitle: "Create & publish courses with videos, chapters, and materials".
+- Round close button (X).
+
+#### Scrollable Modal Body (Divided into 5 Structured Sections):
+
+1. SECTION 1: Basic Details
+   - Course Title: Text input with placeholder (e.g., JEE Physics Complete Course 2026).
+   - Category Dropdown: Populated dynamically from Firebase `/categories`.
+   - Subject Dropdown: Populated dynamically based on selected category.
+   - Tag / Badge Selector: Dropdown with options: None, Popular, Bestseller, New, Trending, Discounted + live visual badge preview next to the label.
+
+2. SECTION 2: Pricing & Access Control
+   - Access Type Toggle: "Free Course" vs "Paid Course" radio/switch.
+   - When "Paid":
+     - Original Price (MRP) (INR): Number input.
+     - Discounted Selling Price (INR): Number input.
+     - Auto-Calculated Discount Pill: Shows live discount percentage (e.g., Save 60% OFF).
+   - Course Validity Selector: Dropdown: 1 Month, 3 Months, 6 Months, 1 Year, 2 Years, Lifetime Access.
+
+3. SECTION 3: Media & Intro Trailers
+   - Course Thumbnail URL:
+     - Input field for Image URL.
+     - Live Thumbnail Preview box (shows actual 16:9 image preview with placeholder fallback on invalid URL).
+   - YouTube Intro / Demo Trailer Video Link:
+     - Input for YouTube URL (supports standard youtube.com/watch?v=... and youtu.be/...).
+     - Validation helper that auto-converts to embeddable preview or checks link format.
+
+4. SECTION 4: Dynamic Curriculum & Chapter Builder
+   - Add Chapter Button: Adds a new chapter accordion item.
+   - For each Chapter:
+     - Chapter Title input (e.g., Chapter 1: Kinematics).
+     - "Add Lesson" button inside the chapter.
+     - For each Lesson:
+       - Lesson Title (e.g., L1: Vectors & Motion).
+       - Video URL (YouTube or MP4 link).
+       - Duration (e.g., 35 min).
+       - "Free Demo Preview" checkbox (so students can watch before purchase).
+       - PDF Notes URL input.
+       - Remove Lesson / Remove Chapter buttons.
+
+5. SECTION 5: Description, Linked Resources & Publishing
+   - Course Description: Multi-line textarea for syllabus details.
+   - Key Features / Highlights: Addable bullet points (e.g., "Full NCERT Coverage", "Weekly Tests").
+   - Linked Test Series: Multi-select checkboxes to attach existing mock tests from Firebase `/tests`.
+   - Publish Status Dropdown:
+     - Published (Visible to all students in app)
+     - Draft / Unpublished (Only visible to admin)
+
+#### Sticky Modal Footer:
+- "Save as Draft" secondary button.
+- "Publish Course" primary gradient button with loading spinner state.
+- "Cancel" button.
+
+---
+
+### 3. JAVASCRIPT FUNCTIONS REQUIRED:
+1. `showCourseModal()`: Resets all fields, clears curriculum, sets mode to "Add Course", and opens modal.
+2. `editCourse(courseId)`: Fetches course data by ID from Firebase, populates every single field, renders existing chapters and lessons, and opens modal.
+3. `calculateDiscount()`: Triggered on input of Original/Selling price to calculate and display the discount percentage.
+4. `addChapterUI()` & `addLessonUI(chapterIndex)`: Dynamically appends DOM elements for chapters and lessons.
+5. `saveCourse()`: Validates required inputs, constructs the JSON payload, checks whether to call `fb.push()` (for new) or `fb.update()` (for edit), closes modal, and shows toast notification.
+6. `deleteCourse(courseId)`: Confirmation dialog before deleting from Firebase.
+
+---
+
+### 4. DELIVERABLE:
+Provide the complete, plug-and-play HTML markup for `#courseModal`, along with the complete CSS (Tailwind) and modular JavaScript functions to integrate directly into `admin.html`.
+
+
+================================================================================
+PROMPT 3: UPCOMING COURSE LAUNCHING & PRE-BOOKING SYSTEM
+(Countdown Timer, Launch Date, Pre-Booking/Notify Me)
+================================================================================
+
+Act as a Senior Full-Stack Engineer and Android LMS Architect.
+
+I want to build a 100% exact replica of a production-ready "Course Launching System" (Upcoming Courses & Pre-Launch Engine) for an Educational Android Application and its Admin Panel.
+
+---
+
+### 1. SYSTEM OVERVIEW & CORE OBJECTIVES:
+1. Admin Control Panel (admin.html or Admin Screen):
+   - Teachers/Admins can schedule, preview, publish, edit, and delete upcoming courses.
+   - Configure launch date text, exact countdown date-time, pricing, instructor, and banners.
+2. Database (Firebase Realtime Database / Firestore):
+   - Node: `/upcoming_courses/{courseId}`
+3. Android Client-Side App Experience:
+   - Home Page "Coming Soon / Launching Soon" horizontal card slider.
+   - Real-time countdown timer (Days, Hours, Minutes, Seconds).
+   - "Notify Me" / Pre-Booking button to capture student interest.
+
+---
+
+### 2. DATA SCHEMA (`upcoming_courses/{id}`):
+Each upcoming course object must contain:
+```json
+{
+  "id": "-Ny781293abc",
+  "title": "JEE Advanced 2026 Super Batch",
+  "description": "Comprehensive batch with live classes, study material, and test series.",
+  "category": "JEE / Engineering",
+  "thumbnail": "https://example.com/banner.jpg",
+  "launchDate": "15th Oct 2026",
+  "launchTime": "2026-10-15T10:00:00",
+  "type": "Paid",
+  "price": 1999,
+  "instructor": "Er. Rashid & Team",
+  "status": "published",
+  "interestedUsersCount": 142,
+  "createdAt": 1725500000000,
+  "updatedAt": 1725500000000
+}
+```
+
+---
+
+### 3. ADMIN PANEL IMPLEMENTATION (`admin.html`):
+
+#### A. Tab UI & Grid Layout:
+- A responsive section with Header ("Upcoming Courses"), "Add Upcoming Course" primary button, and search/filter.
+- A Grid of cards (`grid-cols-1 md:grid-cols-2 lg:grid-cols-3`):
+  - Thumbnail banner with aspect ratio 16:9.
+  - Launch Badge: `Launching: [u.launchDate]`
+  - Access Badge: `Paid (INR 1999)` or `Free`
+  - Status indicator: Green pill for `Published`, Gray for `Draft / Unpublished`.
+  - Action Buttons: `Edit (pen icon)` and `Delete (trash icon with confirmation)`.
+
+#### B. Creation & Editing Modal Form (`#upcomingModal`):
+A clean, scrollable popup modal covering:
+1. Title & Description:
+   - Input for Course Title (required).
+   - Textarea for brief overview/features.
+2. Category & Schedule:
+   - Category Dropdown (dynamically populated from Firebase `/categories`).
+   - Launch Date Display Text (e.g., "15th August 2026" or "Coming Diwali").
+   - Countdown Exact Date & Time Picker (`<input type="datetime-local">`).
+3. Pricing & Faculty:
+   - Access Type selector: "Paid Course" vs "Free Course".
+   - Price (INR) input field (auto-hidden or disabled if "Free").
+   - Lead Instructor / Faculty name input.
+4. Media & Visibility:
+   - Thumbnail Image URL input + live image preview thumbnail.
+   - Publish Status dropdown: `Published (Visible to Students)` vs `Unpublished (Hidden/Draft)`.
+5. Actions:
+   - Primary "Save / Publish Course" button with Firebase `push()` for new and `update()` for existing courses.
+   - Cancel / Close button.
+   - Toast feedback on success and validation error handling.
+
+---
+
+### 4. ANDROID APP INTEGRATION (Kotlin Jetpack Compose or XML WebView):
+1. Home Screen Carousel:
+   - Fetch only courses where `status == "published"`.
+   - Card displays: Thumbnail banner, "Coming Soon" chip, Course Title, Faculty Name, Price, and Launch Date.
+2. Interactive Live Countdown Timer:
+   - Calculate remaining milliseconds: `launchTimestamp - currentTimestamp`.
+   - Update every second displaying: `XXd : XXh : XXm : XXs`.
+   - When countdown hits zero, change label to `Course is Now Live!`.
+3. "Notify Me" / Pre-Register Action:
+   - Student taps "Notify Me" button.
+   - Saves their UID under `/upcoming_courses/{courseId}/interested_users/{uid} = true`.
+   - Button state toggles to `You will be notified`.
+
+---
+
+### 5. REQUIRED DELIVERABLES:
+1. Provide the complete HTML, Tailwind CSS, and Firebase Modular JS code for the Admin Modal and CRUD operations (`showUpcomingModal`, `editUpcoming`, `saveUpcoming`, `deleteItem`).
+2. Provide the Android Kotlin Data Model (`UpcomingCourse.kt`).
+3. Provide the Jetpack Compose / Android UI code for the Countdown Card Component.
+4. Ensure real-time sync with Firebase Realtime Database.
+
+
+================================================================================
+PROMPT 4: ADVANCED SUBJECT MANAGEMENT SYSTEM
+(Admin Creator + Category Linkage + Dynamic Dropdowns + Android App Filter)
+================================================================================
+
+Act as a Principal Full-Stack Engineer and Android LMS Architect.
+
+I want to build a 100% dynamic, production-grade Subject Management System for an Educational LMS (App + Web Admin Panel).
+
+All academic subjects (e.g., "Physics", "Chemistry", "Mathematics", "Biology", "History", "Polity", "English", "Reasoning") must be created, edited, categorized, re-ordered, and deleted exclusively from `admin.html`. 
+These subjects must automatically populate all admin creation modals (Courses, Tests, Notes, Live Classes) and drive student-side chapter & topic filtering in the Android App in real-time.
+
+---
+
+### TECH STACK & ARCHITECTURE:
+- Frontend: HTML5, Tailwind CSS, FontAwesome 6 Icons
+- Database: Firebase Realtime Database (`/subjects/{subjectId}`)
+- Real-time Sync: Modular Firebase SDK (`onValue`, `push`, `update`, `remove`)
+- Target Clients: Web Admin Panel (`admin.html`) + Android App (Kotlin / Jetpack Compose)
+
+---
+
+### 1. DATABASE SCHEMA (`subjects/{subjectId}`):
+Each subject record stored in Firebase Realtime Database must follow this rich schema:
+```json
+{
+  "id": "-Nsub_phys_9921",
+  "name": "Physics",
+  "hindiName": "भौतिक विज्ञान",
+  "slug": "physics",
+  "category": "Class 12th PCM",
+  "applicableCategories": ["Class 11th PCM", "Class 12th PCM", "NEET", "JEE"],
+  "icon": "fa-solid fa-atom",
+  "color": "from-blue-600 to-indigo-600",
+  "thumbnail": "https://example.com/physics_vector_banner.png",
+  "orderIndex": 1,
+  "status": "active",
+  "totalChapters": 15,
+  "totalNotes": 28,
+  "totalTests": 14,
+  "createdAt": 1725500000000,
+  "updatedAt": 1725500000000
+}
+```
+
+---
+
+### 2. ADMIN PANEL IMPLEMENTATION (`admin.html`):
+
+#### A. Subject Management Tab UI (`#tab-subjects`):
+1. Header Section:
+   - Title: "Manage Subjects"
+   - Subtitle: "Create and organize subjects across courses, notes, and tests"
+   - Badge: Dynamic counter showing total registered subjects.
+   - Primary Action Button: `+ Add Subject` (opens `#subjectModal`).
+   - Quick Filter Bar: Dropdown to filter subjects by Category (e.g., "All Categories", "Class 10th", "NEET").
+
+2. Subjects Table & Card Grid:
+   - Clean, modern layout showing:
+     - Color-coded Subject Avatar / Icon Badge (e.g., atom icon with blue gradient).
+     - Subject Name (English + Optional Hindi/Regional name).
+     - Linked Category / Applicable Classes badge.
+     - Live Resource Badges: Number of linked Notes (PDFs), Tests (MCQs), and Course Chapters.
+     - Status Indicator: Active (Green pill) vs Inactive (Gray pill).
+     - Action Buttons: Edit (pen icon) and Delete (trash icon with confirmation dialog).
+
+#### B. Advanced Subject Creation & Edit Modal (`#subjectModal`):
+A clean, responsive popup modal containing:
+1. Subject Name (English):
+   - Text input (e.g., Physics, Chemistry, General Knowledge).
+2. Subject Name (Hindi / Regional - Optional):
+   - Text input (e.g., भौतिक विज्ञान).
+3. Primary Category Linkage:
+   - Dropdown dynamically populated from Firebase `/categories` (or "Global / All Categories").
+4. Visual Branding (Icon & Accent Color):
+   - FontAwesome Icon class input or preset buttons:
+     - Physics (`fa-solid fa-atom`)
+     - Chemistry (`fa-solid fa-flask-vial`)
+     - Mathematics (`fa-solid fa-calculator`)
+     - Biology (`fa-solid fa-dna`)
+     - History / Geo (`fa-solid fa-earth-americas`)
+     - Computer (`fa-solid fa-laptop-code`)
+   - Accent Gradient Selector: Presets (Blue-Indigo, Emerald-Teal, Amber-Orange, Rose-Red, Purple-Violet).
+5. Thumbnail / Illustration Image URL:
+   - Input for Image URL + live image preview container with fallback avatar.
+6. Display Order Index:
+   - Number input (e.g., 1, 2, 3) to prioritize sorting order in the Android app.
+7. Action Buttons:
+   - "Save Subject" primary gradient button (handles both create via `fb.push` and update via `fb.update`).
+   - "Cancel" button.
+
+#### C. Auto-Population in All Other Admin Modals:
+- When a new subject is added, all subject dropdowns across the Admin panel MUST immediately re-render in real-time:
+  - Course Creation Modal (`#cSubject`)
+  - PDF Notes Modal (`#nSubject`)
+  - Test Creation Modal (`#tSubject`, `#advTSubject`)
+  - Question Creator Modal (`#qSubject`)
+  - Live Classes Modal (`#lSubject`)
+- Implement category-aware auto-filtering: If a user selects "Class 10" in the Course modal, only subjects tagged with "Class 10" or "All" are displayed in the Subject dropdown.
+
+---
+
+### 3. ANDROID CLIENT APP INTEGRATION (Kotlin / Jetpack Compose / XML):
+
+1. Subject Exploration Grid (Home / Course / Study Material Screen):
+   - Fetch `/subjects` ordered by `orderIndex`.
+   - Display a responsive 2-column or 3-column bento grid of Subject Cards:
+     - Gradient background matching `subject.color`.
+     - Subject vector icon + Title (English + Hindi).
+     - Sub-text showing content count (e.g., "12 Chapters • 30 Notes").
+2. Subject Details Screen (Deep-Dive View):
+   - When a student taps "Physics":
+     - Opens `SubjectDetailActivity` / Composable.
+     - Top App Bar with Subject Title and gradient header.
+     - 3 Main Tabs:
+       - Tab 1: PDF Notes: Displays all notes where `note.subject == "Physics"`.
+       - Tab 2: Mock Tests: Displays all test series where `test.subject == "Physics"`.
+       - Tab 3: Video Lectures: Displays course chapters/lectures dedicated to Physics.
+3. Category-Subject Reactive Sync:
+   - If student has selected "Class 12th" at the top category bar, the Subject list automatically filters to only show Class 12th subjects.
+
+---
+
+### 4. REQUIRED DELIVERABLES:
+1. HTML & Tailwind CSS:
+   - Full markup for `#tab-subjects` and `#subjectModal` for `admin.html`.
+2. JavaScript Functions (Firebase v9/v10 Modular):
+   - `showSubjectModal()`
+   - `editSubject(subjectId)`
+   - `saveSubject()`
+   - `deleteSubject(subjectId)`
+   - `renderAdminSubjects()`
+   - `rebuildAllSubjectSelects(activeCategoryId)`
+3. Android Kotlin Data Model:
+   - `Subject.kt` data class with Parcelable and Firebase Deserializer.
+4. Android Jetpack Compose UI:
+   - `SubjectCard` composable with gradient styling and ripple click effect.
+   - `SubjectScreen` with Tabs for Notes, Tests, and Videos.
+================================================================================
+
+
+================================================================================
+PROMPT 5: LIVE CLASSES STREAMING & SCHEDULING SYSTEM
+(Admin Live Control + In-App YouTube Player + Access/Lock Engine + Android App)
+================================================================================
+
+Act as a Principal Full-Stack Engineer and Android LMS Streaming Architect.
+
+I want to build a 100% comprehensive, production-grade Live Classes System for an Educational LMS (Android App + Web Admin Panel).
+
+All live classes must be scheduled, started, managed, and recorded through `admin.html`. 
+The Android App must provide an interactive Live Classes Hub with 3 tabs ("Live Now", "Upcoming / Scheduled", "Recorded Replays"), real-time countdowns, in-app seamless YouTube player, lock/access validation for paid courses, and instant push notification triggers.
+
+---
+
+### TECH STACK & ARCHITECTURE:
+- Web Admin Panel: HTML5, Tailwind CSS, FontAwesome 6 Icons
+- Database: Firebase Realtime Database (`/live/{liveId}` and `/live_chat/{liveId}`)
+- Real-time Sync: Modular Firebase SDK (`onValue`, `push`, `update`, `remove`)
+- Android Client: Kotlin, Jetpack Compose / XML with Android YouTube Player Library (`com.pierfrancescosoffritti.androidyoutubeplayer:core:12.1.0`)
+- Notifications: Firebase Cloud Messaging (FCM)
+
+---
+
+### 1. DATABASE SCHEMA (`live/{liveId}`):
+Each live session record stored in Firebase Realtime Database must follow this structure:
+```json
+{
+  "id": "-Nlive_math_7781",
+  "title": "Trigonometry & Heights: Live Problem Solving Masterclass",
+  "description": "Complete NCERT + Previous Years Questions with shortcut tricks and live doubt clearance.",
+  "category": "Class 10th",
+  "subject": "Mathematics",
+  "courseId": "-Ncourse12345",
+  "courseName": "Class 10th Board Booster 2026",
+  "type": "Paid",
+  "mode": "In-App",
+  "youtubeUrl": "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+  "embedUrl": "https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1",
+  "thumbnail": "https://example.com/live_trig_banner.jpg",
+  "instructor": "Er. Aman Sharma",
+  "instructorPhoto": "https://example.com/aman_sir.jpg",
+  "startTime": "2026-10-15T18:30:00",
+  "status": "scheduled",
+  "liveViewersCount": 240,
+  "chatEnabled": true,
+  "createdAt": 1725500000000,
+  "updatedAt": 1725500000000
+}
+```
+
+---
+
+### 2. ADMIN PANEL IMPLEMENTATION (`admin.html`):
+
+#### A. Live Classes Tab UI (`#tab-live`):
+1. Header Section:
+   - Title: "Live Classes Studio"
+   - Subtitle: "Schedule upcoming streams, broadcast live lectures, and manage recordings"
+   - Action Button: `+ Schedule Live Class` (opens `#liveModal`).
+   - Quick Filter: Filter by Course, Subject, or Category.
+
+2. Live Classes Table / Grid:
+   - Visual display showing:
+     - 16:9 Thumbnail banner with status badge:
+       - LIVE NOW (Pulsing red badge when active).
+       - SCHEDULED (Blue badge with start date & time).
+       - RECORDED (Gray badge for completed sessions).
+     - Session Title, Faculty Name, Linked Course & Subject tags.
+     - Fee type badge: `Free (Public)` vs `Paid (Enrolled Only)`.
+     - Streaming Mode: `In-App YouTube Player` vs `Direct Deep Link`.
+     - Action Buttons: `Go Live / Toggle Status`, `Edit (pen icon)`, and `Delete (trash icon)`.
+
+#### B. Schedule & Edit Live Modal (`#liveModal`):
+A clean popup modal covering:
+1. Class Title & Description:
+   - Title input (required).
+   - Multi-line textarea for topics covered, homework, and session notes.
+2. Academic Categorization:
+   - Linked Course selector: Dropdown from `/courses` (or "General / Standalone").
+   - Subject selector: Dropdown dynamically populated from `/subjects`.
+   - Category selector: Dropdown from `/categories`.
+3. Access Control & Fee Type:
+   - Dropdown: `Free (Available to all students)` vs `Paid (Enrolled in linked course only)`.
+4. Streaming Configuration:
+   - Streaming Mode selector: `In-App Player (Embedded inside App)` vs `Direct (Opens in YouTube App)`.
+   - YouTube Video URL input (Accepts all formats: `youtube.com/watch?v=...`, `youtu.be/...`, `youtube.com/live/...`).
+   - Automatic YouTube ID parser that generates the embed URL with autoplay.
+5. Schedule & Media:
+   - Thumbnail URL input + live image preview.
+   - Live Start Date & Time picker (`<input type="datetime-local">`).
+   - Live Chat toggle switch: Enable / Disable real-time chat for students.
+6. Action Buttons:
+   - "Schedule Now / Update Class" primary button.
+   - Calls `saveLive()`, updates Firebase, and triggers automated push notification via FCM topic `all_students`.
+
+---
+
+### 3. ANDROID CLIENT APP INTEGRATION (Kotlin & Jetpack Compose):
+
+#### A. Live Hub Screen UI (`LiveClassesScreen.kt`):
+1. Header & Category/Subject Filter:
+   - Horizontal scrolling pills for Subjects (e.g., "All", "Physics", "Maths", "Chemistry").
+2. Three-Tier Categorized Lists:
+   - Section 1: Live Now:
+     - Pulsing red "LIVE" indicator with viewer counter.
+     - "Join Class Now" prominent button.
+   - Section 2: Upcoming Sessions:
+     - Live ticking countdown timer: `HH:MM:SS` (Updates every second).
+     - "Remind Me / Set Alarm" button (adds to Android Calendar / local notification).
+   - Section 3: Past Recorded Classes:
+     - List of previous lectures accessible for revision anytime.
+
+#### B. Access & Lock Gate Engine:
+- Before opening a live class:
+  - If `class.type == "Free"` -> Instant playback.
+  - If `class.type == "Paid"`:
+    - Check if student UID exists in `/courses/{courseId}/enrolled_users/{uid}` OR active subscription.
+    - If NOT enrolled: Display lock overlay with "Course Required" badge and a single-tap button: "Enroll Now to Unlock Live Class" opening course checkout.
+
+#### C. In-App Video Player Screen (`LivePlayerActivity.kt` / Composable):
+- Seamless In-App playback using `YouTubePlayerView` (`com.pierfrancescosoffritti.androidyoutubeplayer:core`).
+- Features:
+  - Fullscreen toggle with auto landscape rotation.
+  - Live stream auto-resume and quality controls.
+  - Optional Live Chat panel below or beside video in landscape.
+  - Anti-Screen Recording & Screenshot blocking (`FLAG_SECURE`) for DRM protection.
+
+---
+
+### 4. REQUIRED DELIVERABLES:
+1. Web Admin Code (`admin.html`):
+   - Complete HTML markup for `#liveModal` and `#tab-live`.
+   - JavaScript implementation: `showLiveModal()`, `editLive()`, `saveLive()`, `deleteLive()`, and automatic YouTube ID parser regex.
+2. Android Kotlin Implementation:
+   - `LiveClass.kt` data model.
+   - `LivePlayerActivity.kt` using Android YouTube Player with fullscreen and lifecycle observer.
+   - `LiveCard` Composable with countdown timer and lock badges.
+   - FCM Background Notification receiver for newly scheduled live streams.
+================================================================================
+
+
+================================================================================
+PROMPT 6: STUDY PDF NOTES MANAGEMENT SYSTEM
+(Admin Panel CRUD + Secure Android In-App PDF Reader + DRM Protection)
+================================================================================
+
+Act as a Principal Full-Stack Engineer and Android LMS Architect.
+
+I want to build a 100% comprehensive, production-grade Study Material & PDF Notes System for an Educational LMS (Android App + Web Admin Panel).
+
+All academic PDF notes (handwritten notes, chapter formula sheets, revision summaries, DPP question banks) must be created, edited, categorized, and deleted from `admin.html`. 
+The Android App must provide a responsive Study Notes Hub, reactive category/subject filtering, search, lock/unlock validation for paid courses, offline caching/download controls, and a high-performance, secure In-App PDF Reader with DRM protection (screenshot and screen-recording prevention).
+
+---
+
+### TECH STACK & ARCHITECTURE:
+- Frontend Web Admin: HTML5, Tailwind CSS, FontAwesome 6 Icons
+- Database: Firebase Realtime Database (`/notes/{noteId}`)
+- Real-time Sync: Modular Firebase SDK (`onValue`, `push`, `update`, `remove`)
+- Target Android Client: Kotlin, Jetpack Compose / XML View
+- PDF Rendering Engine: AndroidPdfViewer (`com.github.barteksc:android-pdf-viewer:3.2.0-beta.1`) OR Android native `PdfRenderer`
+- DRM Security: `FLAG_SECURE` window protection against screen grabs.
+
+---
+
+### 1. DATABASE SCHEMA (`notes/{noteId}`):
+Each study note record stored in Firebase Realtime Database must follow this rich schema:
+```json
+{
+  "id": "-Nnote_chem_4421",
+  "title": "Chemical Bonding & Molecular Structure: Hand-Written Revision Notes",
+  "category": "Class 11th",
+  "subject": "Chemistry",
+  "courseId": "-Ncourse_jee_01",
+  "courseName": "JEE Main Chemistry Mastery 2026",
+  "type": "Paid",
+  "isFree": false,
+  "url": "https://storage.example.com/notes/chemical_bonding_rev.pdf",
+  "thumbnail": "https://storage.example.com/thumbnails/chem_bonding.png",
+  "fileSize": "5.4 MB",
+  "totalPages": 28,
+  "allowDownload": false,
+  "viewsCount": 1420,
+  "createdAt": 1725500000000,
+  "updatedAt": 1725500000000
+}
+```
+
+---
+
+### 2. ADMIN PANEL IMPLEMENTATION (`admin.html`):
+
+#### A. Study Notes Tab UI (`#tab-notes`):
+1. Header Section:
+   - Title: "Study Notes & Materials"
+   - Subtitle: "Upload, organize, and manage chapter notes, formula sheets, and PDF materials"
+   - Counter Badge: Dynamic pill showing total published notes.
+   - Primary Action Button: `+ Add Study Note` (opens `#noteModal`).
+   - Quick Filters: Dropdown filters for Category, Subject, and Fee Type (`All`, `Free Only`, `Paid Only`).
+
+2. Notes Table & Card Grid:
+   - Clean, modern layout showing:
+     - PDF Icon Badge with accent background (Rose/Red color coding).
+     - Note Title, Linked Subject & Academic Category pill.
+     - Linked Course badge (or "General / All Students").
+     - File details: Direct link preview button, File Size (`5.4 MB`), and Page count (`28 Pages`).
+     - Access status badge: `FREE` (Emerald green pill) vs `PRO / PAID` (Amber/Lock badge).
+     - Action Buttons: `Edit (pen icon)`, `Preview PDF (eye icon in new tab/modal)`, and `Delete (trash icon with confirmation dialog)`.
+
+#### B. Advanced PDF Notes Modal (`#noteModal`):
+A clean, responsive popup modal containing:
+1. Note Title:
+   - Text input (e.g., `Organic Chemistry Hydrocarbons Revision Hand-Written Notes`).
+2. Academic Categorization (Cascade Linkage):
+   - Linked Course: Dropdown dynamically populated from `/courses` (with "General / Standalone" option).
+   - Subject: Dropdown dynamically populated from `/subjects`.
+   - Category: Dropdown dynamically populated from `/categories`.
+3. Access Control & Fee Type:
+   - Dropdown: `Free Access (Open to all students)` vs `Paid (Enrolled course students only)`.
+4. PDF File Source & Metadata:
+   - Direct PDF URL input field (Supports Firebase Storage, Google Drive direct links, AWS S3, Cloudflare R2, or custom HTTPS CDN).
+   - Google Drive link auto-formatter: Automatically converts standard Google Drive sharing links (`/view?usp=sharing`) into embeddable direct preview links (`/preview`).
+   - Thumbnail / Cover Image URL (Optional preview image).
+   - File Size input (e.g., `4.2 MB`).
+   - Total Pages count (e.g., `18`).
+5. Download Security Control:
+   - Toggle switch: `Allow Offline PDF Download` (Yes / No). If No, students can only read inside the protected in-app viewer without saving raw PDF files to their device storage.
+6. Action Buttons:
+   - "Save Study Note" primary button (handles both `create` via `fb.push` and `update` via `fb.update`).
+   - "Cancel" button.
+
+---
+
+### 3. ANDROID CLIENT APP INTEGRATION (Kotlin & Jetpack Compose):
+
+#### A. Notes Exploration Screen UI (`NotesScreen.kt`):
+1. Search & Filter Bar:
+   - Search bar with live keyword filtering (matches title, subject, and category).
+   - Horizontal scrolling pills for Subjects (e.g., `All`, `Physics`, `Chemistry`, `Mathematics`, `Biology`).
+   - Filter segmented buttons: `All Notes` | `Free Notes` | `My Course Notes`.
+2. Note Card Component (`NoteCard.kt`):
+   - High-contrast card with PDF vector badge.
+   - Subject pill, Category label, and File size badge.
+   - Access indicator:
+     - Green `FREE` pill or unlocked status.
+     - Amber `PRO / LOCKED` badge if the student has not purchased the linked course.
+   - Action click handler:
+     - If unlocked: Launches `PdfReaderActivity`.
+     - If locked: Triggers Course Purchase BottomSheet/Dialog ("Enroll in course to unlock these study notes").
+
+#### B. In-App Secure PDF Reader Screen (`PdfReaderActivity.kt`):
+- High-performance, butter-smooth PDF viewing using `AndroidPdfViewer` or Jetpack Compose Canvas / native `PdfRenderer`.
+- DRM & Anti-Piracy Security:
+  - Enforce `window.setFlags(WindowManager.LayoutParams.FLAG_SECURE, WindowManager.LayoutParams.FLAG_SECURE)` in `onCreate()` to completely block screenshots and third-party screen recordings.
+- Reader Features:
+  - Vertical continuous scrolling with pinch-to-zoom (up to 4x).
+  - Sticky Top Bar: Note title, back navigation arrow, and page counter indicator (e.g., `Page 14 / 28`).
+  - Search within document text (if rendered via text-extractable engine).
+  - Night Mode / Invert Colors toggle for comfortable night reading.
+  - Conditional Download Button: Only visible if `note.allowDownload == true`. When clicked, safely saves the PDF using Android `DownloadManager` or Scoped Storage.
+
+#### C. Smart Offline Caching (OkHttp Cache / Room):
+- Once a student opens a note, cache the downloaded byte stream locally in the app's encrypted private cache directory (`context.cacheDir`) so subsequent opens are instantaneous even without internet access.
+
+---
+
+### 4. REQUIRED DELIVERABLES:
+1. Web Admin Code (`admin.html`):
+   - Complete HTML markup for `#noteModal` and `#tab-notes`.
+   - JavaScript functions:
+     - `showNoteModal()`
+     - `editNote(noteId)`
+     - `saveNote()`
+     - `deleteNote(noteId)`
+     - `renderAdminNotes()`
+     - `autoFormatDriveLink(url)`
+2. Android Kotlin Implementation:
+   - `StudyNote.kt` data class with Firebase Realtime Database deserializer.
+   - `NotesScreen.kt` Jetpack Compose layout with Category & Subject filters.
+   - `PdfReaderActivity.kt` implementing the secure PDF reader with `FLAG_SECURE`, pinch-to-zoom, page indicator, and local caching.
+================================================================================
+
+
+================================================================================
+PROMPT 7: ADVANCED TEST SERIES SYSTEM
+(Admin Test Creator + Secure Android Test Engine + Real-time Results)
+================================================================================
+
+Act as a Principal Full-Stack Engineer and Android LMS Architect.
+
+I want to build a 100% comprehensive, production-grade Advanced Test Series System for an Educational LMS (Android App + Web Admin Panel).
+
+All objective tests, mock exams, and quiz questions must be created, edited, categorized, and managed from `admin.html`. 
+The Android App must provide a responsive Test Series Hub, reactive category/subject filtering, lock/unlock validation for paid courses, a High-Performance Test Taking Engine (with timers, pagination, question palettes), and an instant Score/Result Analyzer.
+
+---
+
+### TECH STACK & ARCHITECTURE:
+- Frontend Web Admin: HTML5, Tailwind CSS, FontAwesome 6 Icons
+- Database: Firebase Realtime Database (`/tests/{testId}`)
+- Real-time Sync: Modular Firebase SDK (`onValue`, `push`, `update`, `remove`)
+- Target Android Client: Kotlin, Jetpack Compose / XML View
+- Architecture: MVVM (Model-View-ViewModel) with StateFlow for test session tracking.
+
+---
+
+### 1. DATABASE SCHEMA (`tests/{testId}`):
+Each test record stored in Firebase Realtime Database must follow this rich schema:
+```json
+{
+  "id": "-Ntest_jee_5599",
+  "title": "Organic Chemistry Quiz 01",
+  "description": "Complete NCERT based objective questions. -1 for wrong answers.",
+  "category": "Class 12th",
+  "subject": "Chemistry",
+  "courseId": "-Ncourse_jee_01",
+  "courseName": "JEE Main Chemistry Mastery 2026",
+  "status": "Paid",
+  "accessType": "Paid",
+  "isFree": false,
+  "type": "Objective",
+  "timer": 20, 
+  "price": 0,
+  "discount": 0,
+  "paymentLink": "",
+  "questions": [
+    {
+      "q": "What is the hybridisation of carbon in Benzene?",
+      "a": "sp",
+      "b": "sp2",
+      "c": "sp3",
+      "d": "sp3d",
+      "ans": "b"
+    }
+  ],
+  "createdAt": 1725500000000,
+  "updatedAt": 1725500000000
+}
+```
+*Note: `timer` indicates seconds per question or total time depending on business logic.*
+
+---
+
+### 2. ADMIN PANEL IMPLEMENTATION (`admin.html`):
+
+#### A. Test Series Tab UI (`#tab-tests`):
+1. Header Section:
+   - Title: "Test Series & Quizzes"
+   - Subtitle: "Create and manage objective mock tests, quizzes, and assessments"
+   - Primary Action Button: `+ Create New Test` (opens `#advancedTestModal`).
+
+2. Tests Table & Card Grid:
+   - Clean layout showing Test Title, Subject, Category, Course linkage.
+   - Question Count & Total Time badge.
+   - Access status: `FREE` vs `PAID/PRO`.
+   - Action Buttons: `Edit`, `View Questions`, and `Delete`.
+
+#### B. Advanced Test Creator Modal (`#advancedTestModal`):
+A clean, multi-step responsive popup modal containing:
+1. Step 1: Basic Details & Configurations:
+   - Test Title & Description.
+   - Subject & Category Selectors (Dynamically populated).
+   - Linked Course Selector.
+   - Test Status (Free vs Paid).
+   - Paid Options (Price, Discount, Payment Link) appearing if Paid is selected.
+   - Timer Input (Seconds per question).
+   - Question Entry Method Selector (Three types of test launching systems).
+2. Step 2: Question Input Methods (3 Distinct Types Supported):
+   - **Method 1: Manual Entry (`setTestMethod('manual')`)**
+     - Dynamic list of question rows.
+     - Each row has text inputs for: Question Text, Option A, Option B, Option C, Option D, and a Correct Answer Dropdown (a, b, c, d).
+     - "Add Question" button to dynamically append new rows.
+   - **Method 2: JSON Upload (`setTestMethod('json')`)**
+     - Drag & Drop or File Picker for a `.json` file (`<input type="file" accept=".json">`).
+     - Reads the file containing a JSON array of objects (format: `[{q, a, b, c, d, ans}, ...]`).
+     - Previews the JSON and pushes directly to Firebase.
+   - **Method 3: Text / Word Parser (`setTestMethod('text')`)**
+     - Large `<textarea>` block for bulk-pasting copied text from MS Word or PDFs.
+     - Enforces standard text format logic:
+       `Q1. Question text here?`
+       `A. Option A`
+       `B. Option B`
+       `C. Option C`
+       `D. Option D`
+       `Answer: A`
+     - Uses JavaScript Regex/Split (`parseAndFinishText()`) to automatically convert this string into the structured JSON array.
+3. Action Buttons:
+   - "Save Test and Questions" which builds the array from the chosen method and saves/updates to `/tests`.
+
+---
+
+### 3. ANDROID CLIENT APP INTEGRATION (Kotlin & Jetpack Compose):
+
+#### A. Test Hub Screen UI (`TestHubScreen.kt`):
+1. Search & Filter Bar:
+   - Horizontal scrolling pills for Subjects (e.g., `All`, `Physics`, `Chemistry`).
+   - Filter segmented buttons: `All Tests` | `Free Tests` | `Paid Tests`.
+2. Test Card Component (`TestCard.kt`):
+   - High-contrast card showing title, subject, and question count.
+   - Access indicator: Green `FREE` pill or Amber `PRO` lock.
+   - Action click handler:
+     - If unlocked: Launches `TestInstructionsActivity`.
+     - If locked: Triggers Course Purchase Dialog.
+
+#### B. Active Test Engine Screen (`ActiveTestActivity.kt`):
+A highly robust, state-driven Jetpack Compose screen for the active exam:
+- Top App Bar:
+  - Global Countdown Timer / Per-Question Timer (e.g., `14:59` remaining).
+  - Test Title and Auto-Submit feature on timeout.
+- Question Area:
+  - Scrollable area displaying the question text and 4 selectable options (Radio buttons or Clickable Cards).
+- Bottom Navigation & Controls:
+  - "Previous" and "Next" buttons.
+  - "Clear Selection" / "Mark for Review" toggles.
+- Question Palette Drawer (Side Menu or Bottom Sheet):
+  - Grid of question numbers color-coded by status (e.g., Green = Answered, Red = Unanswered, Purple = Marked for Review).
+- Submit Button: Final confirmation dialog before calculating score.
+
+#### C. Score & Analytics Screen (`TestResultActivity.kt`):
+- High-impact visual summary shown immediately upon submission.
+- Circular Progress/Gauge Chart showing Percentage.
+- Stat blocks: Total Score, Correct Answers, Incorrect Answers, Unattempted.
+- Detailed Answer Key / Solution Review list below the stats.
+
+---
+
+### 4. REQUIRED DELIVERABLES:
+1. Web Admin Code (`admin.html`):
+   - HTML markup for `#advancedTestModal`.
+   - JS handlers: `showTestModal()`, `addManualQuestion()`, `finishTestCreation()`.
+2. Android Kotlin Implementation:
+   - `TestSeries.kt` and `Question.kt` data classes.
+   - `ActiveTestViewModel.kt` to handle test state, timers, and scoring logic.
+   - Jetpack Compose layouts for `TestHubScreen`, `ActiveTestScreen`, and `TestResultScreen`.
+================================================================================
+
+
+================================================================================
+PROMPT 8: DAILY TIMETABLE & SCHEDULE SYSTEM
+(Admin Image/Date Manager + Android Filterable Schedule Viewer)
+================================================================================
+
+Act as a Principal Full-Stack Engineer and Android LMS Architect.
+
+I want to build a "Daily Timetable & Class Schedule" system for an Educational LMS (Android App + Web Admin Panel).
+
+Admins should be able to upload a timetable image (a banner with the day's class schedule), attach a specific Date, Title, and an optional Contact Number from the `admin.html` panel. 
+The Android App must display a scrollable vertical feed of these timetables. It must include a Date Picker to filter schedules, display the images in a clean card layout, and have a direct "Call to Action" dialer button if a contact number is provided.
+
+---
+
+### TECH STACK & ARCHITECTURE:
+- Frontend Web Admin: HTML5, Tailwind CSS, FontAwesome 6 Icons
+- Database: Firebase Realtime Database (`/timetables/{timetableId}`)
+- Real-time Sync: Modular Firebase SDK (`onValue`, `push`, `update`, `remove`)
+- Target Android Client: Kotlin, Jetpack Compose / XML View
+- Architecture: MVVM (Model-View-ViewModel).
+
+---
+
+### 1. DATABASE SCHEMA (`timetables/{timetableId}`):
+Each timetable record stored in Firebase Realtime Database must follow this simple but robust schema:
+```json
+{
+  "id": "-Ntimetable_aug15",
+  "title": "Dropper Batch & 11th Foundation Schedule",
+  "imageUrl": "https://storage.example.com/timetables/tt_aug15.jpg",
+  "contact": "+919876543210",
+  "date": "2026-08-15",
+  "createdAt": 1725500000000,
+  "updatedAt": 1725500000000
+}
+```
+
+---
+
+### 2. ADMIN PANEL IMPLEMENTATION (`admin.html`):
+
+#### A. Timetable Tab UI (`#tab-timetable`):
+1. Header Section:
+   - Title: "Time Tables"
+   - Subtitle: "Manage Class Schedules"
+   - Primary Action Button: `+ Add Time Table` (opens `#timetableModal`).
+2. Timetables Table/Grid:
+   - Columns: Image Thumbnail, Title, Contact, Date, Actions.
+   - Action Buttons: `Edit (pen icon)` and `Delete (trash icon)`.
+
+#### B. Add/Edit Timetable Modal (`#timetableModal`):
+A clean popup modal containing:
+1. Title Input (Optional, e.g., "Class Schedule").
+2. Image URL Input (Required, the actual schedule image banner).
+3. Contact Number Input (Optional phone number for students to call for doubts).
+4. Date Picker Input (`<input type="date">` - Required, dictates which day the schedule applies to).
+5. Action Buttons:
+   - "Save Time Table" (handles both `create` via `fb.push` and `update` via Firebase set/update).
+
+---
+
+### 3. ANDROID CLIENT APP INTEGRATION (Kotlin & Jetpack Compose):
+
+#### A. Timetable Feed Screen UI (`TimetableScreen.kt`):
+1. Global Date Filter Bar:
+   - A row at the top featuring a visual Date Picker calendar icon.
+   - Users can tap to select a specific date (e.g., filter `date == '2026-08-15'`).
+   - If no date is selected, it shows all timetables sorted by most recent (`date` descending).
+2. Timetable Card Component (`TimetableCard.kt`):
+   - A large, visually appealing card featuring:
+     - Hero Image: Full-width `AsyncImage` (Coil library) showing `imageUrl` with rounded corners.
+     - Title: Bold header text (`title`).
+     - Formatted Date: Parse "2026-08-15" and display as "Sat, 15 Aug 2026" in a colored uppercase tracking pill.
+     - Contact Phone Number: A small text layout with a phone icon.
+     - Call Action Button: A distinct floating or anchored button (e.g., circular blue FAB-style button) that fires an `Intent.ACTION_DIAL` when clicked.
+
+---
+
+### 4. REQUIRED DELIVERABLES:
+1. Web Admin Code (`admin.html`):
+   - HTML markup for `#timetableModal` and `#tab-timetable`.
+   - JS handlers: `showTimetableModal()`, `saveTimetable()`, `editTimetable()`, `deleteItem()`.
+2. Android Kotlin Implementation:
+   - `Timetable.kt` data class.
+   - `TimetableViewModel.kt` to load data from Firebase and handle the active date filter state.
+   - `TimetableScreen.kt` Jetpack Compose layout to render the vertical scroll list and handle the `tel:` intent.
+================================================================================
+
+
+================================================================================
+PROMPT 9: HOME SLIDER & BANNER SYSTEM
+(Admin Banner Manager + Android Interactive Auto-Scrolling Pager)
+================================================================================
+
+Act as a Principal Full-Stack Engineer and Android LMS Architect.
+
+I want to build a "Dynamic Home Slider & Banner" system for an Educational LMS (Android App + Web Admin Panel).
+
+Admins should be able to upload promotional banners from `admin.html` and define "Click Actions" for them. A banner can either do nothing on click (Image Only), open a specific Course, open a PDF Note, open a Test Series, or open an external YouTube link.
+The Android App must display these banners on the Home screen as a high-quality auto-scrolling image carousel. When a user taps a banner, it should natively route them to the correct screen inside the app or open the external link based on the Admin's configuration.
+
+---
+
+### TECH STACK & ARCHITECTURE:
+- Frontend Web Admin: HTML5, Tailwind CSS, FontAwesome 6 Icons
+- Database: Firebase Realtime Database (`/sliders/{sliderId}`)
+- Real-time Sync: Modular Firebase SDK (`onValue`, `push`, `update`, `remove`)
+- Target Android Client: Kotlin, Jetpack Compose (`HorizontalPager`) or XML `ViewPager2`
+- Architecture: MVVM (Model-View-ViewModel).
+
+---
+
+### 1. DATABASE SCHEMA (`sliders/{sliderId}`):
+Each banner record stored in Firebase Realtime Database must follow this schema:
+```json
+{
+  "id": "-Nslider_diwali_sale",
+  "url": "https://storage.example.com/banners/diwali_offer.jpg",
+  "action": "course",
+  "target": "-Ncourse_jee_01",
+  "createdAt": 1725500000000,
+  "updatedAt": 1725500000000
+}
+```
+*Note on Actions:*
+- `action`: Can be `"none"`, `"course"`, `"note"`, `"test"`, or `"youtube"`.
+- `target`: Holds the corresponding `courseId`, `noteId`, `testId`, or full YouTube URL.
+
+---
+
+### 2. ADMIN PANEL IMPLEMENTATION (`admin.html`):
+
+#### A. Banner Management UI:
+1. Banner List/Grid:
+   - Display existing banners as thumbnail images.
+   - Show badge indicating the mapped action (e.g., "Linked to Course", "YouTube Link").
+   - Action Buttons: `Edit` and `Delete`.
+
+#### B. Add/Edit Slider Modal (`#sliderModal`):
+A clean popup modal containing:
+1. Banner Image URL Input (Required).
+2. Banner Click Action Dropdown:
+   - `<option value="none">No Action (Image Only)</option>`
+   - `<option value="course">Open Course</option>`
+   - `<option value="note">Open PDF Note</option>`
+   - `<option value="test">Open Test Series</option>`
+   - `<option value="youtube">External YouTube Link</option>`
+3. Dynamic Target Selector:
+   - If `course`, `note`, or `test` is selected: Show a `<select>` dropdown populated with existing items from Firebase.
+   - If `youtube` is selected: Show a text `<input>` for the video URL.
+   - If `none`: Hide target selector entirely.
+4. Action Buttons:
+   - "Save Banner" (handles `push` or `update` to `/sliders`).
+
+---
+
+### 3. ANDROID CLIENT APP INTEGRATION (Kotlin & Jetpack Compose):
+
+#### A. Home Screen Carousel UI (`HomeBannerSlider.kt`):
+1. Horizontal Pager Integration:
+   - Use Compose `HorizontalPager` (or `ViewPager2` with CircleIndicator).
+   - Display `AsyncImage` (Coil) filling the width with a standard aspect ratio (e.g., 16:9 or 21:9).
+   - Rounded corners and subtle shadows for a premium look.
+2. Auto-Scroll Logic:
+   - Implement a `LaunchedEffect` loop with `delay(3000L)` that automatically scrolls to the next page, and loops back to 0 when it reaches the end.
+3. Dot Indicator:
+   - A row of small dots underneath or layered over the bottom-center of the banner to show the current active page.
+
+#### B. Action Routing Logic (Click Handler):
+When the user clicks the banner, evaluate the `action` and `target` variables:
+- `action == "none"`: Do nothing.
+- `action == "course"`: Navigate to `CourseDetailsScreen(courseId = target)`.
+- `action == "note"`: Navigate to `PdfViewerScreen(noteId = target)`.
+- `action == "test"`: Navigate to `TestInstructionsScreen(testId = target)`.
+- `action == "youtube"`: Trigger `Intent.ACTION_VIEW` with the parsed YouTube URL (`Uri.parse(target)`).
+
+---
+
+### 4. REQUIRED DELIVERABLES:
+1. Web Admin Code (`admin.html`):
+   - HTML markup for `#sliderModal`.
+   - JS handlers: `showSliderModal()`, `toggleSliderTarget()` (to swap between `<select>` and `<input>`), `saveSlider()`.
+2. Android Kotlin Implementation:
+   - `BannerSlider.kt` data class.
+   - Jetpack Compose `HomeBannerSlider` component with Auto-scroll `LaunchedEffect` and Dot Indicators.
+   - Click routing logic `fun onBannerClick(banner: BannerSlider, navController: NavController, context: Context)`.
+================================================================================
+
+
+================================================================================
+PROMPT 10: FREE DEMO CLASSES SYSTEM
+(Admin Demo Manager + Android Home Feed + In-App Video Player & Redirect)
+================================================================================
+
+Act as a Principal Full-Stack Engineer and Android LMS Architect.
+
+I want to build a complete "Free Demo Classes / Sample Lectures" system for an Educational LMS (Android App + Web Admin Panel).
+
+Admins should be able to manage free demo video lectures from `admin.html` by providing a title, description, thumbnail, video URL (YouTube video or ID), and selecting a playback mode (`In-App` vs `Redirect`).
+The Android App must display these demo lectures on the Home screen in a horizontal carousel, as well as in a dedicated "Free Demos" screen. When a student taps a demo class, the app should either seamlessly play the video inside the app using an embedded video player or redirect them to the YouTube app based on the Admin's configuration.
+
+---
+
+### TECH STACK & ARCHITECTURE:
+- Frontend Web Admin: HTML5, Tailwind CSS, FontAwesome 6 Icons
+- Database: Firebase Realtime Database (`/demo/{demoId}`)
+- Real-time Sync: Modular Firebase SDK (`onValue`, `push`, `set`, `remove`)
+- Target Android Client: Kotlin, Jetpack Compose or XML Views
+- Video Playback: Android YouTube Player library (`com.pierfrancescosoffritti.androidyoutubeplayer:core`) or ExoPlayer / WebView Embed
+- Architecture: MVVM (Model-View-ViewModel with StateFlow).
+
+---
+
+### 1. DATABASE SCHEMA (`demo/{demoId}`):
+Each demo class record stored in Firebase Realtime Database must follow this schema:
+```json
+{
+  "id": "-Ndemo_physics_kinematics",
+  "title": "Kinematics 1D - Free Demo Lecture",
+  "description": "Master the basics of motion, velocity, and acceleration with live problem solving.",
+  "thumbnail": "https://storage.example.com/thumbnails/demo_kinematics.jpg",
+  "videoUrl": "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+  "playMode": "In-App",
+  "createdAt": 1725500000000,
+  "updatedAt": 1725500000000
+}
+```
+
+*Playback Modes (`playMode`):*
+- `"In-App"`: The video plays directly inside the Android application without forcing the student to leave.
+- `"Redirect"`: The app launches an external intent to open the lecture inside the official YouTube app or Web Browser.
+
+---
+
+### 2. ADMIN PANEL IMPLEMENTATION (`admin.html`):
+
+#### A. Demo Classes Management UI (`#tab-demo`):
+1. Header Section:
+   - Title: "Free Demo Classes"
+   - Subtitle: "Publish free sample lectures to convert visitors into enrolled students"
+   - Primary Action Button: `+ Add Demo Class` (opens `#demoModal`).
+2. Demo Grid / Cards:
+   - Thumbnail with 16:9 aspect ratio and play icon overlay.
+   - Title & brief description.
+   - Badge for Playback Mode: `In-App Player` (Green badge) vs `YouTube Redirect` (Red badge).
+   - Action Buttons: `Edit` (opens modal with prepopulated data) and `Delete` (with confirmation alert).
+
+#### B. Add/Edit Demo Modal (`#demoModal`):
+A clean popup modal containing:
+1. Hidden ID Input: `<input type="hidden" id="demoId">`
+2. Class Title Input: `<input type="text" id="dTitle" placeholder="Demo Class Title">` (Required)
+3. Description Textarea: `<textarea id="dDesc" placeholder="Key concepts covered...">` (Optional)
+4. Thumbnail Image URL: `<input type="text" id="dThumb" placeholder="Thumbnail URL">` (Required)
+5. Video URL or ID: `<input type="text" id="dVideo" placeholder="YouTube Video URL or 11-char Video ID">` (Required)
+6. Playback Mode Dropdown:
+   - `<option value="In-App">Play In-App (Embedded Player)</option>`
+   - `<option value="Redirect">Open in YouTube App (Redirect)</option>`
+7. Action Buttons:
+   - "Save Demo Class" button invoking `saveDemo()` (validates fields and calls `fb.push` or `fb.set`).
+   - "Cancel" button to dismiss the modal.
+
+---
+
+### 3. ANDROID CLIENT APP INTEGRATION (Kotlin & Jetpack Compose):
+
+#### A. Home Screen Section (`DemoClassesSection.kt`):
+1. Header Row:
+   - Section Title: "🎬 Free Demo Lectures"
+   - "View All" text button navigating to full demo lectures grid.
+2. Horizontal Scrolling Carousel (LazyRow):
+   - Renders `DemoClassCard` composables.
+3. `DemoClassCard` UI Design:
+   - Fixed width (e.g. `240.dp`) and 16:9 aspect ratio.
+   - Thumbnail banner rendered using Coil's `AsyncImage`.
+   - Centered frosted-glass circular play button icon (`Icons.Default.PlayArrow`).
+   - Title (bold, max 1 line with ellipsis).
+   - Subtitle/Description (small muted text, max 2 lines).
+   - "Free Lecture" pill tag in corner.
+
+#### B. Video Playback & Routing Architecture (`DemoPlayerActivity.kt` / `DemoPlayerScreen.kt`):
+When a user clicks on a `DemoClassCard`:
+1. Extract Video ID Helper:
+   Create a regex helper function `extractYoutubeVideoId(url: String): String?` to support formats:
+   - `https://youtu.be/<ID>`
+   - `https://www.youtube.com/watch?v=<ID>`
+   - `https://www.youtube.com/embed/<ID>`
+   - `https://www.youtube.com/shorts/<ID>`
+   - Raw 11-character string.
+
+2. Branching based on `demo.playMode`:
+   - Case 1: `demo.playMode == "Redirect"`:
+     Launch an external intent with package `com.google.android.youtube` and fallback to web browser.
+   - Case 2: `demo.playMode == "In-App"`:
+     Navigate to `DemoPlayerScreen(demoId = demo.id)` using `YouTubePlayerView` from `com.pierfrancescosoffritti.androidyoutubeplayer:core:12.1.0`. Include lecture title, full description, and a "Join Full Batch" / "Explore Courses" call-to-action button to drive course conversions.
+
+#### C. Dedicated "All Demo Classes" Screen (`DemoListScreen.kt`):
+- 2-column Grid (LazyVerticalGrid) or vertical scroll list of all available demo lectures fetched from Firebase node `/demo`.
+- Includes pull-to-refresh and empty-state placeholders.
+
+---
+
+### 4. REQUIRED DELIVERABLES:
+1. Web Admin Panel Code (`admin.html`):
+   - Complete markup for `#demoModal` and `#tab-demo`.
+   - JavaScript CRUD methods: `showDemoModal()`, `editDemo(id)`, `saveDemo()`, `deleteItem('demo', id)`.
+2. Android Kotlin Implementation:
+   - `DemoClass.kt` data model.
+   - `DemoViewModel.kt` listening to Firebase Realtime Database reference `/demo` via Coroutines/Flow.
+   - `DemoClassCard.kt` Jetpack Compose card component.
+   - `DemoPlayerScreen.kt` featuring the in-app player integration and fallback redirect logic.
+================================================================================
+

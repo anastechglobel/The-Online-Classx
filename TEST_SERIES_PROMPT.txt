@@ -1,0 +1,152 @@
+================================================================================
+          LMS ADVANCED TEST SERIES SYSTEM MASTER PROMPT
+   (Admin Test Creator + Secure Android Test Engine + Real-time Results)
+================================================================================
+
+Act as a Principal Full-Stack Engineer and Android LMS Architect.
+
+I want to build a 100% comprehensive, production-grade Advanced Test Series System for an Educational LMS (Android App + Web Admin Panel).
+
+All objective tests, mock exams, and quiz questions must be created, edited, categorized, and managed from `admin.html`. 
+The Android App must provide a responsive Test Series Hub, reactive category/subject filtering, lock/unlock validation for paid courses, a High-Performance Test Taking Engine (with timers, pagination, question palettes), and an instant Score/Result Analyzer.
+
+---
+
+### TECH STACK & ARCHITECTURE:
+- Frontend Web Admin: HTML5, Tailwind CSS, FontAwesome 6 Icons
+- Database: Firebase Realtime Database (`/tests/{testId}`)
+- Real-time Sync: Modular Firebase SDK (`onValue`, `push`, `update`, `remove`)
+- Target Android Client: Kotlin, Jetpack Compose / XML View
+- Architecture: MVVM (Model-View-ViewModel) with StateFlow for test session tracking.
+
+---
+
+### 1. DATABASE SCHEMA (`tests/{testId}`):
+Each test record stored in Firebase Realtime Database must follow this rich schema:
+```json
+{
+  "id": "-Ntest_jee_5599",
+  "title": "Organic Chemistry Quiz 01",
+  "description": "Complete NCERT based objective questions. -1 for wrong answers.",
+  "category": "Class 12th",
+  "subject": "Chemistry",
+  "courseId": "-Ncourse_jee_01",
+  "courseName": "JEE Main Chemistry Mastery 2026",
+  "status": "Paid",
+  "accessType": "Paid",
+  "isFree": false,
+  "type": "Objective",
+  "timer": 20, 
+  "price": 0,
+  "discount": 0,
+  "paymentLink": "",
+  "questions": [
+    {
+      "q": "What is the hybridisation of carbon in Benzene?",
+      "a": "sp",
+      "b": "sp2",
+      "c": "sp3",
+      "d": "sp3d",
+      "ans": "b"
+    }
+  ],
+  "createdAt": 1725500000000,
+  "updatedAt": 1725500000000
+}
+```
+*Note: `timer` indicates seconds per question or total time depending on business logic.*
+
+---
+
+### 2. ADMIN PANEL IMPLEMENTATION (`admin.html`):
+
+#### A. Test Series Tab UI (`#tab-tests`):
+1. Header Section:
+   - Title: "Test Series & Quizzes"
+   - Subtitle: "Create and manage objective mock tests, quizzes, and assessments"
+   - Primary Action Button: `+ Create New Test` (opens `#advancedTestModal`).
+
+2. Tests Table & Card Grid:
+   - Clean layout showing Test Title, Subject, Category, Course linkage.
+   - Question Count & Total Time badge.
+   - Access status: `FREE` vs `PAID/PRO`.
+   - Action Buttons: `Edit`, `View Questions`, and `Delete`.
+
+#### B. Advanced Test Creator Modal (`#advancedTestModal`):
+A clean, multi-step responsive popup modal containing:
+1. Step 1: Basic Details & Configurations:
+   - Test Title & Description.
+   - Subject & Category Selectors (Dynamically populated).
+   - Linked Course Selector.
+   - Test Status (Free vs Paid).
+   - Paid Options (Price, Discount, Payment Link) appearing if Paid is selected.
+   - Timer Input (Seconds per question).
+   - Question Entry Method Selector (Three types of test launching systems).
+2. Step 2: Question Input Methods (3 Distinct Types Supported):
+   - **Method 1: Manual Entry (`setTestMethod('manual')`)**
+     - Dynamic list of question rows.
+     - Each row has text inputs for: Question Text, Option A, Option B, Option C, Option D, and a Correct Answer Dropdown (a, b, c, d).
+     - "Add Question" button to dynamically append new rows.
+   - **Method 2: JSON Upload (`setTestMethod('json')`)**
+     - Drag & Drop or File Picker for a `.json` file (`<input type="file" accept=".json">`).
+     - Reads the file containing a JSON array of objects (format: `[{q, a, b, c, d, ans}, ...]`).
+     - Previews the JSON and pushes directly to Firebase.
+   - **Method 3: Text / Word Parser (`setTestMethod('text')`)**
+     - Large `<textarea>` block for bulk-pasting copied text from MS Word or PDFs.
+     - Enforces standard text format logic:
+       `Q1. Question text here?`
+       `A. Option A`
+       `B. Option B`
+       `C. Option C`
+       `D. Option D`
+       `Answer: A`
+     - Uses JavaScript Regex/Split (`parseAndFinishText()`) to automatically convert this string into the structured JSON array.
+3. Action Buttons:
+   - "Save Test and Questions" which builds the array from the chosen method and saves/updates to `/tests`.
+
+---
+
+### 3. ANDROID CLIENT APP INTEGRATION (Kotlin & Jetpack Compose):
+
+#### A. Test Hub Screen UI (`TestHubScreen.kt`):
+1. Search & Filter Bar:
+   - Horizontal scrolling pills for Subjects (e.g., `All`, `Physics`, `Chemistry`).
+   - Filter segmented buttons: `All Tests` | `Free Tests` | `Paid Tests`.
+2. Test Card Component (`TestCard.kt`):
+   - High-contrast card showing title, subject, and question count.
+   - Access indicator: Green `FREE` pill or Amber `PRO` lock.
+   - Action click handler:
+     - If unlocked: Launches `TestInstructionsActivity`.
+     - If locked: Triggers Course Purchase Dialog.
+
+#### B. Active Test Engine Screen (`ActiveTestActivity.kt`):
+A highly robust, state-driven Jetpack Compose screen for the active exam:
+- Top App Bar:
+  - Global Countdown Timer / Per-Question Timer (e.g., `14:59` remaining).
+  - Test Title and Auto-Submit feature on timeout.
+- Question Area:
+  - Scrollable area displaying the question text and 4 selectable options (Radio buttons or Clickable Cards).
+- Bottom Navigation & Controls:
+  - "Previous" and "Next" buttons.
+  - "Clear Selection" / "Mark for Review" toggles.
+- Question Palette Drawer (Side Menu or Bottom Sheet):
+  - Grid of question numbers color-coded by status (e.g., Green = Answered, Red = Unanswered, Purple = Marked for Review).
+- Submit Button: Final confirmation dialog before calculating score.
+
+#### C. Score & Analytics Screen (`TestResultActivity.kt`):
+- High-impact visual summary shown immediately upon submission.
+- Circular Progress/Gauge Chart showing Percentage.
+- Stat blocks: Total Score, Correct Answers, Incorrect Answers, Unattempted.
+- Detailed Answer Key / Solution Review list below the stats.
+
+---
+
+### 4. REQUIRED DELIVERABLES:
+1. Web Admin Code (`admin.html`):
+   - HTML markup for `#advancedTestModal`.
+   - JS handlers: `showTestModal()`, `addManualQuestion()`, `finishTestCreation()`.
+2. Android Kotlin Implementation:
+   - `TestSeries.kt` and `Question.kt` data classes.
+   - `ActiveTestViewModel.kt` to handle test state, timers, and scoring logic.
+   - Jetpack Compose layouts for `TestHubScreen`, `ActiveTestScreen`, and `TestResultScreen`.
+================================================================================
