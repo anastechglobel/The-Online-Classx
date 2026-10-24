@@ -6,7 +6,11 @@ export function SplashAndOffline() {
       {/* Premium Splash Screen */}
       <div id="splash">
         <div className="splash-logo-container">
-          <img src="logo.png" alt="TOC Logo" className="splash-logo-img" />
+          <img
+            src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='120' height='120' viewBox='0 0 120 120'><defs><linearGradient id='g' x1='0%' y1='0%' x2='100%' y2='100%'><stop offset='0%' stop-color='%234f46e5'/><stop offset='100%' stop-color='%237c3aed'/></linearGradient></defs><rect width='120' height='120' rx='28' fill='url(%23g)'/><text x='50%' y='54%' dominant-baseline='middle' text-anchor='middle' fill='white' font-family='sans-serif' font-weight='900' font-size='42'>TOC</text></svg>"
+            alt="TOC Logo"
+            className="splash-logo-img"
+          />
           <div className="splash-glow"></div>
         </div>
         <div className="splash-text-container">

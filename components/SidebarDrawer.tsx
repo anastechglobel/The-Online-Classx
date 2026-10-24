@@ -12,7 +12,15 @@ export function SidebarDrawer() {
         {/* Header (Fixed) */}
         <div className="p-6 border-b border-slate-800/80 bg-gradient-to-br from-slate-900 via-slate-900 to-blue-950/60 flex-shrink-0 relative overflow-hidden">
           <div className="absolute -right-8 -top-8 w-32 h-32 bg-blue-500/10 rounded-full blur-2xl pointer-events-none"></div>
-          <div className="flex items-center gap-4">
+          <button
+            onClick={() => window.toggleSidebar && window.toggleSidebar()}
+            aria-label="Close menu"
+            title="Close menu"
+            className="absolute top-3.5 right-3.5 w-8 h-8 rounded-xl bg-white/10 hover:bg-rose-500/20 text-slate-300 hover:text-rose-400 flex items-center justify-center transition-all active:scale-90 z-10 border border-white/10"
+          >
+            <i className="fa-solid fa-xmark text-sm"></i>
+          </button>
+          <div className="flex items-center gap-4 pr-7">
             <div
               id="sidebarAvatar"
               className="w-16 h-16 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-2xl flex items-center justify-center text-2xl font-black text-white shadow-lg shadow-blue-500/30 border-2 border-white/15 shrink-0"
@@ -166,6 +174,27 @@ export function SidebarDrawer() {
               PDF Library & Notes
             </span>
           </a>
+          <a
+            href="#books"
+            onClick={(e) => {
+              e.preventDefault();
+              window.navigateTo && window.navigateTo("books");
+              window.toggleSidebar && window.toggleSidebar();
+            }}
+            className="flex items-center gap-3.5 px-3.5 py-3 hover:bg-white/5 rounded-2xl transition-all group"
+          >
+            <div className="w-9 h-9 shrink-0 rounded-xl bg-cyan-500/15 text-cyan-400 flex items-center justify-center group-hover:bg-cyan-500 group-hover:text-white transition-all">
+              <i className="fa-solid fa-book text-sm"></i>
+            </div>
+            <div className="flex items-center justify-between flex-1 min-w-0">
+              <span className="font-bold text-sm text-slate-200 group-hover:text-white truncate">
+                Syllabus Books
+              </span>
+              <span className="px-2 py-0.5 rounded-md bg-amber-500/20 text-amber-300 text-[9px] font-black uppercase tracking-wider">
+                Paid Batch
+              </span>
+            </div>
+          </a>
 
           <a
             href="#admin"
@@ -224,6 +253,27 @@ export function SidebarDrawer() {
           </div>
 
           <div className="pt-4 mt-2 border-t border-slate-800/80 space-y-1.5">
+            <button
+              id="installAppSidebarBtn"
+              onClick={() => {
+                window.promptInstallApp && window.promptInstallApp();
+                window.toggleSidebar && window.toggleSidebar();
+              }}
+              className="flex items-center gap-3.5 px-3.5 py-3 w-full text-left text-emerald-400 hover:bg-emerald-500/10 rounded-2xl transition-all group"
+            >
+              <div className="w-9 h-9 shrink-0 rounded-xl bg-emerald-500/15 flex items-center justify-center group-hover:bg-emerald-500 group-hover:text-white transition-colors">
+                <i className="fa-solid fa-mobile-screen-button text-sm"></i>
+              </div>
+              <div className="min-w-0">
+                <span className="font-bold text-sm block leading-tight">
+                  Install Mobile App
+                </span>
+                <span className="text-[10px] text-slate-400 font-medium block">
+                  Add to Home Screen
+                </span>
+              </div>
+            </button>
+
             <button
               onClick={() => window.toggleDarkMode && window.toggleDarkMode()}
               className="flex items-center gap-3.5 px-3.5 py-3 w-full text-left text-slate-300 hover:bg-white/5 rounded-2xl transition-all group"

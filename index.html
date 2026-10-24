@@ -2,12 +2,19 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>The Online Classes | Premier EdTech Learning Portal</title>
     <meta name="description" content="The Online Classes is a full-featured EdTech platform for live classes, structured courses, study notes, and test series.">
     <meta property="og:title" content="The Online Classes | Premier EdTech Learning Portal">
     <meta property="og:description" content="The Online Classes is a full-featured EdTech platform for live classes, structured courses, study notes, and test series.">
     <meta name="theme-color" content="#0F172A">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="TOC App">
+    <meta name="format-detection" content="telephone=no">
+    <link rel="manifest" href="/manifest.json">
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
 
     <!-- Fonts: Plus Jakarta Sans, Inter & JetBrains Mono -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -21,8 +28,9 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 
-    <!-- Cashfree Payment Gateway SDK (v3) -->
+    <!-- Cashfree & Razorpay Payment Gateway SDKs -->
     <script src="https://sdk.cashfree.com/js/v3/cashfree.js"></script>
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 
     <!-- Tailwind CSS Runtime Config for Dynamic Utility Classes -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -49,8 +57,29 @@
             }
         }
     </script>
+    <script>
+        window.__deferredPwaPrompt = null;
+        window.addEventListener('beforeinstallprompt', function(e) {
+            e.preventDefault();
+            window.__deferredPwaPrompt = e;
+            if (typeof window.updateInstallAppUI === 'function') {
+                window.updateInstallAppUI();
+            }
+        });
+        window.addEventListener('appinstalled', function() {
+            window.__deferredPwaPrompt = null;
+            if (typeof window.updateInstallAppUI === 'function') {
+                window.updateInstallAppUI();
+            }
+        });
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', function() {
+                navigator.serviceWorker.register('/sw.js').catch(function() {});
+            });
+        }
+    </script>
 </head>
-<body class="antialiased selection:bg-indigo-500 selection:text-white">
+<body class="antialiased selection:bg-indigo-500 selection:text-white overflow-x-hidden">
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
 </body>

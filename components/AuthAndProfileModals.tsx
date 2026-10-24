@@ -13,17 +13,14 @@ export const AuthAndProfileModals: React.FC = () => {
       {/* AUTHENTICATION & PROFILE SETUP MODAL */}
       <div
         id="authSection"
-        className="fixed inset-0 z-50 bg-slate-950/90 backdrop-blur-xl hidden flex flex-col justify-center items-center p-6 overflow-y-auto"
+        className="fixed inset-0 z-50 bg-slate-950/90 backdrop-blur-xl hidden flex flex-col justify-center items-center p-4 sm:p-6 overflow-y-auto"
       >
-        <div className="bg-white dark:bg-slate-900 w-full max-w-md rounded-3xl p-8 shadow-2xl border border-slate-200/80 dark:border-slate-800 relative my-auto animate-fade-in">
+        <div className="bg-white dark:bg-slate-900 w-full max-w-md rounded-3xl p-6 sm:p-8 shadow-2xl border border-slate-200/80 dark:border-slate-800 relative my-auto animate-fade-in max-h-[92dvh] overflow-y-auto">
           <div className="text-center mb-6">
-            <img
+            <div
               id="authLogo"
-              src="https://via.placeholder.com/80"
-              className="w-20 h-20 rounded-2xl mx-auto mb-3 shadow-lg object-cover hidden"
-              alt="Auth Logo"
-            />
-            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-indigo-600 to-violet-600 text-white flex items-center justify-center font-extrabold text-xl font-display mx-auto mb-4 shadow-xl shadow-indigo-500/30">
+              className="w-16 h-16 rounded-2xl bg-gradient-to-br from-indigo-600 to-violet-600 text-white flex items-center justify-center font-extrabold text-xl font-display mx-auto mb-4 shadow-xl shadow-indigo-500/30 overflow-hidden"
+            >
               TOC
             </div>
             <h2 className="text-2xl font-extrabold text-slate-900 dark:text-white tracking-tight font-display">
@@ -34,7 +31,7 @@ export const AuthAndProfileModals: React.FC = () => {
             </p>
           </div>
 
-          <div id="loginForm" className="space-y-4">
+          <div id="loginForm" className="space-y-3">
             <button
               onClick={() => callWin('signInWithGoogle')}
               id="googleSignInBtn"
@@ -47,9 +44,16 @@ export const AuthAndProfileModals: React.FC = () => {
               />
               <span className="text-sm">Continue with Google</span>
             </button>
+            <button
+              onClick={() => callWin('signInAsGuest')}
+              className="w-full flex items-center justify-center gap-2 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-700 font-bold py-3.5 px-4 rounded-2xl transition active:scale-95 text-xs"
+            >
+              <i className="fa-solid fa-bolt text-amber-500"></i>
+              <span>Instant Guest Access</span>
+            </button>
           </div>
 
-          <div id="profileSetupForm" className="hidden space-y-4">
+          <div id="profileSetupForm" className="hidden space-y-3.5">
             <div className="bg-indigo-50 dark:bg-indigo-950/60 p-3 rounded-xl text-indigo-700 dark:text-indigo-300 text-xs font-bold mb-2 text-center border border-indigo-200/50 dark:border-indigo-800/50">
               Almost there! Complete your scholar profile
             </div>
@@ -116,22 +120,22 @@ export const AuthAndProfileModals: React.FC = () => {
       {/* EDIT PROFILE MODAL */}
       <div
         id="editProfileModal"
-        className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm hidden flex flex-col justify-center items-center p-6 overflow-y-auto"
+        className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm hidden flex flex-col justify-center items-center p-4 sm:p-6 overflow-y-auto"
       >
-        <div className="bg-white dark:bg-slate-900 w-full max-w-md rounded-3xl p-6 shadow-2xl border border-slate-200/80 dark:border-slate-800 relative my-auto animate-fade-in">
-          <div className="flex justify-between items-center mb-6 border-b border-slate-100 dark:border-slate-800 pb-3">
+        <div className="bg-white dark:bg-slate-900 w-full max-w-md rounded-3xl p-5 sm:p-6 shadow-2xl border border-slate-200/80 dark:border-slate-800 relative my-auto animate-fade-in max-h-[90dvh] overflow-y-auto">
+          <div className="flex justify-between items-center mb-5 border-b border-slate-100 dark:border-slate-800 pb-3">
             <h3 className="text-lg font-extrabold text-slate-900 dark:text-white font-display">
               Edit Scholar Profile
             </h3>
             <button
               onClick={() => callWin('closeEditProfileModal')}
-              className="w-8 h-8 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-500 hover:bg-slate-200"
+              className="w-9 h-9 rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-500 hover:bg-slate-200"
             >
               <i className="fa-solid fa-xmark"></i>
             </button>
           </div>
 
-          <div className="space-y-4">
+          <div className="space-y-3.5">
             <div className="input-group">
               <i className="fa-regular fa-user input-icon"></i>
               <input
@@ -193,12 +197,12 @@ export const AuthAndProfileModals: React.FC = () => {
       {/* SOCIAL MEDIA POPUP */}
       <div
         id="socialPopup"
-        className="fixed inset-0 z-50 bg-slate-950/75 hidden flex items-center justify-center p-6 backdrop-blur-sm animate-fade-in"
+        className="fixed inset-0 z-50 bg-slate-950/75 hidden flex items-center justify-center p-4 sm:p-6 backdrop-blur-sm animate-fade-in"
       >
-        <div className="bg-white dark:bg-slate-900 w-full max-w-sm rounded-3xl p-6 shadow-2xl border border-slate-200 dark:border-slate-800 relative text-center">
+        <div className="bg-white dark:bg-slate-900 w-full max-w-sm rounded-3xl p-5 sm:p-6 shadow-2xl border border-slate-200 dark:border-slate-800 relative text-center max-h-[88dvh] overflow-y-auto">
           <button
             onClick={() => callWin('closeSocialPopup')}
-            className="absolute top-4 right-4 w-8 h-8 bg-slate-100 dark:bg-slate-800 rounded-lg text-slate-500 hover:bg-slate-200 flex items-center justify-center"
+            className="absolute top-4 right-4 w-9 h-9 bg-slate-100 dark:bg-slate-800 rounded-xl text-slate-500 hover:bg-slate-200 flex items-center justify-center"
           >
             <i className="fa-solid fa-xmark"></i>
           </button>
@@ -208,7 +212,7 @@ export const AuthAndProfileModals: React.FC = () => {
           <h3 className="text-lg font-extrabold text-slate-900 dark:text-white font-display mb-1">
             Connect With Us
           </h3>
-          <p className="text-xs text-slate-500 dark:text-slate-400 mb-6">
+          <p className="text-xs text-slate-500 dark:text-slate-400 mb-5">
             Join our official channels for daily exam updates &amp; free study PDFs
           </p>
           <div id="socialLinksGrid" className="grid grid-cols-2 gap-3"></div>
@@ -218,12 +222,12 @@ export const AuthAndProfileModals: React.FC = () => {
       {/* SUPPORT POPUP */}
       <div
         id="supportPopup"
-        className="fixed inset-0 z-50 bg-slate-950/75 hidden flex items-center justify-center p-6 backdrop-blur-sm animate-fade-in"
+        className="fixed inset-0 z-50 bg-slate-950/75 hidden flex items-center justify-center p-4 sm:p-6 backdrop-blur-sm animate-fade-in"
       >
-        <div className="bg-white dark:bg-slate-900 w-full max-w-sm rounded-3xl p-6 shadow-2xl border border-slate-200 dark:border-slate-800 relative text-center">
+        <div className="bg-white dark:bg-slate-900 w-full max-w-sm rounded-3xl p-5 sm:p-6 shadow-2xl border border-slate-200 dark:border-slate-800 relative text-center max-h-[88dvh] overflow-y-auto">
           <button
             onClick={() => callWin('closeSupportPopup')}
-            className="absolute top-4 right-4 w-8 h-8 bg-slate-100 dark:bg-slate-800 rounded-lg text-slate-500 hover:bg-slate-200 flex items-center justify-center"
+            className="absolute top-4 right-4 w-9 h-9 bg-slate-100 dark:bg-slate-800 rounded-xl text-slate-500 hover:bg-slate-200 flex items-center justify-center"
           >
             <i className="fa-solid fa-xmark"></i>
           </button>
@@ -233,7 +237,7 @@ export const AuthAndProfileModals: React.FC = () => {
           <h3 className="text-lg font-extrabold text-slate-900 dark:text-white font-display mb-1">
             24/7 Student Care
           </h3>
-          <p className="text-xs text-slate-500 dark:text-slate-400 mb-6">
+          <p className="text-xs text-slate-500 dark:text-slate-400 mb-5">
             Need help with batch enrollment or technical issues? Reach out directly.
           </p>
           <div id="supportContactsList" className="space-y-3 text-left"></div>
@@ -245,7 +249,7 @@ export const AuthAndProfileModals: React.FC = () => {
         id="categorySelectorModal"
         className="fixed inset-0 z-50 bg-slate-950/75 hidden flex items-end sm:items-center justify-center sm:p-4 backdrop-blur-sm animate-fade-in"
       >
-        <div className="bg-white dark:bg-slate-900 w-full max-w-md rounded-t-3xl sm:rounded-3xl p-6 shadow-2xl border border-slate-200 dark:border-slate-800 max-h-[80vh] flex flex-col">
+        <div className="bg-white dark:bg-slate-900 w-full max-w-md rounded-t-3xl sm:rounded-3xl p-5 sm:p-6 pb-8 sm:pb-6 shadow-2xl border border-slate-200 dark:border-slate-800 max-h-[85dvh] flex flex-col">
           <div className="flex justify-between items-center mb-4 pb-3 border-b border-slate-100 dark:border-slate-800">
             <div>
               <h3 className="text-lg font-extrabold text-slate-900 dark:text-white font-display">
@@ -257,7 +261,7 @@ export const AuthAndProfileModals: React.FC = () => {
             </div>
             <button
               onClick={() => callWin('closeCategorySelector')}
-              className="w-8 h-8 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-500"
+              className="w-9 h-9 rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-500 shrink-0"
             >
               <i className="fa-solid fa-xmark"></i>
             </button>
@@ -271,18 +275,26 @@ export const AuthAndProfileModals: React.FC = () => {
         </div>
       </div>
 
-      {/* CASHFREE CHECKOUT MODAL */}
+      {/* MULTI-GATEWAY CHECKOUT MODAL (ZAPUPI, CASHFREE, RAZORPAY) */}
       <div
         id="cashfreeModal"
-        className="fixed inset-0 z-[100] bg-slate-950/80 backdrop-blur-md hidden flex items-center justify-center p-4 animate-fade-in"
+        className="fixed inset-0 z-[100] bg-slate-950/80 backdrop-blur-md hidden flex items-end sm:items-center justify-center p-0 sm:p-4 animate-fade-in"
       >
-        <div className="bg-white dark:bg-slate-900 w-full max-w-sm rounded-3xl p-6 shadow-2xl text-center relative overflow-hidden border border-slate-200 dark:border-slate-800">
+        <div className="bg-white dark:bg-slate-900 w-full max-w-sm rounded-t-3xl sm:rounded-3xl p-5 sm:p-6 pb-7 sm:pb-6 shadow-2xl text-center relative overflow-y-auto max-h-[92dvh] border border-slate-200 dark:border-slate-800">
+          <button
+            onClick={() => callWin('closeCashfreeModal')}
+            aria-label="Close modal"
+            title="Close"
+            className="absolute top-3.5 right-3.5 w-8 h-8 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-rose-100 dark:hover:bg-rose-950/70 text-slate-500 dark:text-slate-300 hover:text-rose-600 flex items-center justify-center transition-all active:scale-90 z-10"
+          >
+            <i className="fa-solid fa-xmark text-sm"></i>
+          </button>
           <div id="cashfreeModalBody">
             <div className="w-16 h-16 bg-indigo-50 dark:bg-indigo-950 text-indigo-600 rounded-2xl flex items-center justify-center mx-auto mb-4 text-2xl shadow-inner">
               <i className="fa-solid fa-shield-halved fa-beat-fade"></i>
             </div>
             <h3 className="text-lg font-extrabold text-slate-900 dark:text-white font-display mb-1">
-              Initializing Cashfree Checkout
+              Initializing Checkout
             </h3>
             <p className="text-xs text-slate-500 mb-4">
               Please wait while we prepare your encrypted payment session...

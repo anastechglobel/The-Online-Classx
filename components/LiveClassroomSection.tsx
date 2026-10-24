@@ -10,17 +10,27 @@ const callWin = (fnName: string, ...args: any[]) => {
 export const LiveClassroomSection: React.FC = () => {
   return (
     <section id="page-live" className="page px-4 sm:px-6 pt-6 pb-12">
-      <div className="mb-5">
-        <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-md bg-rose-500/10 text-rose-600 dark:text-rose-400 text-[10px] font-extrabold uppercase tracking-widest mb-1">
-          <span className="w-2 h-2 rounded-full bg-rose-500 animate-ping"></span>
-          Interactive Broadcasts
+      <div className="flex items-start justify-between gap-3 mb-5">
+        <div>
+          <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-md bg-rose-500/10 text-rose-600 dark:text-rose-400 text-[10px] font-extrabold uppercase tracking-widest mb-1">
+            <span className="w-2 h-2 rounded-full bg-rose-500 animate-ping"></span>
+            Interactive Broadcasts
+          </div>
+          <h2 className="text-2xl font-extrabold text-slate-900 dark:text-white font-display tracking-tight">
+            Live Classrooms
+          </h2>
+          <p className="text-xs text-slate-500 dark:text-slate-400">
+            Attend real-time classes, upcoming scheduled sessions, and HD recorded archives
+          </p>
         </div>
-        <h2 className="text-2xl font-extrabold text-slate-900 dark:text-white font-display tracking-tight">
-          Live Classrooms
-        </h2>
-        <p className="text-xs text-slate-500 dark:text-slate-400">
-          Attend real-time classes, upcoming scheduled sessions, and HD recorded archives
-        </p>
+        <button
+          onClick={() => callWin('switchPage', 'home')}
+          aria-label="Close tab and go back to Home"
+          title="Back to Home"
+          className="w-9 h-9 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-rose-50 dark:hover:bg-rose-950/60 text-slate-600 dark:text-slate-300 hover:text-rose-600 flex items-center justify-center transition-all active:scale-90 shrink-0 border border-slate-200/70 dark:border-slate-700/70"
+        >
+          <i className="fa-solid fa-xmark text-base"></i>
+        </button>
       </div>
 
       {/* Subject Filters */}
@@ -53,9 +63,9 @@ export const LiveClassroomSection: React.FC = () => {
           onChange={() => callWin('renderLivePageContent')}
           className="glass-card rounded-xl px-3.5 py-2.5 text-xs font-bold text-slate-700 dark:text-slate-200 focus:outline-none shrink-0"
         >
-          <option value="all">All Access</option>
-          <option value="free">Free Demo</option>
-          <option value="paid">Batch Exclusive</option>
+          <option value="All">All Access</option>
+          <option value="Free">Free Demo</option>
+          <option value="Paid">Batch Exclusive</option>
         </select>
       </div>
 
@@ -64,27 +74,27 @@ export const LiveClassroomSection: React.FC = () => {
         <button
           onClick={() => callWin('switchLiveTab', 'ongoing')}
           id="live-tab-ongoing"
-          className="flex-1 py-2.5 text-xs font-extrabold rounded-xl bg-indigo-600 shadow-sm text-white transition flex items-center justify-center gap-1.5"
+          className="live-tab active flex-1 py-2.5 text-xs font-extrabold rounded-xl bg-white dark:bg-slate-800 shadow-sm text-blue-600 dark:text-blue-400 transition flex items-center justify-center gap-1.5"
         >
-          <span className="w-2 h-2 rounded-full bg-rose-400 animate-ping"></span> Live Now
+          <span className="w-2 h-2 rounded-full bg-rose-500 animate-ping"></span> Live Now
         </button>
         <button
           onClick={() => callWin('switchLiveTab', 'scheduled')}
           id="live-tab-scheduled"
-          className="flex-1 py-2.5 text-xs font-bold rounded-xl text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 transition"
+          className="live-tab flex-1 py-2.5 text-xs font-bold rounded-xl text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 transition"
         >
           Upcoming
         </button>
         <button
           onClick={() => callWin('switchLiveTab', 'recorded')}
           id="live-tab-recorded"
-          className="flex-1 py-2.5 text-xs font-bold rounded-xl text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 transition"
+          className="live-tab flex-1 py-2.5 text-xs font-bold rounded-xl text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 transition"
         >
           Recorded HD
         </button>
       </div>
 
-      <div id="live-ongoing-content">
+      <div id="live-ongoing-content" className="live-content active">
         <div
           id="fullLiveList"
           className="grid grid-cols-1 md:grid-cols-2 gap-4"
@@ -105,14 +115,14 @@ export const LiveClassroomSection: React.FC = () => {
         </div>
       </div>
 
-      <div id="live-scheduled-content" className="hidden">
+      <div id="live-scheduled-content" className="live-content hidden">
         <div
           id="scheduledLiveList"
           className="grid grid-cols-1 md:grid-cols-2 gap-4"
         ></div>
       </div>
 
-      <div id="live-recorded-content" className="hidden">
+      <div id="live-recorded-content" className="live-content hidden">
         <div
           id="recordedLiveList"
           className="grid grid-cols-1 md:grid-cols-2 gap-4"

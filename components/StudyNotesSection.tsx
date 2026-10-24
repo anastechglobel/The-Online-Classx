@@ -10,16 +10,26 @@ const callWin = (fnName: string, ...args: any[]) => {
 export const StudyNotesSection: React.FC = () => {
   return (
     <section id="page-notes" className="page px-4 sm:px-6 pt-6 pb-12">
-      <div className="mb-5">
-        <span className="text-[10px] font-bold uppercase tracking-widest text-amber-600 dark:text-amber-400 block mb-0.5">
-          Digital Library
-        </span>
-        <h2 className="text-2xl font-extrabold text-slate-900 dark:text-white font-display tracking-tight">
-          Study Notes &amp; PDFs
-        </h2>
-        <p className="text-xs text-slate-500 dark:text-slate-400">
-          High-yield revision handouts, formula sheets, and chapter summaries
-        </p>
+      <div className="flex items-start justify-between gap-3 mb-5">
+        <div>
+          <span className="text-[10px] font-bold uppercase tracking-widest text-amber-600 dark:text-amber-400 block mb-0.5">
+            Digital Library
+          </span>
+          <h2 className="text-2xl font-extrabold text-slate-900 dark:text-white font-display tracking-tight">
+            Study Notes &amp; PDFs
+          </h2>
+          <p className="text-xs text-slate-500 dark:text-slate-400">
+            High-yield revision handouts, formula sheets, and chapter summaries
+          </p>
+        </div>
+        <button
+          onClick={() => callWin('switchPage', 'home')}
+          aria-label="Close tab and go back to Home"
+          title="Back to Home"
+          className="w-9 h-9 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-rose-50 dark:hover:bg-rose-950/60 text-slate-600 dark:text-slate-300 hover:text-rose-600 flex items-center justify-center transition-all active:scale-90 shrink-0 border border-slate-200/70 dark:border-slate-700/70"
+        >
+          <i className="fa-solid fa-xmark text-base"></i>
+        </button>
       </div>
 
       {/* Category Filter */}
@@ -52,9 +62,9 @@ export const StudyNotesSection: React.FC = () => {
           onChange={() => callWin('renderNotesPageContent')}
           className="glass-card rounded-xl px-3.5 py-2.5 text-xs font-bold text-slate-700 dark:text-slate-200 focus:outline-none shrink-0"
         >
-          <option value="all">All Material</option>
-          <option value="free">Free PDFs</option>
-          <option value="paid">Premium Notes</option>
+          <option value="All">All Material</option>
+          <option value="Free">Free PDFs</option>
+          <option value="Paid">Premium Notes</option>
         </select>
       </div>
 

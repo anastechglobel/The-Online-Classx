@@ -182,6 +182,23 @@ export const HomeDashboard: React.FC = () => {
           </div>
 
           <div
+            onClick={() => callWin('switchPage', 'books')}
+            className="glass-card p-4 rounded-2xl flex items-center gap-3.5 cursor-pointer group border border-indigo-200/60 dark:border-indigo-800/50"
+          >
+            <div className="w-12 h-12 rounded-xl bg-cyan-500/10 dark:bg-cyan-500/20 text-cyan-600 dark:text-cyan-400 flex items-center justify-center text-xl group-hover:bg-cyan-600 group-hover:text-white transition-all duration-200 shrink-0">
+              <i className="fa-solid fa-book"></i>
+            </div>
+            <div className="min-w-0">
+              <span className="text-xs sm:text-sm font-extrabold text-slate-800 dark:text-slate-100 block truncate">
+                Books
+              </span>
+              <span className="text-[11px] text-indigo-600 dark:text-indigo-400 font-bold block truncate">
+                Syllabus Textbooks
+              </span>
+            </div>
+          </div>
+
+          <div
             onClick={() => callWin('switchPage', 'timetable')}
             className="glass-card p-4 rounded-2xl flex items-center gap-3.5 cursor-pointer group"
           >
@@ -211,23 +228,6 @@ export const HomeDashboard: React.FC = () => {
               </span>
               <span className="text-[11px] text-slate-500 dark:text-slate-400 block truncate">
                 25m Deep Study
-              </span>
-            </div>
-          </div>
-
-          <div
-            onClick={() => callWin('openQuoteModal')}
-            className="glass-card p-4 rounded-2xl flex items-center gap-3.5 cursor-pointer group"
-          >
-            <div className="w-12 h-12 rounded-xl bg-pink-500/10 dark:bg-pink-500/20 text-pink-600 dark:text-pink-400 flex items-center justify-center text-xl group-hover:bg-pink-600 group-hover:text-white transition-all duration-200 shrink-0">
-              <i className="fa-solid fa-bolt-lightning"></i>
-            </div>
-            <div className="min-w-0">
-              <span className="text-xs sm:text-sm font-extrabold text-slate-800 dark:text-slate-100 block truncate">
-                Daily Spark
-              </span>
-              <span className="text-[11px] text-slate-500 dark:text-slate-400 block truncate">
-                Motivation Boost
               </span>
             </div>
           </div>
@@ -275,6 +275,31 @@ export const HomeDashboard: React.FC = () => {
         >
           <div className="glass-card rounded-2xl p-4 h-64 animate-pulse bg-slate-200/60 dark:bg-slate-800/60"></div>
         </div>
+      </div>
+
+      {/* SYLLABUS BOOKS SECTION ON HOME */}
+      <div id="booksHomeSection" className="mb-10 hidden">
+        <div className="flex justify-between items-end mb-4">
+          <div>
+            <span className="text-[10px] font-bold uppercase tracking-widest text-cyan-600 dark:text-cyan-400 block mb-0.5">
+              Digital Textbooks • Paid Batch Exclusive
+            </span>
+            <h3 className="text-lg sm:text-xl font-extrabold text-slate-900 dark:text-white font-display tracking-tight flex items-center gap-2">
+              <i className="fa-solid fa-book text-cyan-600 dark:text-cyan-400 text-base"></i>
+              Syllabus Books
+            </h3>
+          </div>
+          <button
+            onClick={() => callWin('switchPage', 'books')}
+            className="text-xs font-bold text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 flex items-center gap-1.5 bg-indigo-50 dark:bg-indigo-950/60 border border-indigo-200/60 dark:border-indigo-800/50 px-3.5 py-2 rounded-xl transition"
+          >
+            View All Books <i className="fa-solid fa-arrow-right text-[10px]"></i>
+          </button>
+        </div>
+        <div
+          id="homeBooksList"
+          className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4"
+        ></div>
       </div>
 
       {/* ONGOING LIVE CLASSES */}

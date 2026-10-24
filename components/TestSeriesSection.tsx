@@ -10,7 +10,7 @@ const callWin = (fnName: string, ...args: any[]) => {
 export const TestSeriesSection: React.FC = () => {
   return (
     <section id="page-tests" className="page px-4 sm:px-6 pt-6 pb-12">
-      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3 mb-6">
+      <div className="flex items-start justify-between gap-3 mb-6">
         <div>
           <span className="text-[10px] font-bold uppercase tracking-widest text-emerald-600 dark:text-emerald-400 block mb-0.5">
             CBT Assessment Suite
@@ -23,6 +23,14 @@ export const TestSeriesSection: React.FC = () => {
           </p>
         </div>
         <input type="hidden" id="testTypeFilter" defaultValue="all" />
+        <button
+          onClick={() => callWin('switchPage', 'home')}
+          aria-label="Close tab and go back to Home"
+          title="Back to Home"
+          className="w-9 h-9 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-rose-50 dark:hover:bg-rose-950/60 text-slate-600 dark:text-slate-300 hover:text-rose-600 flex items-center justify-center transition-all active:scale-90 shrink-0 border border-slate-200/70 dark:border-slate-700/70"
+        >
+          <i className="fa-solid fa-xmark text-base"></i>
+        </button>
       </div>
 
       {/* Free / Paid Segmented Tabs */}

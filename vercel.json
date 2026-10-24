@@ -1,0 +1,39 @@
+{
+  "version": 2,
+  "buildCommand": "vite build",
+  "outputDirectory": "dist",
+  "rewrites": [
+    {
+      "source": "/api/(.*)",
+      "destination": "/api"
+    },
+    {
+      "source": "/cashfree/(.*)",
+      "destination": "/api"
+    },
+    {
+      "source": "/razorpay/(.*)",
+      "destination": "/api"
+    },
+    {
+      "source": "/zapupi/(.*)",
+      "destination": "/api"
+    },
+    {
+      "source": "/webhook",
+      "destination": "/api"
+    },
+    {
+      "source": "/health",
+      "destination": "/api"
+    },
+    {
+      "source": "/admin",
+      "destination": "/admin.html"
+    },
+    {
+      "source": "/((?!api/|cashfree/|razorpay/|zapupi/|webhook|health|admin\\.html|assets/|favicon\\.ico|manifest\\.json|robots\\.txt|sitemap\\.xml).*)",
+      "destination": "/index.html"
+    }
+  ]
+}

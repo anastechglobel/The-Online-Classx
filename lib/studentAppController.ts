@@ -84,7 +84,17 @@ export function initStudentAppController() {
   };
   const safeSetSrc = (id: string, src: string) => {
     const el = document.getElementById(id) as HTMLImageElement | HTMLIFrameElement | null;
-    if (el) el.src = src;
+    if (!el) return;
+    if (!src) {
+      if (el.tagName === "IFRAME") {
+        el.src = "about:blank";
+      } else {
+        el.src =
+          "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='640' height='360' viewBox='0 0 640 360'><rect width='640' height='360' fill='%230f172a'/></svg>";
+      }
+      return;
+    }
+    el.src = src;
   };
   const safeGetText = (id: string, def = "") => {
     const el = document.getElementById(id);
@@ -123,6 +133,7 @@ export function initStudentAppController() {
   let allTestsCached: any[] = [];
   let allLiveCached: any[] = [];
   let allNotesCached: any[] = [];
+  let allBooksCached: any[] = [];
   let allTimetablesCached: any[] = [];
   let allToppersCached: any[] = [];
   let allQuizLeaderboardCached: any[] = [];
@@ -249,6 +260,7 @@ export function initStudentAppController() {
     renderTests();
     renderLive();
     renderNotes();
+    renderBooks();
     renderCategoryFilters();
 
     const sideCat = document.getElementById("sidebarCategory");
@@ -816,10 +828,10 @@ export function initStudentAppController() {
       });
       nList.innerHTML += `
         <div class="glass-card p-3.5 rounded-2xl relative group animate-in fade-in slide-in-from-bottom-2 duration-300">
-          <button onclick="hideNotification('${id}')" class="absolute top-2.5 right-2.5 w-6 h-6 rounded-lg bg-slate-100/80 dark:bg-slate-800/80 text-slate-400 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all hover:bg-rose-50 hover:text-rose-500">
-            <i class="fa-solid fa-xmark text-[10px]"></i>
+          <button onclick="hideNotification('${id}')" aria-label="Dismiss notification" title="Dismiss notification" class="absolute top-2.5 right-2.5 w-7 h-7 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-300 flex items-center justify-center transition-all hover:bg-rose-100 dark:hover:bg-rose-950/80 hover:text-rose-600 dark:hover:text-rose-400 active:scale-90 border border-slate-200/70 dark:border-slate-700/70">
+            <i class="fa-solid fa-xmark text-xs"></i>
           </button>
-          <div class="flex items-center gap-1.5 text-[10px] font-bold text-slate-400 dark:text-slate-500 mb-1 pr-6">
+          <div class="flex items-center gap-1.5 text-[10px] font-bold text-slate-400 dark:text-slate-500 mb-1 pr-8">
             <span class="w-1.5 h-1.5 rounded-full bg-blue-600 shrink-0"></span>
             <span class="text-blue-600 dark:text-blue-400 font-extrabold uppercase tracking-wider">${
               n.category || "Global"
@@ -827,10 +839,10 @@ export function initStudentAppController() {
             <span>·</span>
             <span class="tabular-nums">${timeStr}</span>
           </div>
-          <h3 class="font-display font-bold text-xs text-slate-900 dark:text-white tracking-tight line-clamp-1 mb-0.5">${
+          <h3 class="font-display font-bold text-xs text-slate-900 dark:text-white tracking-tight line-clamp-1 mb-0.5 pr-8">${
             n.title || ""
           }</h3>
-          <p class="text-[11px] text-slate-600 dark:text-slate-400 font-medium leading-relaxed line-clamp-2">${
+          <p class="text-[11px] text-slate-600 dark:text-slate-400 font-medium leading-relaxed line-clamp-2 pr-2">${
             n.message || ""
           }</p>
         </div>
@@ -1335,6 +1347,7 @@ export function initStudentAppController() {
   let activeTestSubject = "";
   let activeLiveSubject = "";
   let activeNoteSubject = "";
+  let activeBookSubject = "";
 
   window.selectTestSubject = function (sub: string) {
     activeTestSubject = sub;
@@ -1348,20 +1361,30 @@ export function initStudentAppController() {
     activeNoteSubject = sub;
     renderNotes();
   };
+  window.selectBookSubject = function (sub: string) {
+    activeBookSubject = sub;
+    renderBooks();
+  };
 
   let activeTestTab = "Free";
   function setTestTab(tab: string) {
-    activeTestTab = tab;
+    const norm =
+      tab.toLowerCase() === "all"
+        ? "All"
+        : tab.toLowerCase() === "paid"
+        ? "Paid"
+        : "Free";
+    activeTestTab = norm;
     const bAll = document.getElementById("tabTestAll");
     const bFree = document.getElementById("tabTestFree");
     const bPaid = document.getElementById("tabTestPaid");
     const activeCls =
-      "text-[10px] font-extrabold uppercase px-4 py-2 rounded-lg bg-white dark:bg-slate-800 text-blue-600 dark:text-blue-400 shadow-sm transition-all";
+      "flex-1 py-2 text-xs font-extrabold rounded-xl bg-indigo-600 text-white shadow-sm transition";
     const inactiveCls =
-      "text-[10px] font-extrabold uppercase px-4 py-2 rounded-lg text-slate-500 transition-all";
-    if (bAll) bAll.className = tab === "All" ? activeCls : inactiveCls;
-    if (bFree) bFree.className = tab === "Free" ? activeCls : inactiveCls;
-    if (bPaid) bPaid.className = tab === "Paid" ? activeCls : inactiveCls;
+      "flex-1 py-2 text-xs font-bold rounded-xl text-slate-500 dark:text-slate-400 hover:text-slate-800 transition";
+    if (bAll) bAll.className = norm === "All" ? activeCls : inactiveCls;
+    if (bFree) bFree.className = norm === "Free" ? activeCls : inactiveCls;
+    if (bPaid) bPaid.className = norm === "Paid" ? activeCls : inactiveCls;
     renderTests();
   }
 
@@ -1551,6 +1574,8 @@ export function initStudentAppController() {
 
   function isItemFree(item: any, itemType?: string): boolean {
     if (!item) return true;
+    // Syllabus Books are strictly for Paid / Enrolled users only
+    if (itemType === "book") return false;
 
     const isExplicitlyFree =
       item.isFree === true ||
@@ -1605,6 +1630,11 @@ export function initStudentAppController() {
           (c.linkedLiveId === item.id || (c.linkedLiveIds && c.linkedLiveIds.includes(item.id)))
         )
           isLinked = true;
+        if (
+          itemType === "book" &&
+          (c.linkedBookId === item.id || (c.linkedBookIds && c.linkedBookIds.includes(item.id)))
+        )
+          isLinked = true;
 
         if (isLinked) {
           if (!isItemFree(c, "course")) return false;
@@ -1617,7 +1647,7 @@ export function initStudentAppController() {
 
   function checkItemAccess(item: any, itemType?: string): boolean {
     if (!item) return false;
-    if (isItemFree(item, itemType)) return true;
+    if (itemType !== "book" && isItemFree(item, itemType)) return true;
 
     if (!userData || !userData.purchased) return false;
     if (userData.purchased[item.id]) return true;
@@ -1638,6 +1668,18 @@ export function initStudentAppController() {
           } else if (itemType === "live") {
             if (course.linkedLiveId === item.id) return true;
             if (course.linkedLiveIds && course.linkedLiveIds.includes(item.id)) return true;
+          } else if (itemType === "book") {
+            if (course.linkedBookId === item.id) return true;
+            if (course.linkedBookIds && course.linkedBookIds.includes(item.id)) return true;
+            // If book has no specific courseId or matches the purchased course's category, unlock for paid course student
+            if (
+              !item.courseId &&
+              item.category &&
+              course.category &&
+              item.category.toLowerCase() === course.category.toLowerCase()
+            ) {
+              return true;
+            }
           }
         }
       }
@@ -1666,6 +1708,17 @@ export function initStudentAppController() {
           (c.linkedLiveId === item.id || (c.linkedLiveIds && c.linkedLiveIds.includes(item.id)))
         )
           return c.id;
+        if (
+          itemType === "book" &&
+          (c.linkedBookId === item.id || (c.linkedBookIds && c.linkedBookIds.includes(item.id)))
+        )
+          return c.id;
+      }
+      if (itemType === "book" && item.category) {
+        const catCourse = allCoursesCached.find(
+          (c) => c.category && c.category.toLowerCase() === String(item.category).toLowerCase()
+        );
+        if (catCourse) return catCourse.id;
       }
     }
     return null;
@@ -1683,9 +1736,12 @@ export function initStudentAppController() {
     } else if (itemType === "live") {
       item = (allLiveCached || []).find((x) => x.id === itemId);
       label = "live class";
+    } else if (itemType === "book") {
+      item = (allBooksCached || []).find((x) => x.id === itemId);
+      label = "syllabus book (Paid Batch Exclusive)";
     }
 
-    showToast(`Please purchase the linked course to unlock this ${label}`);
+    showToast(`Please purchase the course to unlock this ${label}`);
     const courseId = getCourseIdForItem(item || { id: itemId }, itemType);
     if (courseId) {
       setTimeout(() => openCourse(courseId, "Paid"), 600);
@@ -2005,13 +2061,168 @@ export function initStudentAppController() {
     });
   }
 
+  function generateBookCard(b: any) {
+    const hasAccess = checkItemAccess(b, "book");
+    const safeTitle = (b.title || "Syllabus Book").replace(/'/g, "\\'");
+    const safeUrl = (b.url || "").replace(/'/g, "\\'");
+    const clickAction = hasAccess
+      ? `viewPdf('${safeUrl}', '${safeTitle}')`
+      : `handleLockedItemClick('${b.id}', 'book')`;
+
+    const encodedTitle = encodeURIComponent((b.title || "BOOK").slice(0, 22));
+    const fallbackCover = `data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='360' height='480' viewBox='0 0 360 480'%3E%3Cdefs%3E%3ClinearGradient id='bg' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%231e1b4b'/%3E%3Cstop offset='50%25' stop-color='%23312e81'/%3E%3Cstop offset='100%25' stop-color='%230f172a'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='360' height='480' fill='url(%23bg)'/%3E%3Crect x='18' y='18' width='324' height='444' rx='14' fill='none' stroke='%236366f1' stroke-width='2' stroke-opacity='0.4'/%3E%3Ctext x='50%25' y='45%25' dominant-baseline='middle' text-anchor='middle' font-family='sans-serif' font-weight='800' font-size='20' fill='%23ffffff'%3E${encodedTitle}%3C/text%3E%3Ctext x='50%25' y='56%25' dominant-baseline='middle' text-anchor='middle' font-family='sans-serif' font-weight='700' font-size='12' fill='%23a5b4fc'%3ESYLLABUS TEXTBOOK%3C/text%3E%3C/svg%3E`;
+    const coverImg = b.coverUrl || b.thumbnail || fallbackCover;
+
+    const linkedCourseId = getCourseIdForItem(b, "book");
+    const linkedCourseObj = linkedCourseId
+      ? (allCoursesCached || []).find((c) => c.id === linkedCourseId)
+      : null;
+    const batchLabel =
+      (b.courseName && b.courseName !== "None" && b.courseName !== "General"
+        ? b.courseName
+        : linkedCourseObj?.title) ||
+      b.category ||
+      "Batch Exclusive";
+
+    return `
+      <div onclick="${clickAction}" class="glass-card rounded-2xl overflow-hidden flex flex-col group cursor-pointer hover:-translate-y-1 hover:shadow-elevated transition-all duration-300 active:scale-[0.98] border border-slate-200/80 dark:border-slate-800">
+        <div class="relative aspect-[3/4] w-full bg-slate-900 overflow-hidden">
+          <img src="${coverImg}" onerror="this.onerror=null;this.src='${fallbackCover}';" referrerPolicy="no-referrer" alt="${
+      b.title || "Book Cover"
+    }" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
+          <div class="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-950/20 to-transparent"></div>
+
+          <div class="absolute top-2.5 left-2.5 right-2.5 flex items-center justify-between gap-1 z-10">
+            <span class="px-2 py-0.5 rounded-md bg-slate-900/80 backdrop-blur-md text-white border border-white/15 text-[9px] font-extrabold uppercase tracking-wider truncate">
+              ${b.subject || b.category || "Syllabus"}
+            </span>
+            ${
+              hasAccess
+                ? '<span class="px-2 py-0.5 rounded-md bg-emerald-500/95 text-white text-[8px] font-black uppercase tracking-wider shadow-sm"><i class="fa-solid fa-book-open mr-1"></i>Unlocked</span>'
+                : '<span class="px-2 py-0.5 rounded-md bg-amber-500/95 text-white text-[8px] font-black uppercase tracking-wider shadow-sm"><i class="fa-solid fa-lock mr-1"></i>Paid</span>'
+            }
+          </div>
+
+          ${
+            !hasAccess
+              ? `
+                <div class="absolute inset-0 bg-slate-950/55 backdrop-blur-[2px] flex flex-col items-center justify-center p-3 text-center z-20">
+                  <div class="w-11 h-11 rounded-2xl bg-amber-500/20 border border-amber-400/40 text-amber-300 flex items-center justify-center mb-2 shadow-lg">
+                    <i class="fa-solid fa-lock text-base"></i>
+                  </div>
+                  <span class="text-[9px] font-black uppercase tracking-widest text-white bg-slate-900/90 px-2.5 py-1 rounded-lg border border-white/10">
+                    Enroll to Read Book
+                  </span>
+                </div>
+              `
+              : ""
+          }
+
+          <div class="absolute bottom-2.5 left-2.5 right-2.5 z-10">
+            <p class="text-[9px] font-bold text-indigo-300 truncate flex items-center gap-1">
+              <i class="fa-solid fa-graduation-cap text-[8px]"></i>
+              <span class="truncate">${batchLabel}</span>
+            </p>
+          </div>
+        </div>
+
+        <div class="p-3 sm:p-3.5 flex-1 flex flex-col justify-between bg-white dark:bg-slate-900">
+          <div>
+            <h3 class="font-display font-extrabold text-xs sm:text-sm text-slate-900 dark:text-white line-clamp-2 leading-snug group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
+              ${b.title || "Syllabus Book"}
+            </h3>
+            <p class="text-[10px] text-slate-500 dark:text-slate-400 font-semibold mt-1 flex items-center gap-1.5">
+              <i class="fa-solid fa-highlighter text-amber-500 text-[9px]"></i>
+              <span>Zoom • Colour • Fullscreen</span>
+            </p>
+          </div>
+
+          <button class="mt-3 w-full py-2 px-3 rounded-xl text-[10px] font-black uppercase tracking-wider flex items-center justify-center gap-1.5 transition-all ${
+            hasAccess
+              ? "bg-indigo-600 hover:bg-indigo-500 text-white shadow-sm shadow-indigo-500/20"
+              : "bg-amber-500/15 text-amber-700 dark:text-amber-300 border border-amber-400/30 hover:bg-amber-500 hover:text-white"
+          }">
+            <i class="fa-solid ${hasAccess ? "fa-book-open-reader" : "fa-lock"} text-[9px]"></i>
+            <span>${hasAccess ? "Read Book" : "Unlock Book"}</span>
+          </button>
+        </div>
+      </div>
+    `;
+  }
+
+  function renderBooks() {
+    if (!coursesLoaded) return;
+    const fullList = document.getElementById("fullBooksList");
+    const homeList = document.getElementById("homeBooksList");
+    const homeSec = document.getElementById("booksHomeSection");
+    const catList = document.getElementById("booksCategoryList");
+
+    if (catList) {
+      const availableSubjects = getAvailableSubjects(allBooksCached);
+      renderSubjectTabs("booksCategoryList", availableSubjects, activeBookSubject, "selectBookSubject");
+    }
+
+    const searchInput = document.getElementById("booksSearchInput") as HTMLInputElement | null;
+    const searchQ = searchInput ? searchInput.value.trim().toLowerCase() : "";
+    const accessFilter = document.getElementById("booksAccessFilter") as HTMLSelectElement | null;
+    const accessQ = accessFilter ? accessFilter.value : "All";
+
+    const filtered = allBooksCached.filter((b) => {
+      const matchesCat =
+        !activeCategory || !b.category || b.category === activeCategory || b.category === "General";
+      const matchesSub =
+        !activeBookSubject ||
+        (b.subject && b.subject === activeBookSubject) ||
+        (b.category && b.category === activeBookSubject);
+      const matchesSearch =
+        !searchQ ||
+        (b.title && b.title.toLowerCase().includes(searchQ)) ||
+        (b.subject && b.subject.toLowerCase().includes(searchQ)) ||
+        (b.category && b.category.toLowerCase().includes(searchQ)) ||
+        (b.courseName && b.courseName.toLowerCase().includes(searchQ));
+      const hasAccess = checkItemAccess(b, "book");
+      const matchesAccess = accessQ === "All" || (accessQ === "Unlocked" && hasAccess);
+      return matchesCat && matchesSub && matchesSearch && matchesAccess;
+    });
+
+    if (fullList) {
+      fullList.innerHTML = "";
+      if (filtered.length === 0) {
+        safeClassRemove("noBooksMsg", "hidden");
+      } else {
+        safeClassAdd("noBooksMsg", "hidden");
+        filtered.forEach((b) => {
+          fullList.innerHTML += generateBookCard(b);
+        });
+      }
+    }
+
+    // Home section preview
+    const homeFiltered = allBooksCached.filter(
+      (b) => !activeCategory || !b.category || b.category === activeCategory || b.category === "General"
+    );
+    if (homeList && homeSec) {
+      if (homeFiltered.length === 0) {
+        homeSec.classList.add("hidden");
+      } else {
+        homeSec.classList.remove("hidden");
+        homeList.innerHTML = "";
+        homeFiltered.slice(0, 4).forEach((b) => {
+          homeList.innerHTML += generateBookCard(b);
+        });
+      }
+    }
+  }
+
   function navigateTo(pageId: string, pushToHistory = true) {
+    closeNotifications();
     const pages = [
       "home",
       "courses",
       "live",
       "tests",
       "notes",
+      "books",
       "timetable",
       "profile",
       "notifications",
@@ -2030,6 +2241,7 @@ export function initStudentAppController() {
     if (activeBtn) activeBtn.classList.add("active");
 
     if (pageId === "mycourses") renderMyCourses();
+    if (pageId === "books") renderBooks();
     if (pageId === "admin") loadUsersInAdmin();
 
     if (pushToHistory) {
@@ -2263,10 +2475,21 @@ export function initStudentAppController() {
   function showToast(msg: string) {
     const toast = document.createElement("div");
     toast.className =
-      "fixed bottom-28 left-1/2 -translate-x-1/2 bg-slate-900/90 backdrop-blur-xl text-white px-6 py-4 rounded-3xl text-[10px] font-black uppercase tracking-widest shadow-2xl z-[10000] border border-white/10 flex items-center gap-3 toast-animate";
-    toast.innerHTML = `<div class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div> ${msg}`;
+      "fixed bottom-24 sm:bottom-28 left-1/2 -translate-x-1/2 bg-slate-900/95 backdrop-blur-xl text-white pl-5 pr-3 py-3.5 rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-2xl z-[10000] border border-white/10 flex items-center gap-3 toast-animate max-w-[92vw]";
+    toast.innerHTML = `
+      <div class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shrink-0"></div>
+      <span class="truncate">${msg}</span>
+      <button type="button" aria-label="Close notification" class="w-6 h-6 rounded-lg bg-white/10 hover:bg-rose-500/80 text-white/80 hover:text-white flex items-center justify-center transition-colors shrink-0 ml-1">
+        <i class="fa-solid fa-xmark text-[10px]"></i>
+      </button>
+    `;
+    const closeBtn = toast.querySelector("button");
+    if (closeBtn) {
+      closeBtn.onclick = () => toast.remove();
+    }
     document.body.appendChild(toast);
     setTimeout(() => {
+      if (!toast.isConnected) return;
       toast.style.opacity = "0";
       toast.style.transform = "translateY(10px) translateX(-50%)";
       toast.style.transition = "all 0.4s ease";
@@ -2931,6 +3154,65 @@ export function initStudentAppController() {
         }
       }
 
+      // Linked Syllabus Books (Multiple)
+      const explicitBookIds: string[] = c.linkedBookIds || (c.linkedBookId ? [c.linkedBookId] : []);
+      const courseBooksMap = new Map<string, any>();
+      for (const bid of explicitBookIds) {
+        const bookSnap = await fb.get(fb.ref(db, "books/" + bid));
+        if (bookSnap.exists()) {
+          courseBooksMap.set(bid, { id: bid, ...bookSnap.val() });
+        }
+      }
+      // Also include any books whose courseId points to this course
+      (allBooksCached || []).forEach((b) => {
+        if (b.courseId === id && !courseBooksMap.has(b.id)) {
+          courseBooksMap.set(b.id, b);
+        }
+      });
+
+      courseBooksMap.forEach((b) => {
+        if (!attachList) return;
+        hasAttachments = true;
+        const safeBookTitle = (b.title || "Syllabus Book").replace(/'/g, "\\'");
+        const safeBookUrl = (b.url || "").replace(/'/g, "\\'");
+        const coverThumb =
+          b.coverUrl ||
+          b.thumbnail ||
+          "https://placehold.co/80x100/312e81/ffffff?text=Book";
+        attachList.innerHTML += `
+          <div onclick="${
+            hasAccess
+              ? `viewPdf('${safeBookUrl}', '${safeBookTitle}')`
+              : "showToast('Purchase course to unlock this syllabus book')"
+          }" class="flex items-center gap-3.5 p-3.5 bg-white dark:bg-slate-900 rounded-2xl border border-indigo-200/80 dark:border-indigo-900/50 shadow-soft active:scale-[0.99] transition-all cursor-pointer group">
+            <img src="${coverThumb}" onerror="this.onerror=null;this.src='https://placehold.co/80x100/312e81/ffffff?text=Book';" class="w-11 h-14 object-cover rounded-xl border border-slate-200 dark:border-slate-700 shrink-0 shadow-xs" alt="${safeBookTitle}" />
+            <div class="flex-1 min-w-0">
+              <div class="flex items-center gap-1.5 mb-0.5">
+                <span class="px-2 py-0.5 rounded bg-indigo-50 dark:bg-indigo-950/80 text-indigo-600 dark:text-indigo-300 text-[8px] font-black uppercase tracking-wider">Syllabus Book</span>
+                ${
+                  b.subject
+                    ? `<span class="text-[9px] font-bold text-slate-400 truncate">• ${b.subject}</span>`
+                    : ""
+                }
+              </div>
+              <h4 class="text-xs sm:text-sm font-extrabold text-slate-900 dark:text-white truncate">${
+                b.title || "Syllabus Textbook"
+              }</h4>
+              <p class="text-[9px] ${
+                hasAccess ? "text-emerald-600 dark:text-emerald-400" : "text-amber-500"
+              } font-extrabold uppercase tracking-wider mt-0.5">${
+          hasAccess
+            ? '<i class="fa-solid fa-book-open-reader mr-1"></i> Read with Zoom & Colour Highlight'
+            : '<i class="fa-solid fa-lock mr-1"></i> Paid Batch Exclusive'
+        }</p>
+            </div>
+            <div class="w-8 h-8 rounded-xl bg-indigo-50 dark:bg-slate-800 flex items-center justify-center text-indigo-600 dark:text-indigo-400 group-hover:bg-indigo-600 group-hover:text-white transition-colors shrink-0">
+              <i class="fa-solid ${hasAccess ? "fa-book-open" : "fa-lock"} text-xs"></i>
+            </div>
+          </div>
+        `;
+      });
+
       if (attachSec) {
         if (hasAttachments) attachSec.classList.remove("hidden");
         else attachSec.classList.add("hidden");
@@ -3095,16 +3377,396 @@ export function initStudentAppController() {
     });
   }
 
+  // ==========================================
+  // INTERACTIVE BOOK & PDF READER ENGINE (ZOOM, COLOUR, RECTANGULAR HIGHLIGHT, FULLSCREEN)
+  // ==========================================
+  let currentPdfZoom = 1;
+  let pdfAnnotationActive = false;
+  let currentPdfTool: "scroll" | "pen" | "rect" = "scroll";
+  let currentPdfColor = "#facc15";
+  let isDrawingPdf = false;
+  let pdfStartPoint = { x: 0, y: 0 };
+  let currentPenPoints: Array<{ x: number; y: number }> = [];
+  let pdfAnnotationsHistory: Array<{
+    type: "pen" | "rect";
+    color: string;
+    points?: Array<{ x: number; y: number }>;
+    rect?: { x: number; y: number; w: number; h: number };
+  }> = [];
+  let pdfCanvasInitialized = false;
+  let isPdfRectangularMode = false;
+
+  function normalizeGoogleDrivePdfUrl(rawUrl: string): string {
+    const trimmed = (rawUrl || "").trim();
+    if (!trimmed) return "";
+    if (trimmed.includes("drive.google.com")) {
+      // Match /file/d/FILE_ID or ?id=FILE_ID
+      const fileIdMatch =
+        trimmed.match(/\/file\/d\/([a-zA-Z0-9_-]+)/) ||
+        trimmed.match(/[?&]id=([a-zA-Z0-9_-]+)/) ||
+        trimmed.match(/\/d\/([a-zA-Z0-9_-]+)/);
+      if (fileIdMatch && fileIdMatch[1]) {
+        return `https://drive.google.com/file/d/${fileIdMatch[1]}/preview`;
+      }
+      return trimmed.replace(/\/view.*$/, "/preview").replace(/\/edit.*$/, "/preview");
+    }
+    return `https://docs.google.com/viewer?url=${encodeURIComponent(trimmed)}&embedded=true`;
+  }
+
+  function applyPdfZoomUI() {
+    const wrapper = document.getElementById("pdfZoomWrapper");
+    const label = document.getElementById("pdfZoomLabel");
+    const pct = Math.round(currentPdfZoom * 100);
+    if (label) label.innerText = `${pct}%`;
+    if (wrapper) {
+      wrapper.style.width = `${pct}%`;
+      wrapper.style.height = `${pct}%`;
+      wrapper.style.minWidth = `${pct}%`;
+      wrapper.style.minHeight = `${pct}%`;
+    }
+    setTimeout(() => resizePdfAnnotationCanvas(), 60);
+  }
+
+  function zoomPdf(delta: number) {
+    currentPdfZoom = Math.min(3.0, Math.max(0.75, +(currentPdfZoom + delta).toFixed(2)));
+    applyPdfZoomUI();
+  }
+
+  function resetPdfZoom() {
+    currentPdfZoom = 1;
+    applyPdfZoomUI();
+  }
+
+  function resizePdfAnnotationCanvas() {
+    const canvas = document.getElementById("pdfAnnotationCanvas") as HTMLCanvasElement | null;
+    const wrapper = document.getElementById("pdfZoomWrapper");
+    if (!canvas || !wrapper) return;
+    const rect = wrapper.getBoundingClientRect();
+    const w = Math.max(wrapper.scrollWidth || rect.width || 300, 300);
+    const h = Math.max(wrapper.scrollHeight || rect.height || 400, 400);
+    if (canvas.width !== w || canvas.height !== h) {
+      canvas.width = w;
+      canvas.height = h;
+    }
+    redrawPdfAnnotations();
+  }
+
+  function redrawPdfAnnotations(previewRect?: { x: number; y: number; w: number; h: number }) {
+    const canvas = document.getElementById("pdfAnnotationCanvas") as HTMLCanvasElement | null;
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    const drawStroke = (
+      points: Array<{ x: number; y: number }>,
+      color: string
+    ) => {
+      if (!points || points.length === 0) return;
+      ctx.save();
+      ctx.globalAlpha = 0.38;
+      ctx.strokeStyle = color;
+      ctx.lineWidth = 14;
+      ctx.lineCap = "round";
+      ctx.lineJoin = "round";
+      ctx.beginPath();
+      ctx.moveTo(points[0].x * canvas.width, points[0].y * canvas.height);
+      for (let i = 1; i < points.length; i++) {
+        ctx.lineTo(points[i].x * canvas.width, points[i].y * canvas.height);
+      }
+      ctx.stroke();
+      ctx.restore();
+    };
+
+    const drawRectBox = (
+      r: { x: number; y: number; w: number; h: number },
+      color: string
+    ) => {
+      ctx.save();
+      const rx = r.x * canvas.width;
+      const ry = r.y * canvas.height;
+      const rw = r.w * canvas.width;
+      const rh = r.h * canvas.height;
+      ctx.fillStyle = color;
+      ctx.globalAlpha = 0.28;
+      ctx.fillRect(rx, ry, rw, rh);
+      ctx.globalAlpha = 0.85;
+      ctx.strokeStyle = color;
+      ctx.lineWidth = 2.5;
+      ctx.strokeRect(rx, ry, rw, rh);
+      ctx.restore();
+    };
+
+    pdfAnnotationsHistory.forEach((item) => {
+      if (item.type === "pen" && item.points) {
+        drawStroke(item.points, item.color);
+      } else if (item.type === "rect" && item.rect) {
+        drawRectBox(item.rect, item.color);
+      }
+    });
+
+    if (isDrawingPdf && currentPdfTool === "pen" && currentPenPoints.length > 0) {
+      drawStroke(currentPenPoints, currentPdfColor);
+    }
+
+    if (previewRect && currentPdfTool === "rect") {
+      drawRectBox(previewRect, currentPdfColor);
+    }
+  }
+
+  function initPdfAnnotationCanvas() {
+    if (pdfCanvasInitialized) {
+      resizePdfAnnotationCanvas();
+      return;
+    }
+    const canvas = document.getElementById("pdfAnnotationCanvas") as HTMLCanvasElement | null;
+    if (!canvas) return;
+    pdfCanvasInitialized = true;
+
+    const getNormalizedCoords = (e: PointerEvent) => {
+      const rect = canvas.getBoundingClientRect();
+      const x = Math.max(0, Math.min(1, (e.clientX - rect.left) / (rect.width || 1)));
+      const y = Math.max(0, Math.min(1, (e.clientY - rect.top) / (rect.height || 1)));
+      return { x, y };
+    };
+
+    canvas.addEventListener("pointerdown", (e: PointerEvent) => {
+      if (currentPdfTool === "scroll") return;
+      e.preventDefault();
+      canvas.setPointerCapture(e.pointerId);
+      isDrawingPdf = true;
+      const pt = getNormalizedCoords(e);
+      pdfStartPoint = pt;
+      if (currentPdfTool === "pen") {
+        currentPenPoints = [pt];
+        redrawPdfAnnotations();
+      }
+    });
+
+    canvas.addEventListener("pointermove", (e: PointerEvent) => {
+      if (!isDrawingPdf || currentPdfTool === "scroll") return;
+      e.preventDefault();
+      const pt = getNormalizedCoords(e);
+      if (currentPdfTool === "pen") {
+        currentPenPoints.push(pt);
+        redrawPdfAnnotations();
+      } else if (currentPdfTool === "rect") {
+        const rx = Math.min(pdfStartPoint.x, pt.x);
+        const ry = Math.min(pdfStartPoint.y, pt.y);
+        const rw = Math.abs(pt.x - pdfStartPoint.x);
+        const rh = Math.abs(pt.y - pdfStartPoint.y);
+        redrawPdfAnnotations({ x: rx, y: ry, w: rw, h: rh });
+      }
+    });
+
+    const finishPointer = (e: PointerEvent) => {
+      if (!isDrawingPdf) return;
+      isDrawingPdf = false;
+      try {
+        canvas.releasePointerCapture(e.pointerId);
+      } catch (_err) {}
+      const pt = getNormalizedCoords(e);
+      if (currentPdfTool === "pen" && currentPenPoints.length > 0) {
+        pdfAnnotationsHistory.push({
+          type: "pen",
+          color: currentPdfColor,
+          points: [...currentPenPoints],
+        });
+        currentPenPoints = [];
+      } else if (currentPdfTool === "rect") {
+        const rx = Math.min(pdfStartPoint.x, pt.x);
+        const ry = Math.min(pdfStartPoint.y, pt.y);
+        const rw = Math.abs(pt.x - pdfStartPoint.x);
+        const rh = Math.abs(pt.y - pdfStartPoint.y);
+        if (rw > 0.01 && rh > 0.01) {
+          pdfAnnotationsHistory.push({
+            type: "rect",
+            color: currentPdfColor,
+            rect: { x: rx, y: ry, w: rw, h: rh },
+          });
+        }
+      }
+      redrawPdfAnnotations();
+    };
+
+    canvas.addEventListener("pointerup", finishPointer);
+    canvas.addEventListener("pointercancel", finishPointer);
+    window.addEventListener("resize", () => {
+      const container = document.getElementById("pdfViewerContainer");
+      if (container && container.style.display !== "none" && !container.classList.contains("hidden")) {
+        resizePdfAnnotationCanvas();
+      }
+    });
+  }
+
+  function updatePdfToolButtonsUI() {
+    const canvas = document.getElementById("pdfAnnotationCanvas");
+    const btnScroll = document.getElementById("pdfToolScroll");
+    const btnPen = document.getElementById("pdfToolPen");
+    const btnRect = document.getElementById("pdfToolRect");
+
+    const activeClass =
+      "px-2.5 py-1.5 rounded-lg text-[11px] font-extrabold bg-indigo-600 text-white flex items-center gap-1.5 transition shadow-sm";
+    const inactiveClass =
+      "px-2.5 py-1.5 rounded-lg text-[11px] font-extrabold bg-slate-800 text-slate-300 hover:bg-slate-700 flex items-center gap-1.5 transition";
+
+    if (btnScroll) btnScroll.className = currentPdfTool === "scroll" ? activeClass : inactiveClass;
+    if (btnPen) btnPen.className = currentPdfTool === "pen" ? activeClass : inactiveClass;
+    if (btnRect) btnRect.className = currentPdfTool === "rect" ? activeClass : inactiveClass;
+
+    if (canvas) {
+      if (currentPdfTool === "scroll" || !pdfAnnotationActive) {
+        canvas.classList.add("pointer-events-none");
+        canvas.style.cursor = "default";
+      } else {
+        canvas.classList.remove("pointer-events-none");
+        canvas.style.cursor = "crosshair";
+      }
+    }
+  }
+
+  function togglePdfAnnotationMode() {
+    pdfAnnotationActive = !pdfAnnotationActive;
+    const toolbar = document.getElementById("pdfAnnotationToolbar");
+    const btn = document.getElementById("btnPdfAnnotate");
+    if (pdfAnnotationActive) {
+      if (toolbar) toolbar.classList.remove("hidden");
+      if (btn) {
+        btn.classList.add("bg-amber-500", "text-slate-950");
+        btn.classList.remove("bg-slate-800", "text-amber-400");
+      }
+      if (currentPdfTool === "scroll") currentPdfTool = "pen";
+      initPdfAnnotationCanvas();
+      resizePdfAnnotationCanvas();
+      showToast("Colour Highlighter Active! Choose Marker or Rect Box.");
+    } else {
+      if (toolbar) toolbar.classList.add("hidden");
+      if (btn) {
+        btn.classList.remove("bg-amber-500", "text-slate-950");
+        btn.classList.add("bg-slate-800", "text-amber-400");
+      }
+      currentPdfTool = "scroll";
+    }
+    updatePdfToolButtonsUI();
+  }
+
+  function setPdfTool(tool: "scroll" | "pen" | "rect") {
+    currentPdfTool = tool;
+    updatePdfToolButtonsUI();
+    if (tool === "scroll") {
+      showToast("Scroll Mode: Swipe to scroll pages");
+    } else if (tool === "pen") {
+      showToast("Marker Mode: Draw to highlight text");
+    } else if (tool === "rect") {
+      showToast("Rectangular Shape Mode: Drag box over text/notes");
+    }
+  }
+
+  function setPdfColor(color: string) {
+    currentPdfColor = color;
+    if (currentPdfTool === "scroll") {
+      currentPdfTool = "pen";
+      updatePdfToolButtonsUI();
+    }
+    document.querySelectorAll(".pdf-color-btn").forEach((el) => {
+      const c = el.getAttribute("data-pdf-color");
+      if (c === color) {
+        el.classList.add("ring-2", "ring-white", "scale-110");
+        el.classList.remove("opacity-75");
+      } else {
+        el.classList.remove("ring-2", "ring-white", "scale-110");
+        el.classList.add("opacity-75");
+      }
+    });
+  }
+
+  function undoPdfAnnotation() {
+    if (pdfAnnotationsHistory.length > 0) {
+      pdfAnnotationsHistory.pop();
+      redrawPdfAnnotations();
+    } else {
+      showToast("Nothing to undo");
+    }
+  }
+
+  function clearPdfAnnotations() {
+    pdfAnnotationsHistory = [];
+    redrawPdfAnnotations();
+    showToast("Cleared all highlights");
+  }
+
+  function togglePdfRectangularMode() {
+    isPdfRectangularMode = !isPdfRectangularMode;
+    const stage = document.getElementById("pdfStageScroll");
+    const wrapper = document.getElementById("pdfZoomWrapper");
+    const btn = document.getElementById("btnPdfRectMode");
+    const container = document.getElementById("pdfViewerContainer");
+
+    if (isPdfRectangularMode) {
+      if (stage) stage.className = "flex-1 relative bg-black overflow-auto flex items-start justify-center p-0";
+      if (wrapper) {
+        wrapper.classList.remove("sm:rounded-xl", "border");
+        wrapper.classList.add("rounded-none", "border-0");
+      }
+      if (btn) {
+        btn.classList.add("bg-indigo-600", "text-white");
+        btn.classList.remove("bg-slate-800", "text-indigo-300");
+      }
+      if (container && !document.fullscreenElement && container.requestFullscreen) {
+        container.requestFullscreen().catch(() => {});
+      }
+      if (screen.orientation && typeof (screen.orientation as any).lock === "function") {
+        (screen.orientation as any).lock("landscape").catch(() => {});
+      }
+      showToast("Phone Rectangular Full-Screen Reader Mode Active");
+    } else {
+      if (stage) stage.className = "flex-1 relative bg-slate-950 overflow-auto flex items-start justify-center p-0 sm:p-2";
+      if (wrapper) {
+        wrapper.classList.add("sm:rounded-xl", "border");
+        wrapper.classList.remove("rounded-none", "border-0");
+      }
+      if (btn) {
+        btn.classList.remove("bg-indigo-600", "text-white");
+        btn.classList.add("bg-slate-800", "text-indigo-300");
+      }
+      if (screen.orientation && typeof (screen.orientation as any).unlock === "function") {
+        try {
+          (screen.orientation as any).unlock();
+        } catch (_e) {}
+      }
+      showToast("Standard Reader View Restored");
+    }
+    setTimeout(() => resizePdfAnnotationCanvas(), 100);
+  }
+
   function viewPdf(url: string, title: string, isVideo = false) {
     safeSetText("pdfTitle", title);
+    currentPdfZoom = 1;
+    pdfAnnotationsHistory = [];
+    pdfAnnotationActive = false;
+    currentPdfTool = "scroll";
+    const toolbar = document.getElementById("pdfAnnotationToolbar");
+    if (toolbar) toolbar.classList.add("hidden");
+    const annotateBtn = document.getElementById("btnPdfAnnotate");
+    const zoomControls = document.getElementById("pdfZoomControls");
+    const rectBtn = document.getElementById("btnPdfRectMode");
+
+    if (annotateBtn) {
+      annotateBtn.classList.remove("bg-amber-500", "text-slate-950");
+      annotateBtn.classList.add("bg-slate-800", "text-amber-400");
+      annotateBtn.style.display = isVideo ? "none" : "flex";
+    }
+    if (zoomControls) {
+      zoomControls.style.display = isVideo ? "none" : "flex";
+    }
+    if (rectBtn) {
+      rectBtn.style.display = isVideo ? "none" : "flex";
+    }
 
     let viewer = url;
     if (!isVideo) {
-      if (url.includes("drive.google.com")) {
-        viewer = url.replace(/\/view.*$/, "/preview");
-      } else {
-        viewer = `https://docs.google.com/viewer?url=${encodeURIComponent(url)}&embedded=true`;
-      }
+      viewer = normalizeGoogleDrivePdfUrl(url);
       safeSetSrc("pdfFrame", viewer);
     } else {
       if (window.YT && window.YT.Player && url.includes("youtube.com/embed/")) {
@@ -3133,16 +3795,28 @@ export function initStudentAppController() {
       }
     }
     safeSetStyle("pdfViewerContainer", "display", "flex");
+    safeClassRemove("pdfViewerContainer", "hidden");
 
     const blocker = document.getElementById("pdfPopoutBlocker");
     if (blocker) {
       blocker.style.display = isVideo ? "none" : "block";
     }
+
+    applyPdfZoomUI();
+    initPdfAnnotationCanvas();
+    updatePdfToolButtonsUI();
+    setTimeout(() => resizePdfAnnotationCanvas(), 150);
   }
 
   function closePdf() {
     safeSetStyle("pdfViewerContainer", "display", "none");
+    safeClassAdd("pdfViewerContainer", "hidden");
     safeSetSrc("pdfFrame", "");
+    if (screen.orientation && typeof (screen.orientation as any).unlock === "function") {
+      try {
+        (screen.orientation as any).unlock();
+      } catch (_e) {}
+    }
     if (document.fullscreenElement) {
       document.exitFullscreen().catch(() => {});
     }
@@ -3156,6 +3830,7 @@ export function initStudentAppController() {
     } else {
       document.exitFullscreen();
     }
+    setTimeout(() => resizePdfAnnotationCanvas(), 150);
   }
 
   function closePayment() {
@@ -3407,6 +4082,12 @@ export function initStudentAppController() {
 
   function getApiUrl(endpoint: string) {
     let baseUrl = window.BACKEND_URL || localStorage.getItem("BACKEND_URL") || "";
+    if (baseUrl && (baseUrl.includes("onrender.com") || baseUrl.includes("render.com"))) {
+      try {
+        localStorage.removeItem("BACKEND_URL");
+      } catch (_e) {}
+      baseUrl = "";
+    }
     if (!baseUrl) {
       baseUrl = window.location.origin;
     }
@@ -3429,9 +4110,20 @@ export function initStudentAppController() {
   }
 
   // ==========================================
-  // CASHFREE PAYMENT GATEWAY INTEGRATION ENGINE
+  // TRIPLE PAYMENT GATEWAY ENGINE (ZAPUPI, CASHFREE & RAZORPAY)
   // ==========================================
+  let lastRazorpayConfig: any = null;
+  let zapupiPollInterval: any = null;
+
+  function stopZapupiPolling() {
+    if (zapupiPollInterval) {
+      clearInterval(zapupiPollInterval);
+      zapupiPollInterval = null;
+    }
+  }
+
   function closeCashfreeModal() {
+    stopZapupiPolling();
     safeClassAdd("cashfreeModal", "hidden");
   }
 
@@ -3441,14 +4133,136 @@ export function initStudentAppController() {
     if (!modal || !body) return;
     modal.classList.remove("hidden");
 
-    if (cfg.status === "CREATING_ORDER") {
+    if (cfg.status === "SELECT_GATEWAY") {
+      stopZapupiPolling();
+      const safeCourseId = String(cfg.courseId || "").replace(/'/g, "\\'");
+      const safeProductType = String(cfg.productType || "course").replace(/'/g, "\\'");
+      const cfEnabled = cfg.cashfreeEnabled !== false;
+      const rzpEnabled = cfg.razorpayEnabled !== false;
+      const zapEnabled = cfg.zapupiEnabled !== false;
+
+      // Determine which enabled gateway gets the RECOMMENDED badge
+      const recommendedGw = zapEnabled
+        ? "ZAPUPI"
+        : cfEnabled
+        ? "CASHFREE"
+        : "RAZORPAY";
+
+      const zapButtonHtml = zapEnabled
+        ? `
+            <button onclick="initiateCashfreePayment('${safeCourseId}', '${safeProductType}', 'ZAPUPI')" class="w-full p-4 rounded-2xl border-2 ${
+            recommendedGw === "ZAPUPI"
+              ? "border-purple-500 dark:border-purple-500 bg-purple-50/40 dark:bg-purple-950/30 shadow-md shadow-purple-500/10"
+              : "border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-800/60"
+          } hover:border-purple-600 dark:hover:border-purple-400 hover:bg-purple-50/60 transition-all flex items-center justify-between group active:scale-[0.99] relative">
+              <div class="flex items-center gap-3.5">
+                <div class="w-11 h-11 rounded-xl bg-gradient-to-br from-purple-600 to-fuchsia-600 text-white flex items-center justify-center text-lg shadow-md shadow-purple-500/25 shrink-0">
+                  <i class="fa-solid fa-qrcode"></i>
+                </div>
+                <div>
+                  <div class="flex items-center gap-2 flex-wrap">
+                    <span class="font-black text-sm text-slate-900 dark:text-white group-hover:text-purple-600 transition-colors">ZapUPI Gateway</span>
+                    ${
+                      recommendedGw === "ZAPUPI"
+                        ? '<span class="px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-2xs">★ Recommended</span>'
+                        : ""
+                    }
+                  </div>
+                  <div class="text-[11px] text-slate-500 dark:text-slate-400 font-medium">Instant UPI, GPay, PhonePe, Paytm, QR</div>
+                </div>
+              </div>
+              <i class="fa-solid fa-chevron-right text-slate-400 group-hover:text-purple-600 group-hover:translate-x-0.5 transition-all"></i>
+            </button>
+          `
+        : "";
+
+      const cfButtonHtml = cfEnabled
+        ? `
+            <button onclick="initiateCashfreePayment('${safeCourseId}', '${safeProductType}', 'CASHFREE')" class="w-full p-4 rounded-2xl border-2 ${
+            recommendedGw === "CASHFREE"
+              ? "border-emerald-500 dark:border-emerald-500 bg-emerald-50/40 dark:bg-emerald-950/30 shadow-md shadow-emerald-500/10"
+              : "border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-800/60"
+          } hover:border-emerald-500 dark:hover:border-emerald-500 hover:bg-emerald-50/30 transition-all flex items-center justify-between group active:scale-[0.99]">
+              <div class="flex items-center gap-3.5">
+                <div class="w-11 h-11 rounded-xl bg-emerald-600 text-white flex items-center justify-center text-lg shadow-md shadow-emerald-500/20 shrink-0">
+                  <i class="fa-solid fa-shield-halved"></i>
+                </div>
+                <div>
+                  <div class="flex items-center gap-2 flex-wrap">
+                    <span class="font-black text-sm text-slate-900 dark:text-white group-hover:text-emerald-600 transition-colors">Cashfree Gateway</span>
+                    ${
+                      recommendedGw === "CASHFREE"
+                        ? '<span class="px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-2xs">★ Recommended</span>'
+                        : ""
+                    }
+                  </div>
+                  <div class="text-[11px] text-slate-500 dark:text-slate-400 font-medium">UPI, GPay, PhonePe, Cards, NetBanking</div>
+                </div>
+              </div>
+              <i class="fa-solid fa-chevron-right text-slate-400 group-hover:text-emerald-600 group-hover:translate-x-0.5 transition-all"></i>
+            </button>
+          `
+        : "";
+
+      const rzpButtonHtml = rzpEnabled
+        ? `
+            <button onclick="initiateCashfreePayment('${safeCourseId}', '${safeProductType}', 'RAZORPAY')" class="w-full p-4 rounded-2xl border-2 ${
+            recommendedGw === "RAZORPAY"
+              ? "border-indigo-500 dark:border-indigo-500 bg-indigo-50/40 dark:bg-indigo-950/30 shadow-md shadow-indigo-500/10"
+              : "border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-800/60"
+          } hover:border-indigo-500 dark:hover:border-indigo-500 hover:bg-indigo-50/30 transition-all flex items-center justify-between group active:scale-[0.99]">
+              <div class="flex items-center gap-3.5">
+                <div class="w-11 h-11 rounded-xl bg-indigo-600 text-white flex items-center justify-center text-lg shadow-md shadow-indigo-500/20 shrink-0">
+                  <i class="fa-solid fa-bolt"></i>
+                </div>
+                <div>
+                  <div class="flex items-center gap-2 flex-wrap">
+                    <span class="font-black text-sm text-slate-900 dark:text-white group-hover:text-indigo-600 transition-colors">Razorpay Gateway</span>
+                    ${
+                      recommendedGw === "RAZORPAY"
+                        ? '<span class="px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-2xs">★ Recommended</span>'
+                        : ""
+                    }
+                  </div>
+                  <div class="text-[11px] text-slate-500 dark:text-slate-400 font-medium">UPI, GPay, Paytm, Cards, Wallets</div>
+                </div>
+              </div>
+              <i class="fa-solid fa-chevron-right text-slate-400 group-hover:text-indigo-600 group-hover:translate-x-0.5 transition-all"></i>
+            </button>
+          `
+        : "";
+
+      body.innerHTML = `
+        <div class="py-3 flex flex-col items-center">
+          <div class="w-16 h-16 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 rounded-2xl flex items-center justify-center text-2xl mb-4 border border-indigo-100 dark:border-indigo-800/50">
+            <i class="fa-solid fa-wallet"></i>
+          </div>
+          <span class="text-[10px] font-black uppercase tracking-[0.2em] text-indigo-500 mb-1">Secure Checkout</span>
+          <h3 class="text-lg font-black text-slate-800 dark:text-white mb-1">Choose Payment Method</h3>
+          <p class="text-xs text-slate-500 dark:text-slate-400 font-medium max-w-xs leading-relaxed mb-4">
+            Paying <span class="font-black text-slate-800 dark:text-white">₹${cfg.price}</span> for <span class="font-bold text-slate-700 dark:text-slate-200">${
+              cfg.title || "Course"
+            }</span>
+          </p>
+          <div class="w-full space-y-3 text-left">
+            ${zapButtonHtml}
+            ${cfButtonHtml}
+            ${rzpButtonHtml}
+          </div>
+          <button onclick="closeCashfreeModal()" class="mt-4 w-full bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 text-slate-600 dark:text-slate-300 font-bold py-3 px-6 rounded-2xl text-xs uppercase tracking-wider transition-all">
+            Cancel
+          </button>
+        </div>
+      `;
+    } else if (cfg.status === "CREATING_ORDER") {
+      const gwTitle = cfg.gatewayName || "Payment";
       body.innerHTML = `
         <div class="py-6 flex flex-col items-center">
           <div class="w-20 h-20 bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-3xl flex items-center justify-center text-3xl mb-6 animate-pulse border border-blue-100">
             <i class="fa-solid fa-spinner animate-spin"></i>
           </div>
           <span class="text-[10px] font-black uppercase tracking-[0.2em] text-blue-500 mb-2">Step 1 of 3</span>
-          <h3 class="text-xl font-black text-slate-800 dark:text-white mb-2">Creating Order</h3>
+          <h3 class="text-xl font-black text-slate-800 dark:text-white mb-2">Creating ${gwTitle} Order</h3>
           <p class="text-xs text-slate-400 font-medium max-w-xs leading-relaxed">Initializing secure transaction for <span class="font-bold text-slate-700 dark:text-slate-200">${
             cfg.title || "Course"
           }</span> (₹${cfg.price})...</p>
@@ -3477,6 +4291,58 @@ export function initStudentAppController() {
             <a href="${directUrl}" target="_top" class="block w-full bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 text-slate-700 dark:text-slate-200 font-bold py-3.5 px-6 rounded-2xl text-xs uppercase tracking-wider text-center transition-all">
               <i class="fa-solid fa-arrow-up-right-from-square mr-1"></i> Open Direct Payment Page
             </a>
+            <button onclick="closeCashfreeModal()" class="w-full text-slate-400 hover:text-slate-600 font-bold py-2 text-[11px] uppercase tracking-wider">
+              Cancel
+            </button>
+          </div>
+        </div>
+      `;
+    } else if (cfg.status === "OPENING_RAZORPAY") {
+      body.innerHTML = `
+        <div class="py-6 flex flex-col items-center">
+          <div class="w-20 h-20 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 rounded-3xl flex items-center justify-center text-3xl mb-6 border border-indigo-100 animate-bounce">
+            <i class="fa-solid fa-bolt"></i>
+          </div>
+          <span class="text-[10px] font-black uppercase tracking-[0.2em] text-indigo-500 mb-2">Step 2 of 3</span>
+          <h3 class="text-xl font-black text-slate-800 dark:text-white mb-2">Razorpay Payment Gateway</h3>
+          <p class="text-xs text-slate-400 font-medium max-w-xs leading-relaxed mb-6">Complete your payment of ₹${cfg.price} in the Razorpay secure window (UPI, Cards, NetBanking)...</p>
+          <div class="w-full space-y-3">
+            <button onclick="reopenLastRazorpayCheckout()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-black py-4 px-6 rounded-2xl shadow-xl shadow-indigo-200 text-xs uppercase tracking-wider active:scale-95 transition-all flex items-center justify-center gap-2">
+              <i class="fa-solid fa-lock"></i>
+              <span>Pay ₹${cfg.price} via Razorpay</span>
+              <i class="fa-solid fa-arrow-right"></i>
+            </button>
+            <button onclick="closeCashfreeModal()" class="w-full bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 text-slate-700 dark:text-slate-200 font-bold py-3 px-6 rounded-2xl text-xs uppercase tracking-wider transition-all">
+              Cancel
+            </button>
+          </div>
+        </div>
+      `;
+    } else if (cfg.status === "OPENING_ZAPUPI") {
+      const safeUrl = String(cfg.paymentUrl || "").replace(/'/g, "\\'");
+      const safeOrderId = String(cfg.orderId || "").replace(/'/g, "\\'");
+      const safeCourseId = String(cfg.courseId || "").replace(/'/g, "\\'");
+      body.innerHTML = `
+        <div class="py-6 flex flex-col items-center">
+          <div class="w-20 h-20 bg-purple-50 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 rounded-3xl flex items-center justify-center text-3xl mb-6 border border-purple-100 animate-bounce">
+            <i class="fa-solid fa-qrcode"></i>
+          </div>
+          <span class="text-[10px] font-black uppercase tracking-[0.2em] text-purple-500 mb-2">Step 2 of 3</span>
+          <h3 class="text-xl font-black text-slate-800 dark:text-white mb-2">ZapUPI Payment Gateway</h3>
+          <p class="text-xs text-slate-400 font-medium max-w-xs leading-relaxed mb-6">Pay ₹${cfg.price} instantly using UPI QR or any UPI App (GPay, PhonePe, Paytm, BHIM)...</p>
+          <div class="w-full space-y-3">
+            <a href="${safeUrl}" target="_top" onclick="localStorage.setItem('pending_zap_order_id','${safeOrderId}');localStorage.setItem('pending_course_id','${safeCourseId}');" class="w-full bg-gradient-to-r from-purple-600 to-fuchsia-600 hover:from-purple-700 hover:to-fuchsia-700 text-white font-black py-4 px-6 rounded-2xl shadow-xl shadow-purple-500/25 text-xs uppercase tracking-wider active:scale-95 transition-all flex items-center justify-center gap-2">
+              <i class="fa-solid fa-bolt"></i>
+              <span>Proceed to Pay ₹${cfg.price} on ZapUPI</span>
+              <i class="fa-solid fa-arrow-right"></i>
+            </a>
+            <button onclick="verifyZapupiOrderBackend('${safeOrderId}', '${safeCourseId}')" class="w-full bg-emerald-50 dark:bg-emerald-950/50 hover:bg-emerald-100 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 font-extrabold py-3.5 px-6 rounded-2xl text-xs uppercase tracking-wider transition-all flex items-center justify-center gap-2">
+              <i class="fa-solid fa-circle-check"></i>
+              <span>I Have Paid • Verify Payment</span>
+            </button>
+            <button onclick="closeCashfreeModal()" class="w-full text-slate-400 hover:text-slate-600 font-bold py-2 text-[11px] uppercase tracking-wider">
+              Cancel
+            </button>
           </div>
         </div>
       `;
@@ -3495,6 +4361,7 @@ export function initStudentAppController() {
         </div>
       `;
     } else if (cfg.status === "SUCCESS") {
+      stopZapupiPolling();
       body.innerHTML = `
         <div class="py-6 flex flex-col items-center">
           <div class="w-20 h-20 bg-emerald-100 text-emerald-600 rounded-3xl flex items-center justify-center text-4xl mb-6 shadow-xl shadow-emerald-100 animate-bounce">
@@ -3509,6 +4376,7 @@ export function initStudentAppController() {
         </div>
       `;
     } else if (cfg.status === "ERROR") {
+      stopZapupiPolling();
       body.innerHTML = `
         <div class="py-6 flex flex-col items-center">
           <div class="w-20 h-20 bg-rose-50 text-rose-500 rounded-3xl flex items-center justify-center text-3xl mb-6 border border-rose-100">
@@ -3536,6 +4404,60 @@ export function initStudentAppController() {
       script.onerror = () => resolve(false);
       document.head.appendChild(script);
     });
+  }
+
+  async function ensureRazorpaySDK(): Promise<boolean> {
+    if (typeof window.Razorpay === "function") return true;
+    return new Promise((resolve) => {
+      const script = document.createElement("script");
+      script.src = "https://checkout.razorpay.com/v1/checkout.js";
+      script.onload = () => resolve(true);
+      script.onerror = () => resolve(false);
+      document.head.appendChild(script);
+    });
+  }
+
+  async function getActivePaymentGateways(): Promise<{
+    cashfreeEnabled: boolean;
+    razorpayEnabled: boolean;
+    zapupiEnabled: boolean;
+  }> {
+    let cashfreeEnabled = true;
+    let razorpayEnabled = true;
+    let zapupiEnabled = true;
+
+    try {
+      const [cfSnap, rzpSnap, zapSnap] = await Promise.all([
+        fb.get(fb.ref(db, "settings/cashfree")),
+        fb.get(fb.ref(db, "settings/razorpay")),
+        fb.get(fb.ref(db, "settings/zapupi")),
+      ]);
+
+      if (cfSnap.exists()) {
+        const cfVal = cfSnap.val();
+        if (cfVal && typeof cfVal.enabled === "boolean") {
+          cashfreeEnabled = cfVal.enabled;
+        }
+      }
+
+      if (rzpSnap.exists()) {
+        const rzpVal = rzpSnap.val();
+        if (rzpVal && typeof rzpVal.enabled === "boolean") {
+          razorpayEnabled = rzpVal.enabled;
+        }
+      }
+
+      if (zapSnap.exists()) {
+        const zapVal = zapSnap.val();
+        if (zapVal && typeof zapVal.enabled === "boolean") {
+          zapupiEnabled = zapVal.enabled;
+        }
+      }
+    } catch (e) {
+      console.warn("Error reading gateway settings from Firebase:", e);
+    }
+
+    return { cashfreeEnabled, razorpayEnabled, zapupiEnabled };
   }
 
   window.launchCashfreeCheckout = async function (
@@ -3580,7 +4502,394 @@ export function initStudentAppController() {
     }
   };
 
-  async function initiateCashfreePayment(courseId: string, productType = "course") {
+  window.reopenLastRazorpayCheckout = async function () {
+    if (!lastRazorpayConfig) return;
+    await launchRazorpayCheckoutModal(lastRazorpayConfig);
+  };
+
+  async function launchRazorpayCheckoutModal(rzpCfg: any) {
+    lastRazorpayConfig = rzpCfg;
+    const loaded = await ensureRazorpaySDK();
+    if (!loaded || typeof window.Razorpay !== "function") {
+      showCashfreeModal({
+        status: "ERROR",
+        message: "Failed to load Razorpay Checkout SDK. Please check your internet connection.",
+      });
+      return;
+    }
+
+    let cleanPhone = String(rzpCfg.customerPhone || "").replace(/\D/g, "");
+    if (cleanPhone.length > 10) cleanPhone = cleanPhone.slice(-10);
+
+    const options = {
+      key: rzpCfg.keyId,
+      amount: rzpCfg.amount,
+      currency: rzpCfg.currency || "INR",
+      name: "The Online Classes",
+      description: rzpCfg.itemTitle || "Course Purchase",
+      order_id: rzpCfg.razorpayOrderId,
+      prefill: {
+        name: rzpCfg.customerName || "Student",
+        email: rzpCfg.customerEmail || "student@theonlineclasses.com",
+        contact: cleanPhone || "9999999999",
+      },
+      notes: {
+        order_id: rzpCfg.orderId,
+        course_id: rzpCfg.courseId,
+      },
+      theme: {
+        color: "#4f46e5",
+      },
+      handler: function (response: any) {
+        verifyRazorpayPaymentBackend({
+          orderId: rzpCfg.orderId,
+          courseId: rzpCfg.courseId,
+          razorpay_order_id: response.razorpay_order_id || rzpCfg.razorpayOrderId,
+          razorpay_payment_id: response.razorpay_payment_id,
+          razorpay_signature: response.razorpay_signature,
+        });
+      },
+      modal: {
+        ondismiss: function () {
+          console.log("Razorpay checkout modal closed by user.");
+        },
+      },
+    };
+
+    try {
+      const rzpInstance = new window.Razorpay(options);
+      rzpInstance.on("payment.failed", function (resp: any) {
+        const errDesc =
+          (resp && resp.error && resp.error.description) ||
+          "Payment failed in Razorpay. Please try again.";
+        showCashfreeModal({
+          status: "ERROR",
+          message: errDesc,
+        });
+      });
+      rzpInstance.open();
+    } catch (err: any) {
+      showCashfreeModal({
+        status: "ERROR",
+        message: err.message || "Could not open Razorpay Checkout window.",
+      });
+    }
+  }
+
+  async function verifyRazorpayPaymentBackend(
+    payload: {
+      orderId: string;
+      courseId: string;
+      razorpay_order_id: string;
+      razorpay_payment_id: string;
+      razorpay_signature: string;
+    },
+    retryCount = 0
+  ) {
+    showCashfreeModal({
+      status: "VERIFYING",
+      orderId: payload.orderId,
+    });
+    try {
+      const resp = await fetch(getApiUrl("/api/razorpay/verify-payment"), {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      let data: any = {};
+      const contentType = resp.headers.get("content-type") || "";
+      if (contentType.includes("application/json")) {
+        data = await resp.json();
+      } else {
+        throw new Error(`Verify endpoint returned HTTP ${resp.status}`);
+      }
+
+      if (resp.ok && data.verified && data.order_status === "PAID") {
+        if (!userData) userData = {};
+        if (!userData.purchased) userData.purchased = {};
+        userData.purchased[payload.courseId] = true;
+        const activeUser = currentUser || auth.currentUser;
+        if (activeUser && activeUser.uid) {
+          fb.set(
+            fb.ref(db, `users/${activeUser.uid}/purchased/${payload.courseId}`),
+            true
+          ).catch(() => {});
+        }
+        showCashfreeModal({
+          status: "SUCCESS",
+          courseId: payload.courseId,
+        });
+        renderHomeCourses();
+        renderAllCourses();
+        renderTests();
+      } else if (retryCount < 2) {
+        setTimeout(() => {
+          verifyRazorpayPaymentBackend(payload, retryCount + 1);
+        }, 2500);
+      } else {
+        showCashfreeModal({
+          status: "ERROR",
+          message: data.message || "Could not verify Razorpay payment status.",
+        });
+      }
+    } catch (_err) {
+      showCashfreeModal({
+        status: "ERROR",
+        message: "Network error while verifying Razorpay payment with server.",
+      });
+    }
+  }
+
+  async function startRazorpayOrderFlow(
+    courseId: string,
+    productType: string,
+    itemTitle: string,
+    itemPrice: number
+  ) {
+    showCashfreeModal({
+      status: "CREATING_ORDER",
+      gatewayName: "Razorpay",
+      title: itemTitle,
+      price: itemPrice,
+    });
+
+    const customerName =
+      (userData && userData.name) || currentUser.displayName || "Student";
+    const customerEmail =
+      (userData && userData.email) ||
+      currentUser.email ||
+      "student@theonlineclasses.com";
+    const customerPhone =
+      (userData && userData.phone) || currentUser.phoneNumber || "+919999999999";
+
+    try {
+      const resp = await fetch(getApiUrl("/api/razorpay/create-order"), {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          courseId,
+          courseTitle: itemTitle,
+          userId: currentUser.uid,
+          price: itemPrice,
+          customerName,
+          customerEmail,
+          customerPhone,
+          productType,
+          origin: window.location.origin,
+        }),
+      });
+
+      let data: any = {};
+      const contentType = resp.headers.get("content-type") || "";
+      if (contentType.includes("application/json")) {
+        data = await resp.json();
+      } else {
+        throw new Error(`Server returned error status (${resp.status}).`);
+      }
+
+      if (!resp.ok || !data.razorpay_order_id || !data.key_id) {
+        const errMsg =
+          data.message ||
+          data.error ||
+          "Failed to initialize Razorpay payment order.";
+        showCashfreeModal({
+          status: "ERROR",
+          message: errMsg,
+        });
+        return;
+      }
+
+      showCashfreeModal({
+        status: "OPENING_RAZORPAY",
+        title: itemTitle,
+        price: itemPrice,
+        orderId: data.order_id,
+        courseId,
+      });
+
+      await launchRazorpayCheckoutModal({
+        keyId: data.key_id,
+        razorpayOrderId: data.razorpay_order_id,
+        orderId: data.order_id,
+        amount: data.amount,
+        currency: data.currency || "INR",
+        courseId,
+        itemTitle,
+        customerName,
+        customerEmail,
+        customerPhone,
+      });
+    } catch (err: any) {
+      showCashfreeModal({
+        status: "ERROR",
+        message: err.message || "Network error while connecting to server.",
+      });
+    }
+  }
+
+  async function verifyZapupiOrderBackend(
+    orderId: string,
+    courseId: string,
+    retryCount = 0,
+    silent = false
+  ) {
+    if (!silent) {
+      showCashfreeModal({
+        status: "VERIFYING",
+        orderId,
+      });
+    }
+    try {
+      const resp = await fetch(getApiUrl("/api/zapupi/verify-order/" + orderId));
+      let data: any = {};
+      const contentType = resp.headers.get("content-type") || "";
+      if (contentType.includes("application/json")) {
+        data = await resp.json();
+      } else {
+        throw new Error(`Verify endpoint returned HTTP ${resp.status}`);
+      }
+
+      if (resp.ok && data.verified && data.order_status === "PAID") {
+        stopZapupiPolling();
+        if (!userData) userData = {};
+        if (!userData.purchased) userData.purchased = {};
+        userData.purchased[courseId] = true;
+        const activeUser = currentUser || auth.currentUser;
+        if (activeUser && activeUser.uid) {
+          fb.set(fb.ref(db, `users/${activeUser.uid}/purchased/${courseId}`), true).catch(
+            () => {}
+          );
+        }
+        localStorage.removeItem("pending_zap_order_id");
+        localStorage.removeItem("pending_course_id");
+        showCashfreeModal({
+          status: "SUCCESS",
+          courseId,
+        });
+        renderHomeCourses();
+        renderAllCourses();
+        renderTests();
+      } else if (!silent) {
+        if (retryCount < 2 && data.order_status !== "FAILED") {
+          setTimeout(() => {
+            verifyZapupiOrderBackend(orderId, courseId, retryCount + 1, false);
+          }, 2500);
+          return;
+        }
+        showCashfreeModal({
+          status: "ERROR",
+          message:
+            data.message ||
+            "Payment is still pending confirmation on ZapUPI. Please complete the UPI payment and try again.",
+        });
+      }
+    } catch (_err) {
+      if (!silent) {
+        showCashfreeModal({
+          status: "ERROR",
+          message: "Failed to verify ZapUPI payment status with server.",
+        });
+      }
+    }
+  }
+  window.verifyZapupiOrderBackend = verifyZapupiOrderBackend;
+
+  async function startZapupiOrderFlow(
+    courseId: string,
+    productType: string,
+    itemTitle: string,
+    itemPrice: number
+  ) {
+    showCashfreeModal({
+      status: "CREATING_ORDER",
+      gatewayName: "ZapUPI",
+      title: itemTitle,
+      price: itemPrice,
+    });
+
+    const customerName =
+      (userData && userData.name) || currentUser.displayName || "Student";
+    const customerEmail =
+      (userData && userData.email) ||
+      currentUser.email ||
+      "student@theonlineclasses.com";
+    const customerPhone =
+      (userData && userData.phone) || currentUser.phoneNumber || "+919999999999";
+
+    try {
+      const resp = await fetch(getApiUrl("/api/zapupi/create-order"), {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          courseId,
+          courseTitle: itemTitle,
+          userId: currentUser.uid,
+          price: itemPrice,
+          customerName,
+          customerEmail,
+          customerPhone,
+          productType,
+          origin: window.location.origin,
+        }),
+      });
+
+      let data: any = {};
+      const contentType = resp.headers.get("content-type") || "";
+      if (contentType.includes("application/json")) {
+        data = await resp.json();
+      } else {
+        throw new Error(`Server returned error status (${resp.status}).`);
+      }
+
+      if (!resp.ok || !data.payment_url) {
+        const errMsg =
+          data.message ||
+          data.error ||
+          "Failed to initialize ZapUPI payment order.";
+        showCashfreeModal({
+          status: "ERROR",
+          message: errMsg,
+        });
+        return;
+      }
+
+      localStorage.setItem("pending_zap_order_id", data.order_id);
+      localStorage.setItem("pending_course_id", courseId);
+
+      showCashfreeModal({
+        status: "OPENING_ZAPUPI",
+        title: itemTitle,
+        price: itemPrice,
+        paymentUrl: data.payment_url,
+        orderId: data.order_id,
+        courseId,
+      });
+
+      // Start background polling in case payment opens in another tab or UPI app
+      stopZapupiPolling();
+      zapupiPollInterval = setInterval(() => {
+        verifyZapupiOrderBackend(data.order_id, courseId, 0, true);
+      }, 4500);
+
+      // Redirect to ZapUPI payment page
+      try {
+        window.open(data.payment_url, "_top") || (window.location.href = data.payment_url);
+      } catch (_e) {
+        window.location.href = data.payment_url;
+      }
+    } catch (err: any) {
+      showCashfreeModal({
+        status: "ERROR",
+        message: err.message || "Network error while connecting to server.",
+      });
+    }
+  }
+
+  async function initiateCashfreePayment(
+    courseId: string,
+    productType = "course",
+    selectedGateway?: string
+  ) {
     if (!currentUser) {
       showAuth();
       showToast("Please sign in or use Quick Guest Sign-In to purchase");
@@ -3646,8 +4955,54 @@ export function initStudentAppController() {
       }
     }
 
+    let gatewayToUse = selectedGateway ? selectedGateway.toUpperCase() : "";
+
+    if (!gatewayToUse) {
+      const { cashfreeEnabled, razorpayEnabled, zapupiEnabled } =
+        await getActivePaymentGateways();
+
+      const enabledGateways: string[] = [];
+      if (zapupiEnabled) enabledGateways.push("ZAPUPI");
+      if (cashfreeEnabled) enabledGateways.push("CASHFREE");
+      if (razorpayEnabled) enabledGateways.push("RAZORPAY");
+
+      if (enabledGateways.length >= 2) {
+        showCashfreeModal({
+          status: "SELECT_GATEWAY",
+          courseId,
+          productType,
+          title: itemTitle,
+          price: itemPrice,
+          cashfreeEnabled,
+          razorpayEnabled,
+          zapupiEnabled,
+        });
+        return;
+      } else if (enabledGateways.length === 1) {
+        gatewayToUse = enabledGateways[0];
+      } else {
+        showCashfreeModal({
+          status: "ERROR",
+          message:
+            "Online payments are currently disabled by the administrator. Please try again later or contact support.",
+        });
+        return;
+      }
+    }
+
+    if (gatewayToUse === "ZAPUPI") {
+      await startZapupiOrderFlow(courseId, productType, itemTitle, itemPrice);
+      return;
+    }
+
+    if (gatewayToUse === "RAZORPAY") {
+      await startRazorpayOrderFlow(courseId, productType, itemTitle, itemPrice);
+      return;
+    }
+
     showCashfreeModal({
       status: "CREATING_ORDER",
+      gatewayName: "Cashfree",
       title: itemTitle,
       price: itemPrice,
     });
@@ -3786,20 +5141,30 @@ export function initStudentAppController() {
 
   async function checkPendingPaymentReturn() {
     const urlParams = new URLSearchParams(window.location.search);
+    const gatewayParam = (urlParams.get("gateway") || "").toLowerCase();
     let orderIdFromUrl = urlParams.get("order_id") || urlParams.get("cf_status");
     const courseIdFromUrl =
       urlParams.get("course_id") || localStorage.getItem("pending_course_id");
-    const savedOrderId = localStorage.getItem("pending_cf_order_id");
+    const savedCfOrderId = localStorage.getItem("pending_cf_order_id");
+    const savedZapOrderId = localStorage.getItem("pending_zap_order_id");
 
-    if (!orderIdFromUrl && savedOrderId) {
-      orderIdFromUrl = savedOrderId;
+    if (!orderIdFromUrl) {
+      orderIdFromUrl = savedZapOrderId || savedCfOrderId;
     }
 
     if (orderIdFromUrl && courseIdFromUrl) {
       if (window.history && window.history.replaceState) {
         window.history.replaceState({}, document.title, window.location.pathname);
       }
-      verifyCashfreeOrderBackend(orderIdFromUrl, courseIdFromUrl);
+      if (
+        gatewayParam === "zapupi" ||
+        String(orderIdFromUrl).startsWith("ZAP") ||
+        orderIdFromUrl === savedZapOrderId
+      ) {
+        verifyZapupiOrderBackend(orderIdFromUrl, courseIdFromUrl);
+      } else {
+        verifyCashfreeOrderBackend(orderIdFromUrl, courseIdFromUrl);
+      }
     }
   }
 
@@ -3809,6 +5174,27 @@ export function initStudentAppController() {
       dropdown.classList.toggle("hidden");
     }
   }
+
+  function closeNotifications() {
+    const dropdown = document.getElementById("notifDropdown");
+    if (dropdown && !dropdown.classList.contains("hidden")) {
+      dropdown.classList.add("hidden");
+    }
+  }
+
+  document.addEventListener("click", (e) => {
+    const dropdown = document.getElementById("notifDropdown");
+    const bellBtn = document.getElementById("notifBellBtn");
+    if (!dropdown || dropdown.classList.contains("hidden")) return;
+    const target = e.target as Node | null;
+    if (
+      target &&
+      !dropdown.contains(target) &&
+      (!bellBtn || !bellBtn.contains(target))
+    ) {
+      dropdown.classList.add("hidden");
+    }
+  });
 
   // App Guide / Tutorial Logic
   let currentGuideSlide = 0;
@@ -3994,9 +5380,10 @@ export function initStudentAppController() {
     }
   }
 
-  function toggleFaq(id: string) {
-    const content = document.getElementById(id);
-    const icon = document.getElementById(id.replace("faq-", "faq-icon-"));
+  function toggleFaq(id: string | number) {
+    const faqId = typeof id === "number" || !String(id).startsWith("faq-") ? `faq-${id}` : String(id);
+    const content = document.getElementById(faqId);
+    const icon = document.getElementById(faqId.replace("faq-", "faq-icon-"));
     if (content && icon) {
       if (content.classList.contains("hidden")) {
         content.classList.remove("hidden");
@@ -4085,6 +5472,7 @@ export function initStudentAppController() {
       renderAllCourses();
       renderTests();
       renderNotes();
+      renderBooks();
       renderLive();
     });
 
@@ -4110,6 +5498,16 @@ export function initStudentAppController() {
         allNotesCached.push({ id: childSnap.key, ...childSnap.val() });
       });
       renderNotes();
+    });
+
+    fb.onValue(fb.ref(db, "books"), (snapshot) => {
+      allBooksCached = [];
+      if (snapshot.exists()) {
+        snapshot.forEach((childSnap) => {
+          allBooksCached.push({ id: childSnap.key, ...childSnap.val() });
+        });
+      }
+      renderBooks();
     });
 
     fb.onValue(fb.ref(db, "sliders"), (snapshot) => {
@@ -4243,20 +5641,23 @@ export function initStudentAppController() {
   };
 
   window.clearAllNotifications = () => {
-    if (confirm("Dismiss all currently visible notifications?")) {
-      const hiddenNots: string[] = JSON.parse(localStorage.getItem("hidden_notifications") || "[]");
-      const list = document.querySelectorAll('#notifList button[onclick^="hideNotification"]');
-      list.forEach((btn) => {
-        const idStr = btn.getAttribute("onclick");
-        const match = idStr ? idStr.match(/'([^']+)'/) : null;
-        if (match) {
-          const id = match[1];
-          if (!hiddenNots.includes(id)) hiddenNots.push(id);
-        }
-      });
-      localStorage.setItem("hidden_notifications", JSON.stringify(hiddenNots));
-      if (notificationsSnapshotCached) renderNotifications(notificationsSnapshotCached);
+    const hiddenNots: string[] = JSON.parse(localStorage.getItem("hidden_notifications") || "[]");
+    const list = document.querySelectorAll('#notifList button[onclick^="hideNotification"]');
+    if (list.length === 0) {
+      closeNotifications();
+      return;
     }
+    list.forEach((btn) => {
+      const idStr = btn.getAttribute("onclick");
+      const match = idStr ? idStr.match(/'([^']+)'/) : null;
+      if (match) {
+        const id = match[1];
+        if (!hiddenNots.includes(id)) hiddenNots.push(id);
+      }
+    });
+    localStorage.setItem("hidden_notifications", JSON.stringify(hiddenNots));
+    if (notificationsSnapshotCached) renderNotifications(notificationsSnapshotCached);
+    showToast("All notifications cleared");
   };
 
   // Expose all global handlers for seamless compatibility
@@ -4332,10 +5733,15 @@ export function initStudentAppController() {
   window.closeCashfreeModal = closeCashfreeModal;
   window.showCashfreeModal = showCashfreeModal;
   window.ensureCashfreeSDK = ensureCashfreeSDK;
+  window.ensureRazorpaySDK = ensureRazorpaySDK;
   window.initiateCashfreePayment = initiateCashfreePayment;
+  window.initiateRazorpayPayment = (courseId: string, productType = "course") =>
+    initiateCashfreePayment(courseId, productType, "RAZORPAY");
   window.verifyCashfreeOrderBackend = verifyCashfreeOrderBackend;
+  window.verifyRazorpayPaymentBackend = verifyRazorpayPaymentBackend;
   window.checkPendingPaymentReturn = checkPendingPaymentReturn;
   window.toggleNotifications = toggleNotifications;
+  window.closeNotifications = closeNotifications;
   window.openAppGuide = openAppGuide;
   window.closeAppGuide = closeAppGuide;
   window.guideNext = guideNext;
@@ -4344,10 +5750,151 @@ export function initStudentAppController() {
   window.toggleFaq = toggleFaq;
   window.toggleDarkMode = toggleDarkMode;
 
+  // Component handler aliases
+  window.switchPage = navigateTo;
+  window.openSupportPopup = openSupport;
+  window.closeSupportPopup = closeSupport;
+  window.closeCategorySelector = hideCategorySelector;
+  window.saveProfileData = saveProfile;
+  window.openEditProfileModal = openEditProfile;
+  window.closeEditProfileModal = closeEditProfile;
+  window.updateProfileData = updateProfile;
+  window.logoutUser = logout;
+  window.filterCourses = handleCourseFilter;
+  window.filterCourseCategory = (cat: string) => selectCategory(cat === "all" ? "" : cat);
+  window.filterLiveSubject = (sub: string) => window.selectLiveSubject(sub === "all" ? "" : sub);
+  window.renderLivePageContent = renderLive;
+  window.setTestFilterTab = setTestTab;
+  window.filterTests = (sub: string) => window.selectTestSubject(sub === "all" ? "" : sub);
+  window.filterNotes = (sub: string) => window.selectNoteSubject(sub === "all" ? "" : sub);
+  window.renderNotesPageContent = renderNotes;
+  window.filterBooks = (sub: string) => window.selectBookSubject(sub === "all" ? "" : sub);
+  window.renderBooksPageContent = renderBooks;
+  window.renderBooks = renderBooks;
+  window.closePdfViewer = closePdf;
+  window.togglePdfFullScreen = togglePdfFullscreen;
+  window.zoomPdf = zoomPdf;
+  window.resetPdfZoom = resetPdfZoom;
+  window.togglePdfAnnotationMode = togglePdfAnnotationMode;
+  window.setPdfTool = setPdfTool;
+  window.setPdfColor = setPdfColor;
+  window.undoPdfAnnotation = undoPdfAnnotation;
+  window.clearPdfAnnotations = clearPdfAnnotations;
+  window.togglePdfRectangularMode = togglePdfRectangularMode;
+  window.exitQuiz = confirmExitQuiz;
+  window.prevQuestion = () => {
+    if (currentQuizIndex > 0) {
+      clearInterval(quizTimerInterval);
+      currentQuizIndex--;
+      renderQuestion();
+    }
+  };
+  window.showQuizReview = showReviewInResults;
+  window.closeQuizAll = closeResults;
+  window.playIntroVideo = playIntro;
+  window.nextGuideSlide = guideNext;
+  window.prevGuideSlide = guidePrev;
+  window.newQuote = () => {
+    const randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
+    safeSetText("dailyQuoteText", '"' + randomQuote.q + '"');
+    safeSetText("dailyQuoteAuthor", "- " + randomQuote.a);
+  };
+  window.shareApp = () => {
+    const url = window.location.origin + window.location.pathname;
+    if (navigator.share) {
+      navigator
+        .share({
+          title: "The Online Classes",
+          text: "Join me on The Online Classes for live batches, PDF study notes & CBT mock tests!",
+          url,
+        })
+        .catch(() => {});
+    } else if (navigator.clipboard) {
+      navigator.clipboard
+        .writeText(url)
+        .then(() => showToast("Portal link copied to clipboard!"))
+        .catch(() => showToast("Share link: " + url));
+    }
+  };
+
+  function updateInstallAppUI() {
+    const isStandalone =
+      (window.matchMedia && window.matchMedia("(display-mode: standalone)").matches) ||
+      (window.navigator as any).standalone === true;
+    const sidebarBtn = document.getElementById("installAppSidebarBtn");
+    const profileBtn = document.getElementById("installAppProfileBtn");
+    if (isStandalone) {
+      if (sidebarBtn) sidebarBtn.classList.add("hidden");
+      if (profileBtn) profileBtn.classList.add("hidden");
+    } else {
+      if (sidebarBtn) sidebarBtn.classList.remove("hidden");
+      if (profileBtn) profileBtn.classList.remove("hidden");
+    }
+  }
+  window.updateInstallAppUI = updateInstallAppUI;
+
+  window.promptInstallApp = async () => {
+    const deferredPrompt = (window as any).__deferredPwaPrompt;
+    if (deferredPrompt && typeof deferredPrompt.prompt === "function") {
+      try {
+        deferredPrompt.prompt();
+        const choice = await deferredPrompt.userChoice;
+        if (choice && choice.outcome === "accepted") {
+          (window as any).__deferredPwaPrompt = null;
+          showToast("App installation started!");
+        }
+        updateInstallAppUI();
+        return;
+      } catch (_e) {}
+    }
+
+    const isStandalone =
+      (window.matchMedia && window.matchMedia("(display-mode: standalone)").matches) ||
+      (window.navigator as any).standalone === true;
+    if (isStandalone) {
+      showToast("You are already using the installed Web App!");
+      return;
+    }
+
+    const modal = document.getElementById("cashfreeModal");
+    const body = document.getElementById("cashfreeModalBody");
+    if (modal && body) {
+      modal.classList.remove("hidden");
+      body.innerHTML = `
+        <div class="py-3 flex flex-col items-center text-center">
+          <div class="w-16 h-16 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 rounded-2xl flex items-center justify-center text-2xl mb-4 border border-indigo-100 dark:border-indigo-800/50">
+            <i class="fa-solid fa-mobile-screen-button"></i>
+          </div>
+          <span class="text-[10px] font-black uppercase tracking-[0.2em] text-indigo-500 mb-1">Mobile Web App</span>
+          <h3 class="text-lg font-black text-slate-800 dark:text-white mb-2">Add to Home Screen</h3>
+          <p class="text-xs text-slate-500 dark:text-slate-400 font-medium leading-relaxed mb-4">
+            Install <strong>The Online Classes</strong> on your phone for a full-screen app experience:
+          </p>
+          <div class="w-full space-y-2.5 text-left bg-slate-50 dark:bg-slate-800/70 p-4 rounded-2xl border border-slate-200/70 dark:border-slate-700/70 text-xs text-slate-700 dark:text-slate-200 mb-4">
+            <div class="flex items-start gap-2.5">
+              <i class="fa-brands fa-android text-emerald-500 text-base mt-0.5 shrink-0"></i>
+              <span><strong>Android / Chrome:</strong> Tap the browser menu <strong>(⋮)</strong> at the top right and select <strong>"Install App"</strong> or <strong>"Add to Home screen"</strong>.</span>
+            </div>
+            <div class="flex items-start gap-2.5 pt-2 border-t border-slate-200/60 dark:border-slate-700/60">
+              <i class="fa-brands fa-apple text-slate-800 dark:text-white text-base mt-0.5 shrink-0"></i>
+              <span><strong>iPhone / Safari:</strong> Tap the <strong>Share</strong> button at the bottom and tap <strong>"Add to Home Screen"</strong>.</span>
+            </div>
+          </div>
+          <button onclick="closeCashfreeModal()" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3.5 px-6 rounded-2xl text-xs uppercase tracking-wider transition-all">
+            Got It
+          </button>
+        </div>
+      `;
+    } else {
+      showToast("Use your browser menu (⋮) -> 'Add to Home Screen' to install!");
+    }
+  };
+
   // Initial Boot Sequence
   initTheme();
   updatePerformanceUI();
   updateDailyStreak();
+  updateInstallAppUI();
 
   setTimeout(() => {
     const triggerText = document.getElementById("activeClassName");

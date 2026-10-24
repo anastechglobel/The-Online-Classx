@@ -1,21 +1,39 @@
 {
+  "id": "/",
   "name": "The Online Classes",
-  "short_name": "The Online Classes",
-  "description": "Best Online Learning Platform for Bihar Board & Competitive Exams",
+  "short_name": "TOC App",
+  "description": "Premier EdTech Learning Portal for Live Classes, Structured Batches, Study Notes, and CBT Mock Tests",
   "start_url": "/",
+  "scope": "/",
   "display": "standalone",
+  "orientation": "portrait",
   "background_color": "#0f172a",
   "theme_color": "#0f172a",
+  "categories": ["education", "books", "productivity"],
   "icons": [
     {
       "src": "/apple-touch-icon.png",
       "sizes": "192x192",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/apple-touch-icon.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
     },
     {
       "src": "/logo.png",
       "sizes": "512x512",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/logo.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
     }
   ]
 }

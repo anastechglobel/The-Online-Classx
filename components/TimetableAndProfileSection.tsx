@@ -12,16 +12,26 @@ export const TimetableAndProfileSection: React.FC = () => {
     <>
       {/* 5.5 TIMETABLE PAGE */}
       <section id="page-timetable" className="page px-4 sm:px-6 pt-6 pb-12">
-        <div className="mb-5">
-          <span className="text-[10px] font-bold uppercase tracking-widest text-violet-600 dark:text-violet-400 block mb-0.5">
-            Academic Planner
-          </span>
-          <h2 className="text-2xl font-extrabold text-slate-900 dark:text-white font-display tracking-tight">
-            Class Schedule
-          </h2>
-          <p className="text-xs text-slate-500 dark:text-slate-400">
-            Stay synchronized with your daily lectures and batch timings
-          </p>
+        <div className="flex items-start justify-between gap-3 mb-5">
+          <div>
+            <span className="text-[10px] font-bold uppercase tracking-widest text-violet-600 dark:text-violet-400 block mb-0.5">
+              Academic Planner
+            </span>
+            <h2 className="text-2xl font-extrabold text-slate-900 dark:text-white font-display tracking-tight">
+              Class Schedule
+            </h2>
+            <p className="text-xs text-slate-500 dark:text-slate-400">
+              Stay synchronized with your daily lectures and batch timings
+            </p>
+          </div>
+          <button
+            onClick={() => callWin('switchPage', 'home')}
+            aria-label="Close tab and go back to Home"
+            title="Back to Home"
+            className="w-9 h-9 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-rose-50 dark:hover:bg-rose-950/60 text-slate-600 dark:text-slate-300 hover:text-rose-600 flex items-center justify-center transition-all active:scale-90 shrink-0 border border-slate-200/70 dark:border-slate-700/70"
+          >
+            <i className="fa-solid fa-xmark text-base"></i>
+          </button>
         </div>
 
         {/* Date Filter */}
@@ -59,13 +69,23 @@ export const TimetableAndProfileSection: React.FC = () => {
 
       {/* 6. PROFILE PAGE */}
       <section id="page-profile" className="page px-4 sm:px-6 pt-6 pb-12">
-        <div className="mb-6">
-          <span className="text-[10px] font-bold uppercase tracking-widest text-indigo-600 dark:text-indigo-400 block mb-0.5">
-            Scholar Identity
-          </span>
-          <h2 className="text-2xl font-extrabold text-slate-900 dark:text-white font-display tracking-tight">
-            Student Profile &amp; Analytics
-          </h2>
+        <div className="flex items-start justify-between gap-3 mb-6">
+          <div>
+            <span className="text-[10px] font-bold uppercase tracking-widest text-indigo-600 dark:text-indigo-400 block mb-0.5">
+              Scholar Identity
+            </span>
+            <h2 className="text-2xl font-extrabold text-slate-900 dark:text-white font-display tracking-tight">
+              Student Profile &amp; Analytics
+            </h2>
+          </div>
+          <button
+            onClick={() => callWin('switchPage', 'home')}
+            aria-label="Close tab and go back to Home"
+            title="Back to Home"
+            className="w-9 h-9 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-rose-50 dark:hover:bg-rose-950/60 text-slate-600 dark:text-slate-300 hover:text-rose-600 flex items-center justify-center transition-all active:scale-90 shrink-0 border border-slate-200/70 dark:border-slate-700/70"
+          >
+            <i className="fa-solid fa-xmark text-base"></i>
+          </button>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
@@ -175,11 +195,31 @@ export const TimetableAndProfileSection: React.FC = () => {
                 <i className="fa-solid fa-chevron-right text-slate-400 text-xs"></i>
               </button>
               <button
+                id="installAppProfileBtn"
+                onClick={() => callWin('promptInstallApp')}
+                className="w-full p-4 flex items-center justify-between hover:bg-slate-50/80 dark:hover:bg-slate-800/50 transition"
+              >
+                <div className="flex items-center gap-3.5">
+                  <div className="w-10 h-10 rounded-xl bg-violet-500/10 text-violet-600 dark:text-violet-400 flex items-center justify-center shrink-0">
+                    <i className="fa-solid fa-mobile-screen-button"></i>
+                  </div>
+                  <div className="text-left">
+                    <span className="font-bold text-slate-800 dark:text-slate-100 text-sm block">
+                      Install Mobile Web App
+                    </span>
+                    <span className="text-[11px] text-slate-500 dark:text-slate-400">
+                      Add The Online Classes to your phone home screen
+                    </span>
+                  </div>
+                </div>
+                <i className="fa-solid fa-download text-violet-500 text-xs"></i>
+              </button>
+              <button
                 onClick={() => callWin('openSupportPopup')}
                 className="w-full p-4 flex items-center justify-between hover:bg-slate-50/80 dark:hover:bg-slate-800/50 transition"
               >
                 <div className="flex items-center gap-3.5">
-                  <div className="w-10 h-10 rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center">
+                  <div className="w-10 h-10 rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0">
                     <i className="fa-solid fa-headset"></i>
                   </div>
                   <div className="text-left">
@@ -198,7 +238,7 @@ export const TimetableAndProfileSection: React.FC = () => {
                 className="w-full p-4 flex items-center justify-between hover:bg-rose-50/60 dark:hover:bg-rose-950/30 transition text-rose-600"
               >
                 <div className="flex items-center gap-3.5">
-                  <div className="w-10 h-10 rounded-xl bg-rose-500/10 text-rose-600 flex items-center justify-center">
+                  <div className="w-10 h-10 rounded-xl bg-rose-500/10 text-rose-600 flex items-center justify-center shrink-0">
                     <i className="fa-solid fa-power-off"></i>
                   </div>
                   <div className="text-left">
@@ -218,13 +258,23 @@ export const TimetableAndProfileSection: React.FC = () => {
 
       {/* 7. ADMIN ACCESS MANAGEMENT */}
       <section id="page-admin" className="page px-4 sm:px-6 pt-6 pb-12">
-        <div className="mb-4">
-          <h2 className="text-xl font-extrabold text-slate-900 dark:text-white font-display">
-            Student Access Manager
-          </h2>
-          <p className="text-xs text-slate-500">
-            Select a student to grant or revoke paid content access.
-          </p>
+        <div className="flex items-start justify-between gap-3 mb-4">
+          <div>
+            <h2 className="text-xl font-extrabold text-slate-900 dark:text-white font-display">
+              Student Access Manager
+            </h2>
+            <p className="text-xs text-slate-500">
+              Select a student to grant or revoke paid content access.
+            </p>
+          </div>
+          <button
+            onClick={() => callWin('switchPage', 'home')}
+            aria-label="Close tab and go back to Home"
+            title="Back to Home"
+            className="w-9 h-9 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-rose-50 dark:hover:bg-rose-950/60 text-slate-600 dark:text-slate-300 hover:text-rose-600 flex items-center justify-center transition-all active:scale-90 shrink-0 border border-slate-200/70 dark:border-slate-700/70"
+          >
+            <i className="fa-solid fa-xmark text-base"></i>
+          </button>
         </div>
 
         <div className="mb-4">

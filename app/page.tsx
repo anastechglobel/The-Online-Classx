@@ -10,6 +10,7 @@ import { BatchesSection } from '../components/BatchesSection';
 import { LiveClassroomSection } from '../components/LiveClassroomSection';
 import { TestSeriesSection } from '../components/TestSeriesSection';
 import { StudyNotesSection } from '../components/StudyNotesSection';
+import { BooksSection } from '../components/BooksSection';
 import { TimetableAndProfileSection } from '../components/TimetableAndProfileSection';
 import { AuthAndProfileModals } from '../components/AuthAndProfileModals';
 import { LearningOverlays } from '../components/LearningOverlays';
@@ -35,6 +36,7 @@ export default function StudentPortalPage() {
         <LiveClassroomSection />
         <TestSeriesSection />
         <StudyNotesSection />
+        <BooksSection />
         <TimetableAndProfileSection />
       </main>
 

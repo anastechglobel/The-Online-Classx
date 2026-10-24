@@ -13,23 +13,43 @@ export const BatchesSection: React.FC = () => {
       {/* 1.5 MY PURCHASES / ENROLLED COURSES */}
       <section id="page-mycourses" className="page px-4 sm:px-6 pt-6 pb-12">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
-          <div>
-            <span className="text-[10px] font-bold uppercase tracking-widest text-indigo-600 dark:text-indigo-400 block mb-0.5">
-              Enrolled Programs
-            </span>
-            <h2 className="text-2xl font-extrabold text-slate-900 dark:text-white font-display tracking-tight">
-              My Active Batches
-            </h2>
-            <p className="text-xs text-slate-500 dark:text-slate-400">
-              Continue your structured learning journey where you left off
-            </p>
+          <div className="flex items-start justify-between gap-3 w-full sm:w-auto">
+            <div>
+              <span className="text-[10px] font-bold uppercase tracking-widest text-indigo-600 dark:text-indigo-400 block mb-0.5">
+                Enrolled Programs
+              </span>
+              <h2 className="text-2xl font-extrabold text-slate-900 dark:text-white font-display tracking-tight">
+                My Active Batches
+              </h2>
+              <p className="text-xs text-slate-500 dark:text-slate-400">
+                Continue your structured learning journey where you left off
+              </p>
+            </div>
+            <button
+              onClick={() => callWin('switchPage', 'home')}
+              aria-label="Close tab and go back to Home"
+              title="Back to Home"
+              className="sm:hidden w-9 h-9 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-rose-50 dark:hover:bg-rose-950/60 text-slate-600 dark:text-slate-300 hover:text-rose-600 flex items-center justify-center transition-all active:scale-90 shrink-0 border border-slate-200/70 dark:border-slate-700/70"
+            >
+              <i className="fa-solid fa-xmark text-base"></i>
+            </button>
           </div>
-          <button
-            onClick={() => callWin('switchPage', 'courses')}
-            className="self-start sm:self-auto px-4 py-2 rounded-xl bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 text-xs font-bold border border-indigo-200/50 dark:border-indigo-800/50 hover:bg-indigo-100 transition flex items-center gap-2"
-          >
-            <i className="fa-solid fa-compass"></i> Browse More Batches
-          </button>
+          <div className="flex items-center gap-2.5 self-start sm:self-auto">
+            <button
+              onClick={() => callWin('switchPage', 'courses')}
+              className="px-4 py-2 rounded-xl bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 text-xs font-bold border border-indigo-200/50 dark:border-indigo-800/50 hover:bg-indigo-100 transition flex items-center gap-2"
+            >
+              <i className="fa-solid fa-compass"></i> Browse More Batches
+            </button>
+            <button
+              onClick={() => callWin('switchPage', 'home')}
+              aria-label="Close tab and go back to Home"
+              title="Back to Home"
+              className="hidden sm:flex w-9 h-9 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-rose-50 dark:hover:bg-rose-950/60 text-slate-600 dark:text-slate-300 hover:text-rose-600 items-center justify-center transition-all active:scale-90 shrink-0 border border-slate-200/70 dark:border-slate-700/70"
+            >
+              <i className="fa-solid fa-xmark text-base"></i>
+            </button>
+          </div>
         </div>
         <div
           id="myCoursesList"
@@ -59,16 +79,26 @@ export const BatchesSection: React.FC = () => {
 
       {/* 2. ALL COURSES PAGE */}
       <section id="page-courses" className="page px-4 sm:px-6 pt-6 pb-12">
-        <div className="mb-6">
-          <span className="text-[10px] font-bold uppercase tracking-widest text-indigo-600 dark:text-indigo-400 block mb-0.5">
-            Course Catalog
-          </span>
-          <h2 className="text-2xl font-extrabold text-slate-900 dark:text-white font-display tracking-tight">
-            Explore All Batches
-          </h2>
-          <p className="text-xs text-slate-500 dark:text-slate-400">
-            Comprehensive syllabi, live doubt rooms, and structured study plans
-          </p>
+        <div className="flex items-start justify-between gap-3 mb-6">
+          <div>
+            <span className="text-[10px] font-bold uppercase tracking-widest text-indigo-600 dark:text-indigo-400 block mb-0.5">
+              Course Catalog
+            </span>
+            <h2 className="text-2xl font-extrabold text-slate-900 dark:text-white font-display tracking-tight">
+              Explore All Batches
+            </h2>
+            <p className="text-xs text-slate-500 dark:text-slate-400">
+              Comprehensive syllabi, live doubt rooms, and structured study plans
+            </p>
+          </div>
+          <button
+            onClick={() => callWin('switchPage', 'home')}
+            aria-label="Close tab and go back to Home"
+            title="Back to Home"
+            className="w-9 h-9 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-rose-50 dark:hover:bg-rose-950/60 text-slate-600 dark:text-slate-300 hover:text-rose-600 flex items-center justify-center transition-all active:scale-90 shrink-0 border border-slate-200/70 dark:border-slate-700/70"
+          >
+            <i className="fa-solid fa-xmark text-base"></i>
+          </button>
         </div>
 
         {/* Search & Sort Bar */}

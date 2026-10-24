@@ -102,21 +102,32 @@ window.addEventListener('unhandledrejection', function(e) {
 </script>
 
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="theme-color" content="#0f172a">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <link rel="manifest" href="/manifest.json">
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
     <title>The Online Classes - Admin Panel</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Firebase Setup (Consolidated) -->
     <style>
+        html, body { max-width: 100vw; overflow-x: hidden; -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
         body { background: #f8fafc; color: #1e293b; font-family: 'Plus Jakarta Sans', sans-serif; overflow-x: hidden; }
         
         /* Dashboard Layout */
-        .sidebar-admin { background: #0f172a; width: 260px; height: 100vh; position: fixed; left: 0; top: 0; z-index: 50; box-shadow: 10px 0 30px rgba(0,0,0,0.1); transition: transform 0.3s ease; }
+        .sidebar-admin { background: #0f172a; width: min(260px, 84vw); height: 100vh; height: 100dvh; overflow-y: auto; -webkit-overflow-scrolling: touch; position: fixed; left: 0; top: 0; z-index: 50; box-shadow: 10px 0 30px rgba(0,0,0,0.1); transition: transform 0.3s ease; display: flex; flex-direction: column; }
         
             .sidebar-admin.open { transform: translateX(0); }
-        .main-admin { margin-left: 260px; padding: 40px; min-height: 100vh; background: #ffffff; transition: margin-left 0.3s ease; }
+        .main-admin { margin-left: 260px; padding: 40px; min-height: 100vh; min-height: 100dvh; max-width: 100%; overflow-x: hidden; background: #ffffff; transition: margin-left 0.3s ease; }
         @media (max-width: 768px) {
-            .main-admin { margin-left: 0; padding: 20px; padding-top: 80px; }
+            .main-admin { margin-left: 0 !important; padding: 16px !important; padding-top: 72px !important; }
+            .card-admin { padding: 18px !important; border-radius: 20px !important; }
+            .stat-card { padding: 18px !important; }
+            header { flex-wrap: wrap; gap: 12px; }
+            table { display: block; width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+            th, td { padding: 12px 14px; white-space: nowrap; }
         }
 
         /* Nav Links */
@@ -124,12 +135,13 @@ window.addEventListener('unhandledrejection', function(e) {
             display: flex; 
             align-items: center; 
             gap: 12px; 
-            padding: 14px 24px; 
+            padding: 13px 22px; 
             color: #94a3b8; 
             font-size: 14px;
             font-weight: 500;
             transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
             border-right: 4px solid transparent;
+            flex-shrink: 0;
         }
         .nav-link:hover, .nav-link.active { 
             background: rgba(79, 70, 229, 0.1); 
@@ -185,9 +197,12 @@ window.addEventListener('unhandledrejection', function(e) {
             border-radius: 14px; 
             outline: none; 
             width: 100%;
-            font-size: 14px;
+            font-size: 16px;
             font-weight: 600;
             transition: all 0.2s ease;
+        }
+        @media (min-width: 640px) {
+            input, textarea { font-size: 14px; }
         }
         select { 
             color: #0f172a;
@@ -241,7 +256,7 @@ window.addEventListener('unhandledrejection', function(e) {
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 24px;
+            padding: 20px;
         }
 
         .tab-content { display: none; }
@@ -256,10 +271,6 @@ window.addEventListener('unhandledrejection', function(e) {
         }
         .animate-blob { animation: blob 7s infinite; }
         .animation-delay-2000 { animation-delay: 2s; }
-    
-        @media (max-width: 768px) {
-            .main-admin { margin-left: 0 !important; padding: 20px !important; padding-top: 80px !important; }
-        }
     </style>
 
 </head>
@@ -339,6 +350,7 @@ window.addEventListener('unhandledrejection', function(e) {
             <a href="javascript:void(0)" onclick="switchTab('courses')" class="nav-link" id="nav-courses"><i class="fa-solid fa-graduation-cap"></i> Courses</a>
             <a href="javascript:void(0)" onclick="switchTab('live')" class="nav-link" id="nav-live"><i class="fa-solid fa-video"></i> Live Classes</a>
             <a href="javascript:void(0)" onclick="switchTab('notes')" class="nav-link" id="nav-notes"><i class="fa-solid fa-file-pdf"></i> Study Notes</a>
+            <a href="javascript:void(0)" onclick="switchTab('books')" class="nav-link" id="nav-books"><i class="fa-solid fa-book"></i> Syllabus Books</a>
             <a href="javascript:void(0)" onclick="switchTab('tests')" class="nav-link" id="nav-tests"><i class="fa-solid fa-vial"></i> Test Series</a>
             <a href="javascript:void(0)" onclick="switchTab('upcoming')" class="nav-link" id="nav-upcoming"><i class="fa-solid fa-rocket"></i> Upcoming Courses</a>
             <a href="javascript:void(0)" onclick="switchTab('timetables')" class="nav-link" id="nav-timetables"><i class="fa-solid fa-calendar-days"></i> Time Tables</a>
@@ -606,6 +618,26 @@ window.addEventListener('unhandledrejection', function(e) {
             </div>
         </section>
 
+        <section id="tab-books" class="tab-content">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+                <div>
+                    <div class="flex items-center gap-2 mb-1">
+                        <span class="px-2.5 py-0.5 bg-amber-100 text-amber-800 rounded-full text-[10px] font-black uppercase tracking-widest">Paid Batch Exclusive</span>
+                        <span class="px-2.5 py-0.5 bg-blue-50 text-blue-600 rounded-full text-[10px] font-black uppercase tracking-widest">Google Drive PDF + Smart Reader</span>
+                    </div>
+                    <h2 class="text-2xl font-black text-slate-900 tracking-tight">Syllabus Books Library</h2>
+                    <p class="text-slate-500 text-sm font-medium">Add multiple syllabus books with direct cover image URLs & Google Drive PDF links for enrolled batch students.</p>
+                </div>
+                <button onclick="showBookModal()" class="btn-primary flex items-center gap-2">
+                    <i class="fa-solid fa-book-medical"></i> + Add Syllabus Books (Multiple)
+                </button>
+            </div>
+
+            <div id="booksAdminGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+                <div class="col-span-full text-center py-12 text-slate-400 font-bold text-sm">Loading syllabus books...</div>
+            </div>
+        </section>
+
         <section id="tab-tests" class="tab-content">
             <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-10 gap-4">
                 <div>
@@ -775,15 +807,25 @@ window.addEventListener('unhandledrejection', function(e) {
         <section id="tab-settings" class="tab-content">
             <h2 class="text-2xl font-bold mb-8">App Settings</h2>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Cashfree Payment Gateway Card -->
                 <div class="card-admin col-span-1 md:col-span-2 border-2 border-blue-100 bg-gradient-to-br from-blue-50/40 via-white to-purple-50/40 p-6 rounded-3xl">
-                    <div class="flex items-center gap-3 mb-2">
-                        <div class="w-10 h-10 rounded-2xl bg-blue-600 text-white flex items-center justify-center font-black shadow-md shadow-blue-200">
-                            <i class="fa-solid fa-credit-card"></i>
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-2">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-2xl bg-blue-600 text-white flex items-center justify-center font-black shadow-md shadow-blue-200 shrink-0">
+                                <i class="fa-solid fa-credit-card"></i>
+                            </div>
+                            <div>
+                                <div class="flex items-center gap-2 flex-wrap">
+                                    <h3 class="font-black text-slate-900 text-lg">Cashfree Payment Gateway</h3>
+                                    <span id="cfStatusBadge" class="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-emerald-100 text-emerald-700 border border-emerald-200">Enabled</span>
+                                </div>
+                                <p class="text-xs text-slate-500 font-medium">Copy your API App ID & Secret Key from merchant.cashfree.com dashboard</p>
+                            </div>
                         </div>
-                        <div>
-                            <h3 class="font-black text-slate-900 text-lg">Cashfree Payment Gateway API Keys</h3>
-                            <p class="text-xs text-slate-500 font-medium">Copy your API App ID & Secret Key from merchant.cashfree.com dashboard</p>
-                        </div>
+                        <label class="inline-flex items-center gap-3 cursor-pointer bg-white px-4 py-2.5 rounded-2xl border border-slate-200 shadow-sm self-start sm:self-auto">
+                            <span class="text-xs font-black uppercase tracking-wider text-slate-700">Accept Payments</span>
+                            <input type="checkbox" id="setCfEnabled" checked onchange="togglePaymentGateway('cashfree', this.checked)" class="w-5 h-5 accent-blue-600 rounded cursor-pointer">
+                        </label>
                     </div>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
                         <div>
@@ -808,7 +850,94 @@ window.addEventListener('unhandledrejection', function(e) {
                     </div>
                     <div class="mt-6 flex justify-end">
                         <button onclick="saveCashfreeSettings()" class="btn-primary py-3.5 px-8 text-xs font-bold flex items-center justify-center gap-2 shadow-lg shadow-blue-500/20">
-                            <i class="fa-solid fa-floppy-disk"></i> Save Cashfree API Keys
+                            <i class="fa-solid fa-floppy-disk"></i> Save Cashfree Settings
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Razorpay Payment Gateway Card -->
+                <div class="card-admin col-span-1 md:col-span-2 border-2 border-indigo-100 bg-gradient-to-br from-indigo-50/40 via-white to-sky-50/40 p-6 rounded-3xl">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-2">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-2xl bg-indigo-600 text-white flex items-center justify-center font-black shadow-md shadow-indigo-200 shrink-0">
+                                <i class="fa-solid fa-bolt"></i>
+                            </div>
+                            <div>
+                                <div class="flex items-center gap-2 flex-wrap">
+                                    <h3 class="font-black text-slate-900 text-lg">Razorpay Payment Gateway</h3>
+                                    <span id="rzpStatusBadge" class="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-emerald-100 text-emerald-700 border border-emerald-200">Enabled</span>
+                                </div>
+                                <p class="text-xs text-slate-500 font-medium">Copy your Key ID & Key Secret from dashboard.razorpay.com (Settings &rarr; API Keys)</p>
+                            </div>
+                        </div>
+                        <label class="inline-flex items-center gap-3 cursor-pointer bg-white px-4 py-2.5 rounded-2xl border border-slate-200 shadow-sm self-start sm:self-auto">
+                            <span class="text-xs font-black uppercase tracking-wider text-slate-700">Accept Payments</span>
+                            <input type="checkbox" id="setRzpEnabled" checked onchange="togglePaymentGateway('razorpay', this.checked)" class="w-5 h-5 accent-indigo-600 rounded cursor-pointer">
+                        </label>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
+                        <div>
+                            <label class="block text-[10px] font-black uppercase tracking-wider text-slate-400 mb-1.5">Razorpay Key ID</label>
+                            <input type="text" id="setRzpKeyId" placeholder="e.g. rzp_live_xxxxxxxxxxxx or rzp_test_xxxx" class="bg-white border border-slate-200 text-slate-900 w-full rounded-xl p-3 text-xs font-medium focus:border-indigo-500 focus:outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-black uppercase tracking-wider text-slate-400 mb-1.5">Razorpay Key Secret</label>
+                            <input type="password" id="setRzpKeySecret" placeholder="Enter your Razorpay Key Secret" class="bg-white border border-slate-200 text-slate-900 w-full rounded-xl p-3 text-xs font-medium focus:border-indigo-500 focus:outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-black uppercase tracking-wider text-slate-400 mb-1.5">Webhook Secret (Optional)</label>
+                            <input type="text" id="setRzpWebhookSecret" placeholder="Same as Key Secret if left empty" class="bg-white border border-slate-200 text-slate-900 w-full rounded-xl p-3 text-xs font-medium focus:border-indigo-500 focus:outline-none">
+                        </div>
+                    </div>
+                    <div class="mt-6 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                        <p class="text-[11px] text-slate-500 font-medium">
+                            <i class="fa-solid fa-circle-info text-indigo-500 mr-1"></i>
+                            Students can choose any enabled gateway at checkout. Toggle "Accept Payments" to enable or disable individual gateways.
+                        </p>
+                        <button onclick="saveRazorpaySettings()" class="btn-primary bg-indigo-600 hover:bg-indigo-700 py-3.5 px-8 text-xs font-bold flex items-center justify-center gap-2 shadow-lg shadow-indigo-500/20 shrink-0">
+                            <i class="fa-solid fa-floppy-disk"></i> Save Razorpay Settings
+                        </button>
+                    </div>
+                </div>
+
+                <!-- ZapUPI Payment Gateway Card -->
+                <div class="card-admin col-span-1 md:col-span-2 border-2 border-purple-100 bg-gradient-to-br from-purple-50/40 via-white to-fuchsia-50/40 p-6 rounded-3xl">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-2">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-2xl bg-purple-600 text-white flex items-center justify-center font-black shadow-md shadow-purple-200 shrink-0">
+                                <i class="fa-solid fa-qrcode"></i>
+                            </div>
+                            <div>
+                                <div class="flex items-center gap-2 flex-wrap">
+                                    <h3 class="font-black text-slate-900 text-lg">ZapUPI Payment Gateway</h3>
+                                    <span id="zapStatusBadge" class="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-emerald-100 text-emerald-700 border border-emerald-200">Enabled</span>
+                                    <span class="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-amber-100 text-amber-700 border border-amber-200">★ Recommended</span>
+                                </div>
+                                <p class="text-xs text-slate-500 font-medium">Copy your API Token Key &amp; Secret Key from <a href="https://zapupi.com" target="_blank" class="text-purple-600 underline font-bold">zapupi.com</a> dashboard</p>
+                            </div>
+                        </div>
+                        <label class="inline-flex items-center gap-3 cursor-pointer bg-white px-4 py-2.5 rounded-2xl border border-slate-200 shadow-sm self-start sm:self-auto">
+                            <span class="text-xs font-black uppercase tracking-wider text-slate-700">Accept Payments</span>
+                            <input type="checkbox" id="setZapEnabled" checked onchange="togglePaymentGateway('zapupi', this.checked)" class="w-5 h-5 accent-purple-600 rounded cursor-pointer">
+                        </label>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
+                        <div>
+                            <label class="block text-[10px] font-black uppercase tracking-wider text-slate-400 mb-1.5">ZapUPI Token Key / API Key</label>
+                            <input type="text" id="setZapTokenKey" placeholder="Enter your ZapUPI Token Key (from zapupi.com)" class="bg-white border border-slate-200 text-slate-900 w-full rounded-xl p-3 text-xs font-medium focus:border-purple-500 focus:outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-black uppercase tracking-wider text-slate-400 mb-1.5">ZapUPI Secret Key</label>
+                            <input type="password" id="setZapSecretKey" placeholder="Enter your ZapUPI Secret Key" class="bg-white border border-slate-200 text-slate-900 w-full rounded-xl p-3 text-xs font-medium focus:border-purple-500 focus:outline-none">
+                        </div>
+                    </div>
+                    <div class="mt-6 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                        <p class="text-[11px] text-slate-500 font-medium">
+                            <i class="fa-solid fa-bolt text-purple-600 mr-1"></i>
+                            Zero-fee Instant UPI QR &amp; Intent checkout (GPay, PhonePe, Paytm, BHIM). Marked as <strong>Recommended</strong> for students.
+                        </p>
+                        <button onclick="saveZapupiSettings()" class="btn-primary bg-purple-600 hover:bg-purple-700 py-3.5 px-8 text-xs font-bold flex items-center justify-center gap-2 shadow-lg shadow-purple-500/20 shrink-0">
+                            <i class="fa-solid fa-floppy-disk"></i> Save ZapUPI Settings
                         </button>
                     </div>
                 </div>
@@ -865,7 +994,7 @@ window.addEventListener('unhandledrejection', function(e) {
                             <input type="text" id="setLogoUrl" placeholder="Enter Logo Image URL (e.g. https://.../logo.png)" class="bg-white border border-slate-200 text-slate-900 w-full" oninput="previewAdminLogo(this.value)">
                         </div>
                         <div id="adminLogoPreviewBox" class="hidden flex items-center gap-3 p-3 bg-slate-50 rounded-2xl border border-slate-200">
-                            <img id="adminLogoPreviewImg" src="" class="w-12 h-12 object-contain rounded-xl border bg-white">
+                            <img id="adminLogoPreviewImg" class="w-12 h-12 object-contain rounded-xl border bg-white" alt="Logo Preview">
                             <span class="text-xs font-bold text-slate-600">Live Logo Preview</span>
                         </div>
                         <div>
@@ -1192,7 +1321,7 @@ window.addEventListener('unhandledrejection', function(e) {
                         </div>
 
                         <div id="adminYoutubePreview" class="hidden mt-3 aspect-video bg-slate-900 rounded-2xl overflow-hidden shadow-md flex items-center justify-center border border-slate-800">
-                            <iframe id="adminYoutubeIframe" src="" class="w-full h-full border-none" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+                            <iframe id="adminYoutubeIframe" class="w-full h-full border-none" allow="autoplay; encrypted-media" allowfullscreen></iframe>
                         </div>
                     </div>
                 </div>
@@ -1204,12 +1333,21 @@ window.addEventListener('unhandledrejection', function(e) {
                         <h3 class="text-xs font-black uppercase tracking-wider text-slate-700">Linked Resources (Multiple)</h3>
                     </div>
                     
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                        <div class="space-y-1">
+                            <label class="text-[11px] font-bold text-slate-600 flex items-center gap-1.5 mb-2">
+                                <i class="fa-solid fa-book text-amber-500"></i> Linked Syllabus Books
+                            </label>
+                            <div id="clinkedBooksList" class="bg-slate-50 border border-slate-200 rounded-xl max-h-44 overflow-y-auto p-2 space-y-1.5 shadow-inner">
+                                <p class="text-[10px] text-slate-400 p-2 text-center">Loading books...</p>
+                            </div>
+                        </div>
+
                         <div class="space-y-1">
                             <label class="text-[11px] font-bold text-slate-600 flex items-center gap-1.5 mb-2">
                                 <i class="fa-solid fa-file-pdf text-rose-500"></i> Linked Study Notes
                             </label>
-                            <div id="clinkedNotesList" class="bg-slate-50 border border-slate-200 rounded-xl max-h-40 overflow-y-auto p-2 space-y-1 shadow-inner">
+                            <div id="clinkedNotesList" class="bg-slate-50 border border-slate-200 rounded-xl max-h-44 overflow-y-auto p-2 space-y-1 shadow-inner">
                                 <p class="text-[10px] text-slate-400 p-2 text-center">Loading...</p>
                             </div>
                         </div>
@@ -1218,7 +1356,7 @@ window.addEventListener('unhandledrejection', function(e) {
                             <label class="text-[11px] font-bold text-slate-600 flex items-center gap-1.5 mb-2">
                                 <i class="fa-solid fa-square-check text-emerald-500"></i> Linked Test Series
                             </label>
-                            <div id="clinkedTestsList" class="bg-slate-50 border border-slate-200 rounded-xl max-h-40 overflow-y-auto p-2 space-y-1 shadow-inner">
+                            <div id="clinkedTestsList" class="bg-slate-50 border border-slate-200 rounded-xl max-h-44 overflow-y-auto p-2 space-y-1 shadow-inner">
                                 <p class="text-[10px] text-slate-400 p-2 text-center">Loading...</p>
                             </div>
                         </div>
@@ -1227,7 +1365,7 @@ window.addEventListener('unhandledrejection', function(e) {
                             <label class="text-[11px] font-bold text-slate-600 flex items-center gap-1.5 mb-2">
                                 <i class="fa-solid fa-video text-blue-500"></i> Linked Video Classes
                             </label>
-                            <div id="clinkedLivesList" class="bg-slate-50 border border-slate-200 rounded-xl max-h-40 overflow-y-auto p-2 space-y-1 shadow-inner">
+                            <div id="clinkedLivesList" class="bg-slate-50 border border-slate-200 rounded-xl max-h-44 overflow-y-auto p-2 space-y-1 shadow-inner">
                                 <p class="text-[10px] text-slate-400 p-2 text-center">Loading...</p>
                             </div>
                         </div>
@@ -1539,6 +1677,58 @@ window.addEventListener('unhandledrejection', function(e) {
             </div>
         </div>
 
+        <div id="bookModal" class="bg-white text-slate-900 w-full rounded-[32px] shadow-2xl border border-slate-100 overflow-y-auto relative flex flex-col max-h-[92vh] transition-all my-auto hidden p-6 md:p-8 max-w-4xl">
+            <div class="flex items-center justify-between pb-4 mb-5 border-b border-slate-100">
+                <div>
+                    <span class="px-2.5 py-0.5 bg-amber-100 text-amber-800 rounded-full text-[10px] font-black uppercase tracking-widest">Paid Course Exclusive</span>
+                    <h2 id="bookModalTitle" class="text-xl font-black text-slate-900 mt-1">Add Syllabus Books (Multiple)</h2>
+                    <p class="text-xs text-slate-500 font-medium">Add one or multiple books with Book Name, Direct Cover Image URL, and Google Drive PDF Link.</p>
+                </div>
+                <button onclick="closeModal()" class="w-9 h-9 rounded-full bg-slate-100 hover:bg-rose-50 hover:text-rose-600 text-slate-500 flex items-center justify-center transition-colors">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <div class="space-y-5">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 bg-slate-50 p-4 rounded-2xl border border-slate-200/80">
+                    <div>
+                        <label class="text-[10px] font-black uppercase text-slate-500 ml-1 mb-1 block">Category (Class / Exam)</label>
+                        <select id="bCat" onchange="handleCategoryChange('bCat', this.value)"></select>
+                    </div>
+                    <div>
+                        <label class="text-[10px] font-black uppercase text-slate-500 ml-1 mb-1 block">Subject</label>
+                        <select id="bSubject"></select>
+                    </div>
+                    <div>
+                        <label class="text-[10px] font-black uppercase text-slate-500 ml-1 mb-1 block">Assign to Paid Course</label>
+                        <select id="bCourse"></select>
+                    </div>
+                </div>
+
+                <div>
+                    <div class="flex items-center justify-between mb-3">
+                        <label class="text-xs font-black uppercase tracking-wider text-slate-700 flex items-center gap-2">
+                            <i class="fa-solid fa-layer-group text-blue-600"></i> Books List (Name + Cover Image URL + Google Drive Link)
+                        </label>
+                        <button type="button" id="btnAddBookRow" onclick="addBookEntryRow()" class="px-3.5 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-600 rounded-xl text-[11px] font-black uppercase tracking-wider flex items-center gap-1.5 transition-colors border border-blue-200">
+                            <i class="fa-solid fa-plus"></i> Add Another Book
+                        </button>
+                    </div>
+                    <div id="bookEntriesContainer" class="space-y-3 max-h-[45vh] overflow-y-auto pr-1"></div>
+                </div>
+
+                <div class="bg-amber-50/80 border border-amber-200/80 rounded-2xl p-3.5 flex items-center gap-3 text-xs text-amber-900 font-semibold">
+                    <i class="fa-solid fa-lock text-amber-600 text-base shrink-0"></i>
+                    <span>Books are strictly accessible <strong>only to paid/enrolled students</strong> of the linked course or category. Students can read with Zoom, Colour Highlighter, and Rectangular Full-Screen Phone Mode.</span>
+                </div>
+
+                <div class="flex gap-3 pt-2">
+                    <button id="btnSaveBook" onclick="saveBook()" class="btn-primary flex-1">Save Syllabus Books</button>
+                    <button onclick="closeModal()" class="bg-slate-100 text-slate-600 px-6 rounded-xl font-bold text-xs uppercase tracking-widest">Cancel</button>
+                </div>
+            </div>
+        </div>
+
         <div id="upcomingModal" class="bg-white text-slate-900 w-full rounded-[32px] shadow-2xl border border-slate-100 overflow-y-auto relative flex flex-col max-h-[90vh] transition-all my-auto hidden p-6 md:p-8 max-w-3xl">
             <h2 class="text-xl font-bold mb-6">Add Upcoming Course</h2>
             <div class="grid gap-4">
@@ -1842,6 +2032,8 @@ window.addEventListener('unhandledrejection', function(e) {
         let editingCourseId = null;
         let editingLiveId = null;
         let editingNoteId = null;
+        let editingBookId = null;
+        let allBooksAdmin = [];
         let editingTestId = null;
         let editingUpcomingId = null;
         let editingSliderId = null;
@@ -1886,7 +2078,7 @@ window.addEventListener('unhandledrejection', function(e) {
                 });
             }
             const modals = [
-                'courseModal', 'liveModal', 'noteModal', 'upcomingModal', 
+                'courseModal', 'liveModal', 'noteModal', 'bookModal', 'upcomingModal', 
                 'advancedTestModal', 'testModal', 'categoryModal', 'subjectModal',
                 'questionModal', 'demoModal', 'sliderModal', 'submissionsModal', 'staffModal'
             ];
@@ -1924,6 +2116,7 @@ window.addEventListener('unhandledrejection', function(e) {
             const paymentLink = document.getElementById('cPayLink') ? document.getElementById('cPayLink').value.trim() : '';
             const youtubeIntro = document.getElementById('cyoutubeIntro') ? document.getElementById('cyoutubeIntro').value.trim() : '';
             const youtubePlayMode = document.getElementById('cyoutubePlayMode') ? document.getElementById('cyoutubePlayMode').value : 'In-App';
+            const linkedBookIds = Array.from(document.querySelectorAll('input[name="linkedBookIds"]:checked')).map(cb => cb.value);
             const linkedNoteIds = Array.from(document.querySelectorAll('input[name="linkedNoteIds"]:checked')).map(cb => cb.value);
             const linkedTestIds = Array.from(document.querySelectorAll('input[name="linkedTestIds"]:checked')).map(cb => cb.value);
             const linkedLiveIds = Array.from(document.querySelectorAll('input[name="linkedLiveIds"]:checked')).map(cb => cb.value);
@@ -1945,9 +2138,11 @@ window.addEventListener('unhandledrejection', function(e) {
                 paymentLink,
                 youtubeIntro,
                 youtubePlayMode,
+                linkedBookIds,
                 linkedNoteIds,
                 linkedTestIds,
                 linkedLiveIds,
+                linkedBookId: linkedBookIds.length > 0 ? linkedBookIds[0] : '',
                 linkedNoteId: linkedNoteIds.length > 0 ? linkedNoteIds[0] : '', // Fallback for legacy compatibility
                 linkedTestId: linkedTestIds.length > 0 ? linkedTestIds[0] : '', // Fallback for legacy compatibility
                 thumbnail,
@@ -1956,8 +2151,18 @@ window.addEventListener('unhandledrejection', function(e) {
                 updatedAt: Date.now()
             };
 
+            const syncLinkedBooksToCourse = (cId, cTitle, cCat) => {
+                if (!linkedBookIds || linkedBookIds.length === 0) return;
+                linkedBookIds.forEach(bId => {
+                    const updatePayload = { courseId: cId, courseName: cTitle };
+                    if (cCat) updatePayload.category = cCat;
+                    fb.update(fb.ref(db, 'books/' + bId), updatePayload).catch(() => {});
+                });
+            };
+
             if (editingCourseId) {
                 fb.update(fb.ref(db, 'courses/' + editingCourseId), courseData).then(() => {
+                    syncLinkedBooksToCourse(editingCourseId, title, cat);
                     if (typeof showToast === 'function') showToast("Course Updated Successfully!");
                     closeModal();
                 }).catch(e => {
@@ -1966,7 +2171,9 @@ window.addEventListener('unhandledrejection', function(e) {
                 });
             } else {
                 courseData.createdAt = Date.now();
-                fb.push(fb.ref(db, 'courses'), courseData).then((ref) => { if(typeof sendGlobalNotification === 'function') sendGlobalNotification(`New Course: ${title}`, `A new course has been published.`, 'course', ref.key);
+                fb.push(fb.ref(db, 'courses'), courseData).then((ref) => {
+                    syncLinkedBooksToCourse(ref.key, title, cat);
+                    if(typeof sendGlobalNotification === 'function') sendGlobalNotification(`New Course: ${title}`, `A new course has been published.`, 'course', ref.key);
                     if (typeof showToast === 'function') showToast("Course Published Successfully!");
                     closeModal();
                 }).catch(e => {
@@ -2744,6 +2951,72 @@ window.addEventListener('unhandledrejection', function(e) {
                 });
             });
 
+            // Syllabus Books
+            fb.onValue(fb.ref(db, 'books'), snap => {
+                allBooksAdmin = [];
+                const grid = document.getElementById('booksAdminGrid');
+                if (grid) grid.innerHTML = '';
+                let count = 0;
+                snap.forEach(child => {
+                    const b = child.val();
+                    const id = child.key;
+                    allBooksAdmin.push({ id, ...b });
+                    count++;
+                    if (grid) {
+                        const coverUrl = b.cover || b.thumbnail || b.image || '';
+                        const safeTitle = (b.title || 'Syllabus Book').replace(/"/g, '&quot;');
+                        grid.innerHTML += `
+                            <div class="bg-white rounded-3xl border border-slate-100 shadow-sm hover:shadow-md transition-all overflow-hidden flex flex-col">
+                                <div class="relative h-44 bg-gradient-to-br from-slate-800 to-slate-900 flex items-center justify-center overflow-hidden">
+                                    ${coverUrl ? `<img src="${coverUrl}" alt="${safeTitle}" class="w-full h-full object-cover" onerror="this.style.display='none'">` : `<i class="fa-solid fa-book-open text-4xl text-amber-400/80"></i>`}
+                                    <div class="absolute top-3 left-3 flex flex-wrap gap-1.5">
+                                        <span class="px-2.5 py-1 rounded-lg bg-slate-900/80 backdrop-blur-md text-amber-300 text-[9px] font-black uppercase tracking-widest border border-amber-400/30">
+                                            <i class="fa-solid fa-lock mr-1"></i> Paid Batch
+                                        </span>
+                                        ${b.category ? `<span class="px-2.5 py-1 rounded-lg bg-blue-600/90 text-white text-[9px] font-black uppercase tracking-widest">${b.category}</span>` : ''}
+                                    </div>
+                                </div>
+                                <div class="p-4 flex-1 flex flex-col justify-between space-y-3">
+                                    <div>
+                                        <h4 class="font-black text-slate-900 text-sm line-clamp-2 leading-snug">${b.title || 'Untitled Book'}</h4>
+                                        <p class="text-[11px] font-bold text-slate-400 mt-1 flex items-center gap-1.5">
+                                            <i class="fa-solid fa-graduation-cap text-blue-500"></i>
+                                            <span class="truncate">${b.courseName || 'Linked via Course / Category'}</span>
+                                        </p>
+                                        ${b.subject ? `<p class="text-[10px] font-extrabold text-amber-600 uppercase tracking-wider mt-1">${b.subject}</p>` : ''}
+                                    </div>
+                                    <div class="pt-3 border-t border-slate-100 flex items-center justify-between gap-2">
+                                        <a href="${b.url || '#'}" target="_blank" class="px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-[11px] flex items-center gap-1.5 transition-colors">
+                                            <i class="fa-brands fa-google-drive text-emerald-600"></i> Drive Link
+                                        </a>
+                                        <div class="flex items-center gap-2">
+                                            <button onclick="editBook('${id}')" class="w-8 h-8 rounded-xl bg-blue-50 hover:bg-blue-100 text-blue-600 flex items-center justify-center transition-colors" title="Edit Book">
+                                                <i class="fa-solid fa-pen-to-square text-xs"></i>
+                                            </button>
+                                            <button onclick="deleteItem('books', '${id}')" class="w-8 h-8 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-600 flex items-center justify-center transition-colors" title="Delete Book">
+                                                <i class="fa-solid fa-trash text-xs"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    }
+                });
+                if (grid && count === 0) {
+                    grid.innerHTML = `
+                        <div class="col-span-full bg-white rounded-3xl border border-dashed border-slate-200 p-12 text-center">
+                            <div class="w-14 h-14 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center mx-auto mb-3 text-xl">
+                                <i class="fa-solid fa-book"></i>
+                            </div>
+                            <h4 class="font-black text-slate-800 text-base">No Syllabus Books Added Yet</h4>
+                            <p class="text-xs text-slate-400 font-medium mt-1 mb-4">Click "+ Add Syllabus Books (Multiple)" to upload Google Drive PDF books with cover images.</p>
+                            <button onclick="showBookModal()" class="btn-primary text-xs">+ Add First Book</button>
+                        </div>
+                    `;
+                }
+            });
+
             // Payments
             fb.onValue(fb.ref(db, 'payment_requests'), snap => {
                 let pending = 0;
@@ -3029,13 +3302,46 @@ window.addEventListener('unhandledrejection', function(e) {
                     }
                 }
             });
-            fb.get(fb.ref(db, 'settings/cashfree')).then(s => { 
+            fb.onValue(fb.ref(db, 'settings/cashfree'), s => { 
                 if(s.exists()){
                     const v = s.val();
+                    const isEnabled = v.enabled !== false;
+                    if(document.getElementById('setCfEnabled')) document.getElementById('setCfEnabled').checked = isEnabled;
+                    if(typeof updateGatewayBadgeUI === 'function') updateGatewayBadgeUI('cashfree', isEnabled);
                     if(document.getElementById('setCfEnv') && v.env) document.getElementById('setCfEnv').value = v.env;
-                    if(document.getElementById('setCfAppId') && v.appId) document.getElementById('setCfAppId').value = v.appId;
-                    if(document.getElementById('setCfSecretKey') && v.secretKey) document.getElementById('setCfSecretKey').value = v.secretKey;
-                    if(document.getElementById('setCfWebhookSecret') && v.webhookSecret) document.getElementById('setCfWebhookSecret').value = v.webhookSecret;
+                    if(document.getElementById('setCfAppId') && v.appId !== undefined) document.getElementById('setCfAppId').value = v.appId;
+                    if(document.getElementById('setCfSecretKey') && v.secretKey !== undefined) document.getElementById('setCfSecretKey').value = v.secretKey;
+                    if(document.getElementById('setCfWebhookSecret') && v.webhookSecret !== undefined) document.getElementById('setCfWebhookSecret').value = v.webhookSecret;
+                } else {
+                    if(document.getElementById('setCfEnabled')) document.getElementById('setCfEnabled').checked = true;
+                    if(typeof updateGatewayBadgeUI === 'function') updateGatewayBadgeUI('cashfree', true);
+                }
+            });
+            fb.onValue(fb.ref(db, 'settings/razorpay'), s => { 
+                if(s.exists()){
+                    const v = s.val();
+                    const isEnabled = v.enabled !== false;
+                    if(document.getElementById('setRzpEnabled')) document.getElementById('setRzpEnabled').checked = isEnabled;
+                    if(typeof updateGatewayBadgeUI === 'function') updateGatewayBadgeUI('razorpay', isEnabled);
+                    if(document.getElementById('setRzpKeyId') && v.keyId !== undefined) document.getElementById('setRzpKeyId').value = v.keyId;
+                    if(document.getElementById('setRzpKeySecret') && v.keySecret !== undefined) document.getElementById('setRzpKeySecret').value = v.keySecret;
+                    if(document.getElementById('setRzpWebhookSecret') && v.webhookSecret !== undefined) document.getElementById('setRzpWebhookSecret').value = v.webhookSecret;
+                } else {
+                    if(document.getElementById('setRzpEnabled')) document.getElementById('setRzpEnabled').checked = true;
+                    if(typeof updateGatewayBadgeUI === 'function') updateGatewayBadgeUI('razorpay', true);
+                }
+            });
+            fb.onValue(fb.ref(db, 'settings/zapupi'), s => { 
+                if(s.exists()){
+                    const v = s.val();
+                    const isEnabled = v.enabled !== false;
+                    if(document.getElementById('setZapEnabled')) document.getElementById('setZapEnabled').checked = isEnabled;
+                    if(typeof updateGatewayBadgeUI === 'function') updateGatewayBadgeUI('zapupi', isEnabled);
+                    if(document.getElementById('setZapTokenKey') && v.tokenKey !== undefined) document.getElementById('setZapTokenKey').value = v.tokenKey;
+                    if(document.getElementById('setZapSecretKey') && v.secretKey !== undefined) document.getElementById('setZapSecretKey').value = v.secretKey;
+                } else {
+                    if(document.getElementById('setZapEnabled')) document.getElementById('setZapEnabled').checked = true;
+                    if(typeof updateGatewayBadgeUI === 'function') updateGatewayBadgeUI('zapupi', true);
                 }
             });
             fb.get(fb.ref(db, 'settings/adminCredentials')).then(s => {
@@ -3800,6 +4106,9 @@ window.addEventListener('unhandledrejection', function(e) {
                 if (typeof togglePrice === 'function') togglePrice();
             } else if (id === 'cCat') {
                 if (window.adminUIState) window.adminUIState.categories['cCat'] = value;
+                if (typeof window.filterBooksMultiSelectByCategory === 'function') {
+                    window.filterBooksMultiSelectByCategory(value);
+                }
             }
 
             if (triggerOnChange) {
@@ -3830,6 +4139,58 @@ window.addEventListener('unhandledrejection', function(e) {
             }).catch(err => console.error("Error fetching categories:", err));
         };
 
+        window.populateBooksMultiSelect = function(selectedIds = []) {
+            if (!fb || !db) return Promise.resolve();
+            return fb.get(fb.ref(db, 'books')).then(snap => {
+                const list = document.getElementById('clinkedBooksList');
+                if (!list) return;
+                list.innerHTML = '';
+                let hasItems = false;
+                const currentCat = document.getElementById('cCat') ? document.getElementById('cCat').value.trim().toLowerCase() : '';
+                if (snap.exists()) {
+                    snap.forEach(child => {
+                        hasItems = true;
+                        const key = child.key;
+                        const val = child.val() || {};
+                        const title = val.title || 'Untitled Book';
+                        const cover = val.cover || val.thumbnail || '';
+                        const bookCat = val.category || val.subject || '';
+                        const isChecked = selectedIds.includes(key) ? 'checked' : '';
+                        const matchesCat = !currentCat || !bookCat || bookCat.toLowerCase() === currentCat;
+                        list.innerHTML += `
+                            <label data-book-cat="${(bookCat || '').toLowerCase()}" class="book-multiselect-item flex items-center gap-2.5 p-1.5 hover:bg-white rounded-xl cursor-pointer transition-all border ${matchesCat ? 'border-transparent hover:border-amber-200' : 'border-transparent opacity-60'}">
+                                <input type="checkbox" name="linkedBookIds" value="${key}" ${isChecked} class="w-4 h-4 text-amber-600 rounded border-slate-300 focus:ring-amber-500 shrink-0">
+                                <div class="w-7 h-9 rounded-md bg-slate-200 overflow-hidden shrink-0 flex items-center justify-center border border-slate-300/60">
+                                    ${cover ? `<img src="${cover}" class="w-full h-full object-cover" onerror="this.style.display='none'">` : `<i class="fa-solid fa-book text-[10px] text-slate-500"></i>`}
+                                </div>
+                                <div class="min-w-0 flex-1">
+                                    <div class="text-[11px] font-bold text-slate-800 truncate" title="${title}">${title}</div>
+                                    ${bookCat ? `<div class="text-[9px] font-extrabold text-amber-600 uppercase tracking-wider truncate">${bookCat}</div>` : ''}
+                                </div>
+                            </label>
+                        `;
+                    });
+                }
+                if (!hasItems) list.innerHTML = '<p class="text-[10px] text-slate-400 p-2 text-center">No books added yet. Add from Syllabus Books tab.</p>';
+            }).catch(err => console.error("Error fetching books:", err));
+        };
+
+        window.filterBooksMultiSelectByCategory = function(categoryValue) {
+            const list = document.getElementById('clinkedBooksList');
+            if (!list) return;
+            const normCat = (categoryValue || '').trim().toLowerCase();
+            const items = list.querySelectorAll('.book-multiselect-item');
+            items.forEach(item => {
+                const itemCat = (item.getAttribute('data-book-cat') || '').trim().toLowerCase();
+                if (!normCat || !itemCat || itemCat === normCat) {
+                    item.classList.remove('opacity-50');
+                    item.classList.add('bg-amber-50/40');
+                } else {
+                    item.classList.add('opacity-50');
+                    item.classList.remove('bg-amber-50/40');
+                }
+            });
+        };
         
         window.populateNotesMultiSelect = function(selectedIds = []) {
             if (!fb || !db) return Promise.resolve();
@@ -4066,6 +4427,7 @@ window.addEventListener('unhandledrejection', function(e) {
             if (btnText) btnText.innerText = 'Publish Course';
 
             populateCategoriesCustomSelect();
+            populateBooksMultiSelect([]);
             populateNotesMultiSelect([]);
             populateTestsMultiSelect([]);
             populateLivesMultiSelect([]);
@@ -4141,6 +4503,7 @@ window.addEventListener('unhandledrejection', function(e) {
                     if (btnText) btnText.innerText = 'Update Course';
 
                     populateCategoriesCustomSelect();
+                    populateBooksMultiSelect(c.linkedBookIds || (c.linkedBookId ? [c.linkedBookId] : []));
                     populateNotesMultiSelect(c.linkedNoteIds || (c.linkedNoteId ? [c.linkedNoteId] : []));
                     populateTestsMultiSelect(c.linkedTestIds || (c.linkedTestId ? [c.linkedTestId] : []));
                     populateLivesMultiSelect(c.linkedLiveIds || []);
@@ -4149,6 +4512,205 @@ window.addEventListener('unhandledrejection', function(e) {
                 }
             });
         }
+
+        function addBookEntryRow(initialData = {}) {
+            const container = document.getElementById('bookEntriesContainer');
+            if (!container) return;
+            const rowIndex = container.children.length + 1;
+            const row = document.createElement('div');
+            row.className = 'book-entry-row bg-slate-50 p-4 rounded-2xl border border-slate-200/90 space-y-3 relative transition-all';
+            const safeTitle = (initialData.title || '').replace(/"/g, '&quot;');
+            const safeCover = (initialData.cover || '').replace(/"/g, '&quot;');
+            const safeUrl = (initialData.url || '').replace(/"/g, '&quot;');
+
+            row.innerHTML = `
+                <div class="flex items-center justify-between">
+                    <span class="text-[10px] font-black uppercase tracking-widest text-blue-600 bg-blue-50 px-2.5 py-1 rounded-lg border border-blue-200/60">Book #${rowIndex}</span>
+                    ${container.children.length > 0 ? `
+                        <button type="button" onclick="this.closest('.book-entry-row').remove()" class="text-rose-500 hover:text-rose-700 text-xs font-bold flex items-center gap-1">
+                            <i class="fa-solid fa-trash-can"></i> Remove
+                        </button>
+                    ` : ''}
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-12 gap-3 items-center">
+                    <div class="md:col-span-4">
+                        <label class="text-[10px] font-bold uppercase text-slate-400 ml-1 block mb-1">Book Name / Title *</label>
+                        <input type="text" class="book-row-title bg-white border border-slate-200 text-slate-900 w-full text-xs font-bold" placeholder="e.g. NCERT Class 12 Physics Part-1" value="${safeTitle}">
+                    </div>
+                    <div class="md:col-span-4">
+                        <label class="text-[10px] font-bold uppercase text-slate-400 ml-1 block mb-1">Book Cover Direct Image URL</label>
+                        <div class="flex items-center gap-2">
+                            <input type="text" oninput="previewBookRowCover(this)" class="book-row-cover bg-white border border-slate-200 text-slate-900 w-full text-xs" placeholder="https://.../cover-image.jpg" value="${safeCover}">
+                            <div class="book-row-cover-preview w-10 h-12 rounded-lg bg-slate-200 border border-slate-300 shrink-0 flex items-center justify-center overflow-hidden">
+                                ${safeCover ? `<img src="${safeCover}" class="w-full h-full object-cover" onerror="this.style.display='none'">` : `<i class="fa-solid fa-image text-slate-400 text-xs"></i>`}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="md:col-span-4">
+                        <label class="text-[10px] font-bold uppercase text-slate-400 ml-1 block mb-1">Google Drive PDF Link *</label>
+                        <input type="text" class="book-row-url bg-white border border-slate-200 text-slate-900 w-full text-xs" placeholder="https://drive.google.com/file/d/.../view" value="${safeUrl}">
+                    </div>
+                </div>
+            `;
+            container.appendChild(row);
+        }
+        window.addBookEntryRow = addBookEntryRow;
+
+        function previewBookRowCover(inputEl) {
+            if (!inputEl) return;
+            const previewBox = inputEl.parentElement ? inputEl.parentElement.querySelector('.book-row-cover-preview') : null;
+            if (!previewBox) return;
+            const url = inputEl.value.trim();
+            if (url && (url.startsWith('http://') || url.startsWith('https://') || url.startsWith('data:image'))) {
+                previewBox.innerHTML = `<img src="${url}" class="w-full h-full object-cover" onerror="this.style.display='none'">`;
+            } else {
+                previewBox.innerHTML = `<i class="fa-solid fa-image text-slate-400 text-xs"></i>`;
+            }
+        }
+        window.previewBookRowCover = previewBookRowCover;
+
+        function showBookModal() {
+            editingBookId = null;
+            const container = document.getElementById('bookEntriesContainer');
+            if (container) container.innerHTML = '';
+            addBookEntryRow();
+            const addBtn = document.getElementById('btnAddBookRow');
+            if (addBtn) addBtn.classList.remove('hidden');
+
+            populateCategoriesSelect('bCat', '');
+            populateCategoriesSelect('bSubject', '', allSubjectsCached);
+            populateCoursesSelect('bCourse', '');
+            handleCategoryChange('bCat', '');
+
+            const titleEl = document.getElementById('bookModalTitle');
+            if (titleEl) titleEl.innerText = 'Add Syllabus Books (Multiple)';
+            const saveBtn = document.getElementById('btnSaveBook');
+            if (saveBtn) saveBtn.innerText = 'Save Syllabus Books';
+
+            openModal('bookModal');
+        }
+        window.showBookModal = showBookModal;
+
+        function editBook(id) {
+            fb.get(fb.ref(db, 'books/' + id)).then(snap => {
+                if (snap.exists()) {
+                    const b = snap.val();
+                    editingBookId = id;
+                    const container = document.getElementById('bookEntriesContainer');
+                    if (container) container.innerHTML = '';
+                    addBookEntryRow({
+                        title: b.title || '',
+                        cover: b.cover || b.thumbnail || '',
+                        url: b.url || ''
+                    });
+                    const addBtn = document.getElementById('btnAddBookRow');
+                    if (addBtn) addBtn.classList.add('hidden');
+
+                    populateCategoriesSelect('bCat', b.category || '');
+                    populateCategoriesSelect('bSubject', b.subject || '', allSubjectsCached);
+                    populateCoursesSelect('bCourse', b.courseId || '');
+
+                    const titleEl = document.getElementById('bookModalTitle');
+                    if (titleEl) titleEl.innerText = 'Edit Syllabus Book';
+                    const saveBtn = document.getElementById('btnSaveBook');
+                    if (saveBtn) saveBtn.innerText = 'Update Book';
+
+                    openModal('bookModal');
+                }
+            });
+        }
+        window.editBook = editBook;
+
+        function saveBook() {
+            const cat = document.getElementById('bCat') ? document.getElementById('bCat').value : '';
+            const subject = document.getElementById('bSubject') ? document.getElementById('bSubject').value : '';
+            const courseId = document.getElementById('bCourse') ? document.getElementById('bCourse').value : '';
+            const courseName = courseId && coursesMap[courseId] ? coursesMap[courseId] : 'Paid Batch Course';
+
+            const rows = Array.from(document.querySelectorAll('#bookEntriesContainer .book-entry-row'));
+            if (rows.length === 0) return alert('Please add at least one book.');
+
+            const entries = [];
+            for (let i = 0; i < rows.length; i++) {
+                const r = rows[i];
+                const titleInp = r.querySelector('.book-row-title');
+                const coverInp = r.querySelector('.book-row-cover');
+                const urlInp = r.querySelector('.book-row-url');
+                const title = titleInp ? titleInp.value.trim() : '';
+                const cover = coverInp ? coverInp.value.trim() : '';
+                const url = urlInp ? urlInp.value.trim() : '';
+                if (!title || !url) {
+                    return alert(`Please enter both Book Name and Google Drive PDF Link for Book #${i + 1}`);
+                }
+                entries.push({ title, cover, url });
+            }
+
+            if (editingBookId) {
+                const item = entries[0];
+                const bookData = {
+                    title: item.title,
+                    cover: item.cover,
+                    thumbnail: item.cover,
+                    url: item.url,
+                    category: cat,
+                    subject: subject || cat,
+                    courseId,
+                    courseName,
+                    type: 'Paid',
+                    updatedAt: Date.now()
+                };
+                fb.update(fb.ref(db, 'books/' + editingBookId), bookData).then(() => {
+                    if (courseId) {
+                        fb.get(fb.ref(db, 'courses/' + courseId)).then(cSnap => {
+                            if (cSnap.exists()) {
+                                const cVal = cSnap.val() || {};
+                                const existing = Array.isArray(cVal.linkedBookIds) ? cVal.linkedBookIds : [];
+                                if (!existing.includes(editingBookId)) {
+                                    fb.update(fb.ref(db, 'courses/' + courseId), {
+                                        linkedBookIds: [...existing, editingBookId]
+                                    });
+                                }
+                            }
+                        });
+                    }
+                    if (typeof showToast === 'function') showToast('Syllabus Book Updated!');
+                    closeModal();
+                }).catch(err => alert('Failed to update book: ' + err.message));
+            } else {
+                const promises = entries.map(item => {
+                    const bookData = {
+                        title: item.title,
+                        cover: item.cover,
+                        thumbnail: item.cover,
+                        url: item.url,
+                        category: cat,
+                        subject: subject || cat,
+                        courseId,
+                        courseName,
+                        type: 'Paid',
+                        createdAt: Date.now()
+                    };
+                    return fb.push(fb.ref(db, 'books'), bookData).then(ref => ref.key);
+                });
+
+                Promise.all(promises).then(newBookIds => {
+                    if (courseId && newBookIds.length > 0) {
+                        fb.get(fb.ref(db, 'courses/' + courseId)).then(cSnap => {
+                            if (cSnap.exists()) {
+                                const cVal = cSnap.val() || {};
+                                const existing = Array.isArray(cVal.linkedBookIds) ? cVal.linkedBookIds : [];
+                                const merged = Array.from(new Set([...existing, ...newBookIds]));
+                                fb.update(fb.ref(db, 'courses/' + courseId), { linkedBookIds: merged });
+                            }
+                        });
+                    }
+                    if (typeof showToast === 'function') showToast(`${entries.length} Syllabus Book(s) Added Successfully!`);
+                    closeModal();
+                }).catch(err => alert('Failed to save books: ' + err.message));
+            }
+        }
+        window.saveBook = saveBook;
+
         // editingNoteId hoisted
         function showNoteModal() {
             editingNoteId = null;
@@ -5105,24 +5667,129 @@ window.addEventListener('unhandledrejection', function(e) {
                 });
             }
         }
+        function updateGatewayBadgeUI(gateway, isEnabled) {
+            const badgeId = gateway === 'razorpay' ? 'rzpStatusBadge' : gateway === 'zapupi' ? 'zapStatusBadge' : 'cfStatusBadge';
+            const badge = document.getElementById(badgeId);
+            if (!badge) return;
+            if (isEnabled) {
+                badge.textContent = 'Enabled';
+                badge.className = 'px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-emerald-100 text-emerald-700 border border-emerald-200';
+            } else {
+                badge.textContent = 'Disabled';
+                badge.className = 'px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-rose-100 text-rose-700 border border-rose-200';
+            }
+        }
+        window.updateGatewayBadgeUI = updateGatewayBadgeUI;
+
+        function togglePaymentGateway(gateway, isEnabled) {
+            updateGatewayBadgeUI(gateway, isEnabled);
+            const path = gateway === 'razorpay' ? 'settings/razorpay' : gateway === 'zapupi' ? 'settings/zapupi' : 'settings/cashfree';
+            const label = gateway === 'razorpay' ? 'Razorpay' : gateway === 'zapupi' ? 'ZapUPI' : 'Cashfree';
+
+            if (gateway === 'razorpay' && isEnabled) {
+                const keyId = (document.getElementById('setRzpKeyId')?.value || '').trim();
+                const keySecret = (document.getElementById('setRzpKeySecret')?.value || '').trim();
+                if (!keyId || !keySecret) {
+                    showToast("Tip: Enter your Razorpay Key ID & Secret below and click Save.");
+                }
+            } else if (gateway === 'zapupi' && isEnabled) {
+                const tokenKey = (document.getElementById('setZapTokenKey')?.value || '').trim();
+                if (!tokenKey) {
+                    showToast("Tip: Enter your ZapUPI Token Key & Secret below and click Save.");
+                }
+            }
+
+            fb.update(fb.ref(db, path), {
+                enabled: Boolean(isEnabled),
+                updatedAt: Date.now()
+            }).then(() => {
+                showToast(`${label} Gateway ${isEnabled ? 'Enabled' : 'Disabled'}!`);
+            }).catch(e => {
+                alert(`Error updating ${label} status: ` + e.message);
+            });
+        }
+        window.togglePaymentGateway = togglePaymentGateway;
+
         function saveCashfreeSettings() {
+            const enabledEl = document.getElementById('setCfEnabled');
+            const isEnabled = enabledEl ? enabledEl.checked : true;
             const data = {
+                enabled: isEnabled,
                 env: document.getElementById('setCfEnv').value,
                 appId: document.getElementById('setCfAppId').value.trim(),
                 secretKey: document.getElementById('setCfSecretKey').value.trim(),
-                webhookSecret: document.getElementById('setCfWebhookSecret').value.trim()
+                webhookSecret: document.getElementById('setCfWebhookSecret').value.trim(),
+                updatedAt: Date.now()
             };
-            if(!data.appId || !data.secretKey) {
-                alert("Please fill in both Cashfree App ID and Secret Key!");
+            if (isEnabled && (!data.appId || !data.secretKey)) {
+                alert("Please fill in both Cashfree App ID and Secret Key (or uncheck 'Accept Payments' to disable Cashfree)!");
                 return;
             }
             fb.set(fb.ref(db, 'settings/cashfree'), data).then(() => {
-                showToast("Cashfree API Credentials Saved Successfully!");
+                updateGatewayBadgeUI('cashfree', isEnabled);
+                showToast(`Cashfree Settings Saved (${isEnabled ? 'Enabled' : 'Disabled'})!`);
             }).catch(e => {
                 alert("Error saving Cashfree settings: " + e.message);
             });
         }
         window.saveCashfreeSettings = saveCashfreeSettings;
+
+        function saveRazorpaySettings() {
+            const enabledEl = document.getElementById('setRzpEnabled');
+            const keyId = document.getElementById('setRzpKeyId').value.trim();
+            const keySecret = document.getElementById('setRzpKeySecret').value.trim();
+            const webhookSecret = document.getElementById('setRzpWebhookSecret').value.trim();
+            let isEnabled = enabledEl ? enabledEl.checked : true;
+
+            if (!keyId || !keySecret) {
+                if (isEnabled) {
+                    alert("Please fill in both Razorpay Key ID and Key Secret!");
+                    return;
+                }
+            }
+
+            const data = {
+                enabled: isEnabled,
+                keyId,
+                keySecret,
+                webhookSecret,
+                updatedAt: Date.now()
+            };
+            fb.set(fb.ref(db, 'settings/razorpay'), data).then(() => {
+                updateGatewayBadgeUI('razorpay', isEnabled);
+                showToast(`Razorpay Settings Saved (${isEnabled ? 'Enabled' : 'Disabled'})!`);
+            }).catch(e => {
+                alert("Error saving Razorpay settings: " + e.message);
+            });
+        }
+        window.saveRazorpaySettings = saveRazorpaySettings;
+
+        function saveZapupiSettings() {
+            const enabledEl = document.getElementById('setZapEnabled');
+            const tokenKey = (document.getElementById('setZapTokenKey')?.value || '').trim();
+            const secretKey = (document.getElementById('setZapSecretKey')?.value || '').trim();
+            let isEnabled = enabledEl ? enabledEl.checked : true;
+
+            if (isEnabled && !tokenKey) {
+                alert("Please fill in your ZapUPI Token Key / API Key (or uncheck 'Accept Payments' to disable ZapUPI)!");
+                return;
+            }
+
+            const data = {
+                enabled: isEnabled,
+                recommended: true,
+                tokenKey,
+                secretKey,
+                updatedAt: Date.now()
+            };
+            fb.set(fb.ref(db, 'settings/zapupi'), data).then(() => {
+                updateGatewayBadgeUI('zapupi', isEnabled);
+                showToast(`ZapUPI Settings Saved (${isEnabled ? 'Enabled' : 'Disabled'})!`);
+            }).catch(e => {
+                alert("Error saving ZapUPI settings: " + e.message);
+            });
+        }
+        window.saveZapupiSettings = saveZapupiSettings;
 
         function saveAdminCredentials() {
             const user = (document.getElementById('setAdminUser') ? document.getElementById('setAdminUser').value.trim() : '') || 'admin';
