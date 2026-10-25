@@ -141,6 +141,33 @@ export function initStudentAppController() {
   let allCategoriesCached: any[] = [];
   let allSubjectsCached: any[] = [];
   let pendingPurchases = new Set<string>();
+  let firebaseListenersAttached = false;
+
+  // Hydrate cached data immediately for 0ms first render on repeat visits
+  try {
+    const cachedCourses = localStorage.getItem("toc_cache_courses");
+    if (cachedCourses) {
+      const parsed = JSON.parse(cachedCourses);
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        allCoursesCached = parsed;
+        coursesLoaded = true;
+      }
+    }
+    const cachedCategories = localStorage.getItem("toc_cache_categories");
+    if (cachedCategories) {
+      const parsed = JSON.parse(cachedCategories);
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        allCategoriesCached = parsed;
+      }
+    }
+    const cachedBooks = localStorage.getItem("toc_cache_books");
+    if (cachedBooks) {
+      const parsed = JSON.parse(cachedBooks);
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        allBooksCached = parsed;
+      }
+    }
+  } catch (_e) {}
 
   let activeCategory = localStorage.getItem("user_category") || "";
 
@@ -709,10 +736,26 @@ export function initStudentAppController() {
 
   function checkUserProfile() {
     const uid = currentUser.uid;
+
+    // Instant local profile hydration for returning users
+    try {
+      const cachedProfileStr = localStorage.getItem("user_profile_" + uid);
+      if (cachedProfileStr) {
+        const cachedProfile = JSON.parse(cachedProfileStr);
+        if (cachedProfile && cachedProfile.phone) {
+          handleProfileData(cachedProfile, uid);
+        }
+      }
+    } catch (_e) {}
+
     fb.get(fb.ref(db, "users/" + uid))
       .then((snapshot) => {
         if (snapshot.exists()) {
-          handleProfileData(snapshot.val(), uid);
+          const val = snapshot.val();
+          try {
+            localStorage.setItem("user_profile_" + uid, JSON.stringify(val));
+          } catch (_e) {}
+          handleProfileData(val, uid);
         } else {
           let userPhone = currentUser.phoneNumber;
           if (
@@ -755,7 +798,7 @@ export function initStudentAppController() {
           showProfileSetup();
         } else {
           console.warn("Profile check error:", e);
-          showAuth();
+          if (!userData) showAuth();
         }
       });
   }
@@ -768,6 +811,12 @@ export function initStudentAppController() {
     }
 
     userData = data;
+    try {
+      if (currentUser && currentUser.uid) {
+        localStorage.setItem("user_profile_" + currentUser.uid, JSON.stringify(data));
+      }
+    } catch (_e) {}
+
     const adminPhones = ["+919999999999", "+918000000000"];
     const adminEmails = ["xanasrahmani@gmail.com"];
 
@@ -2917,22 +2966,27 @@ export function initStudentAppController() {
     }
   }
 
+  function dismissSplashFast(onComplete?: () => void) {
+    const splash = document.getElementById("splash");
+    if (!splash || splash.style.display === "none") {
+      if (onComplete) onComplete();
+      return;
+    }
+    splash.style.transition = "opacity 0.22s ease-out";
+    splash.style.opacity = "0";
+    setTimeout(() => {
+      splash.style.display = "none";
+      if (onComplete) onComplete();
+    }, 220);
+  }
+
   function showAuth() {
     safeClassAdd("mainContent", "hidden");
     safeClassAdd("bottomNav", "hidden");
     safeClassAdd("profileSetupForm", "hidden");
-    safeClassAdd("authSection", "hidden");
-
-    setTimeout(() => {
-      const splash = document.getElementById("splash");
-      if (splash) {
-        splash.style.opacity = "0";
-        setTimeout(() => {
-          splash.style.display = "none";
-          safeClassRemove("authSection", "hidden");
-        }, 1000);
-      }
-    }, 1500);
+    safeClassRemove("loginForm", "hidden");
+    safeClassRemove("authSection", "hidden");
+    dismissSplashFast();
   }
 
   function hideAuth() {
@@ -2940,8 +2994,12 @@ export function initStudentAppController() {
   }
 
   function showProfileSetup() {
+    safeClassAdd("mainContent", "hidden");
+    safeClassAdd("bottomNav", "hidden");
     safeClassAdd("loginForm", "hidden");
+    safeClassRemove("authSection", "hidden");
     safeClassRemove("profileSetupForm", "hidden");
+    dismissSplashFast();
 
     if (currentUser && currentUser.displayName) {
       safeSetVal("setupName", currentUser.displayName || "");
@@ -5702,192 +5760,213 @@ export function initStudentAppController() {
     const triggerText = document.getElementById("activeClassName");
     if (triggerText) triggerText.innerText = activeCategory || "All Classes";
 
-    fb.onValue(fb.ref(db, "subjects"), (snapshot) => {
-      allSubjectsCached = [];
-      if (snapshot.exists()) {
-        snapshot.forEach((childSnap) => {
-          allSubjectsCached.push({ id: childSnap.key, ...childSnap.val() });
-        });
-      }
-      renderTests();
-      renderNotes();
-      renderLive();
-    });
-
-    fb.onValue(fb.ref(db, "categories"), (snapshot) => {
-      allCategoriesCached = [];
-      snapshot.forEach((childSnap) => {
-        allCategoriesCached.push({ id: childSnap.key, ...childSnap.val() });
-      });
-      renderCategoryFilters();
-    });
-
-    fb.onValue(fb.ref(db, "payment_requests"), (snapshot) => {
-      pendingPurchases.clear();
-      snapshot.forEach((childSnap) => {
-        const req = childSnap.val();
-        if (currentUser && req.userId === currentUser.uid && req.status === "Pending") {
-          pendingPurchases.add(req.courseId);
-        }
-      });
-      refreshUI();
-    });
-
-    fb.onValue(fb.ref(db, "upcoming_courses"), (snapshot) => {
-      allUpcomingCached = [];
-      snapshot.forEach((childSnap) => {
-        allUpcomingCached.push({ id: childSnap.key, ...childSnap.val() });
-      });
-      renderUpcoming();
-    });
-
-    fb.onValue(fb.ref(db, "timetables"), (snapshot) => {
-      allTimetablesCached = [];
-      snapshot.forEach((childSnap) => {
-        allTimetablesCached.push({ id: childSnap.key, ...childSnap.val() });
-      });
-      renderTimetables();
-    });
-
-    fb.onValue(fb.ref(db, "toppers"), (snapshot) => {
-      allToppersCached = [];
-      snapshot.forEach((childSnap) => {
-        allToppersCached.push({ id: childSnap.key, ...childSnap.val() });
-      });
-      renderToppers();
-    });
-
-    fb.onValue(fb.ref(db, "quiz_leaderboard"), (snapshot) => {
-      allQuizLeaderboardCached = [];
-      snapshot.forEach((childSnap) => {
-        allQuizLeaderboardCached.push({ id: childSnap.key, ...childSnap.val() });
-      });
-      renderQuizLeaderboard();
-    });
-
-    fb.onValue(fb.ref(db, "courses"), (snapshot) => {
-      allCoursesCached = [];
-      snapshot.forEach((childSnap) => {
-        allCoursesCached.push({ id: childSnap.key, ...childSnap.val() });
-      });
-      coursesLoaded = true;
+    // Render immediately from cached data if present
+    if (allCategoriesCached.length > 0) renderCategoryFilters();
+    if (allCoursesCached.length > 0) {
       renderHomeCourses();
       renderAllCourses();
-      renderTests();
-      renderNotes();
-      renderBooks();
-      renderLive();
-    });
+    }
+    if (allBooksCached.length > 0) renderBooks();
 
-    fb.onValue(fb.ref(db, "tests"), (snapshot) => {
-      allTestsCached = [];
-      snapshot.forEach((childSnap) => {
-        allTestsCached.push({ id: childSnap.key, ...childSnap.val() });
+    if (!firebaseListenersAttached) {
+      firebaseListenersAttached = true;
+
+      fb.onValue(fb.ref(db, "subjects"), (snapshot) => {
+        allSubjectsCached = [];
+        if (snapshot.exists()) {
+          snapshot.forEach((childSnap) => {
+            allSubjectsCached.push({ id: childSnap.key, ...childSnap.val() });
+          });
+        }
+        renderTests();
+        renderNotes();
+        renderLive();
       });
-      renderTests();
-    });
 
-    fb.onValue(fb.ref(db, "live"), (snapshot) => {
-      allLiveCached = [];
-      snapshot.forEach((childSnap) => {
-        allLiveCached.push({ id: childSnap.key, ...childSnap.val() });
-      });
-      renderLive();
-    });
-
-    fb.onValue(fb.ref(db, "notes"), (snapshot) => {
-      allNotesCached = [];
-      snapshot.forEach((childSnap) => {
-        allNotesCached.push({ id: childSnap.key, ...childSnap.val() });
-      });
-      renderNotes();
-    });
-
-    fb.onValue(fb.ref(db, "books"), (snapshot) => {
-      allBooksCached = [];
-      if (snapshot.exists()) {
+      fb.onValue(fb.ref(db, "categories"), (snapshot) => {
+        allCategoriesCached = [];
         snapshot.forEach((childSnap) => {
-          allBooksCached.push({ id: childSnap.key, ...childSnap.val() });
+          allCategoriesCached.push({ id: childSnap.key, ...childSnap.val() });
         });
-      }
-      renderBooks();
-    });
+        try {
+          localStorage.setItem("toc_cache_categories", JSON.stringify(allCategoriesCached));
+        } catch (_e) {}
+        renderCategoryFilters();
+      });
 
-    fb.onValue(fb.ref(db, "sliders"), (snapshot) => {
-      renderSlider(snapshot);
-    });
-
-    fb.onValue(fb.ref(db, "demo"), (snapshot) => {
-      renderDemoClasses(snapshot);
-    });
-
-    fb.onValue(fb.ref(db, "settings/logo"), (snapshot) => {
-      if (snapshot.exists()) {
-        const data = snapshot.val() || {};
-        if (data.url) {
-          const url = data.url;
-          const splashImgs = document.querySelectorAll(".splash-logo-img");
-          splashImgs.forEach((img: any) => {
-            img.src = url;
-            img.srcset = "";
-          });
-
-          const authLogo = document.getElementById("authLogo");
-          if (authLogo) {
-            authLogo.innerHTML = `<img src="${url}" class="w-full h-full object-contain rounded-full" />`;
-            authLogo.style.background = "transparent";
+      fb.onValue(fb.ref(db, "payment_requests"), (snapshot) => {
+        pendingPurchases.clear();
+        snapshot.forEach((childSnap) => {
+          const req = childSnap.val();
+          if (currentUser && req.userId === currentUser.uid && req.status === "Pending") {
+            pendingPurchases.add(req.courseId);
           }
+        });
+        refreshUI();
+      });
 
-          const sidebarLogos = document.querySelectorAll(".tanu-logo-circle");
-          sidebarLogos.forEach((logo: any) => {
-            logo.innerHTML = `<img src="${url}" class="w-full h-full object-contain rounded-[10px]" />`;
-            logo.style.background = "transparent";
-            logo.style.border = "none";
+      fb.onValue(fb.ref(db, "upcoming_courses"), (snapshot) => {
+        allUpcomingCached = [];
+        snapshot.forEach((childSnap) => {
+          allUpcomingCached.push({ id: childSnap.key, ...childSnap.val() });
+        });
+        renderUpcoming();
+      });
+
+      fb.onValue(fb.ref(db, "timetables"), (snapshot) => {
+        allTimetablesCached = [];
+        snapshot.forEach((childSnap) => {
+          allTimetablesCached.push({ id: childSnap.key, ...childSnap.val() });
+        });
+        renderTimetables();
+      });
+
+      fb.onValue(fb.ref(db, "toppers"), (snapshot) => {
+        allToppersCached = [];
+        snapshot.forEach((childSnap) => {
+          allToppersCached.push({ id: childSnap.key, ...childSnap.val() });
+        });
+        renderToppers();
+      });
+
+      fb.onValue(fb.ref(db, "quiz_leaderboard"), (snapshot) => {
+        allQuizLeaderboardCached = [];
+        snapshot.forEach((childSnap) => {
+          allQuizLeaderboardCached.push({ id: childSnap.key, ...childSnap.val() });
+        });
+        renderQuizLeaderboard();
+      });
+
+      fb.onValue(fb.ref(db, "courses"), (snapshot) => {
+        allCoursesCached = [];
+        snapshot.forEach((childSnap) => {
+          allCoursesCached.push({ id: childSnap.key, ...childSnap.val() });
+        });
+        coursesLoaded = true;
+        try {
+          localStorage.setItem("toc_cache_courses", JSON.stringify(allCoursesCached));
+        } catch (_e) {}
+        renderHomeCourses();
+        renderAllCourses();
+        renderTests();
+        renderNotes();
+        renderBooks();
+        renderLive();
+      });
+
+      fb.onValue(fb.ref(db, "tests"), (snapshot) => {
+        allTestsCached = [];
+        snapshot.forEach((childSnap) => {
+          allTestsCached.push({ id: childSnap.key, ...childSnap.val() });
+        });
+        renderTests();
+      });
+
+      fb.onValue(fb.ref(db, "live"), (snapshot) => {
+        allLiveCached = [];
+        snapshot.forEach((childSnap) => {
+          allLiveCached.push({ id: childSnap.key, ...childSnap.val() });
+        });
+        renderLive();
+      });
+
+      fb.onValue(fb.ref(db, "notes"), (snapshot) => {
+        allNotesCached = [];
+        snapshot.forEach((childSnap) => {
+          allNotesCached.push({ id: childSnap.key, ...childSnap.val() });
+        });
+        renderNotes();
+      });
+
+      fb.onValue(fb.ref(db, "books"), (snapshot) => {
+        allBooksCached = [];
+        if (snapshot.exists()) {
+          snapshot.forEach((childSnap) => {
+            allBooksCached.push({ id: childSnap.key, ...childSnap.val() });
           });
+        }
+        try {
+          localStorage.setItem("toc_cache_books", JSON.stringify(allBooksCached));
+        } catch (_e) {}
+        renderBooks();
+      });
 
-          const previewImg = document.getElementById("brandLogoPreviewImg") as HTMLImageElement | null;
-          if (previewImg) {
-            previewImg.src = url;
+      fb.onValue(fb.ref(db, "sliders"), (snapshot) => {
+        renderSlider(snapshot);
+      });
+
+      fb.onValue(fb.ref(db, "demo"), (snapshot) => {
+        renderDemoClasses(snapshot);
+      });
+
+      fb.onValue(fb.ref(db, "settings/logo"), (snapshot) => {
+        if (snapshot.exists()) {
+          const data = snapshot.val() || {};
+          if (data.url) {
+            const url = data.url;
+            const splashImgs = document.querySelectorAll(".splash-logo-img");
+            splashImgs.forEach((img: any) => {
+              img.src = url;
+              img.srcset = "";
+            });
+
+            const authLogo = document.getElementById("authLogo");
+            if (authLogo) {
+              authLogo.innerHTML = `<img src="${url}" class="w-full h-full object-contain rounded-full" />`;
+              authLogo.style.background = "transparent";
+            }
+
+            const sidebarLogos = document.querySelectorAll(".tanu-logo-circle");
+            sidebarLogos.forEach((logo: any) => {
+              logo.innerHTML = `<img src="${url}" class="w-full h-full object-contain rounded-[10px]" />`;
+              logo.style.background = "transparent";
+              logo.style.border = "none";
+            });
+
+            const previewImg = document.getElementById("brandLogoPreviewImg") as HTMLImageElement | null;
+            if (previewImg) {
+              previewImg.src = url;
+            }
+          }
+          if (data.title) {
+            document.querySelectorAll(".splash-title").forEach((el: any) => {
+              el.innerText = data.title;
+            });
+          }
+          if (data.subtitle) {
+            document.querySelectorAll(".splash-subtitle").forEach((el: any) => {
+              el.innerText = data.subtitle;
+            });
           }
         }
-        if (data.title) {
-          document.querySelectorAll(".splash-title").forEach((el: any) => {
-            el.innerText = data.title;
-          });
+      });
+
+      fb.onValue(fb.ref(db, "settings/notification"), (snapshot) => {
+        if (snapshot.exists()) {
+          const mText = document.getElementById("marqueeText");
+          if (mText) mText.innerText = snapshot.val();
         }
-        if (data.subtitle) {
-          document.querySelectorAll(".splash-subtitle").forEach((el: any) => {
-            el.innerText = data.subtitle;
-          });
+      });
+
+      fb.onValue(fb.ref(db, "settings/social"), (snapshot) => {
+        if (snapshot.exists()) {
+          const s = snapshot.val();
+          const tg = document.getElementById("social-tg") as HTMLAnchorElement | null;
+          const wa = document.getElementById("social-wa") as HTMLAnchorElement | null;
+          const ig = document.getElementById("social-ig") as HTMLAnchorElement | null;
+          const web = document.getElementById("social-web") as HTMLAnchorElement | null;
+          if (tg) tg.href = s.telegram || "#";
+          if (wa) wa.href = s.whatsapp ? "https://wa.me/" + s.whatsapp : "#";
+          if (ig) ig.href = s.instagram || "#";
+          if (web) web.href = s.website || "#";
         }
-      }
-    });
+      });
+    }
 
-    fb.onValue(fb.ref(db, "settings/notification"), (snapshot) => {
-      if (snapshot.exists()) {
-        const mText = document.getElementById("marqueeText");
-        if (mText) mText.innerText = snapshot.val();
-      }
-    });
-
-    fb.onValue(fb.ref(db, "settings/social"), (snapshot) => {
-      if (snapshot.exists()) {
-        const s = snapshot.val();
-        const tg = document.getElementById("social-tg") as HTMLAnchorElement | null;
-        const wa = document.getElementById("social-wa") as HTMLAnchorElement | null;
-        const ig = document.getElementById("social-ig") as HTMLAnchorElement | null;
-        const web = document.getElementById("social-web") as HTMLAnchorElement | null;
-        if (tg) tg.href = s.telegram || "#";
-        if (wa) wa.href = s.whatsapp ? "https://wa.me/" + s.whatsapp : "#";
-        if (ig) ig.href = s.instagram || "#";
-        if (web) web.href = s.website || "#";
-      }
-    });
-
-    if (!sessionStorage.getItem("greeted")) {
+    if (currentUser && !sessionStorage.getItem("greeted")) {
       setTimeout(
         () => showToast("Welcome back, " + (userData && userData.name ? userData.name : "Student") + "!"),
-        2000
+        900
       );
       sessionStorage.setItem("greeted", "true");
     }
@@ -5919,17 +5998,11 @@ export function initStudentAppController() {
       safeSetText("sidebarCategory", activeCategory || "General");
     }
 
-    setTimeout(() => {
-      const splash = document.getElementById("splash");
-      if (splash) {
-        splash.style.opacity = "0";
-        setTimeout(() => {
-          splash.style.display = "none";
-          safeClassRemove("mainContent", "hidden");
-          safeClassRemove("bottomNav", "hidden");
-        }, 1000);
-      }
-    }, 2000);
+    if (currentUser && userData && userData.phone) {
+      safeClassRemove("mainContent", "hidden");
+      safeClassRemove("bottomNav", "hidden");
+      dismissSplashFast();
+    }
 
     initNotificationListener();
   }
@@ -6244,18 +6317,21 @@ export function initStudentAppController() {
     }
   });
 
-  // Fail-safe for splash screen - always hide after 8 seconds max
+  // Fail-safe for splash screen - always transition quickly within 1.2s max even on slow mobile networks
   setTimeout(() => {
     const splash = document.getElementById("splash");
     if (splash && splash.style.display !== "none") {
-      splash.style.display = "none";
       if (currentUser) {
-        safeClassRemove("mainContent", "hidden");
-        safeClassRemove("bottomNav", "hidden");
-        loadAppData();
+        if (userData && userData.phone) {
+          safeClassRemove("mainContent", "hidden");
+          safeClassRemove("bottomNav", "hidden");
+          dismissSplashFast();
+        } else {
+          showProfileSetup();
+        }
       } else {
         showAuth();
       }
     }
-  }, 8000);
+  }, 1200);
 }

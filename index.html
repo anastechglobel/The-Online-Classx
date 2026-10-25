@@ -14,8 +14,9 @@
     <meta name="apple-mobile-web-app-title" content="TOC App">
     <meta name="format-detection" content="telephone=no">
     <link rel="manifest" href="/manifest.json">
+    <link rel="preload" href="/toc-logo.svg" as="image" type="image/svg+xml">
     <link rel="icon" type="image/svg+xml" href="/toc-logo.svg">
-    <link rel="apple-touch-icon" href="/toc-logo.svg">
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
 
     <!-- Fonts: Plus Jakarta Sans, Inter & JetBrains Mono -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -25,13 +26,13 @@
     <!-- Icons: FontAwesome 6.4.0 -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-    <!-- SweetAlert2 & Canvas Confetti -->
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <!-- SweetAlert2 & Canvas Confetti (Deferred for instant initial paint) -->
+    <script defer src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 
-    <!-- Cashfree & Razorpay Payment Gateway SDKs -->
-    <script src="https://sdk.cashfree.com/js/v3/cashfree.js"></script>
-    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+    <!-- Cashfree & Razorpay Payment Gateway SDKs (Deferred so they never block page load) -->
+    <script defer src="https://sdk.cashfree.com/js/v3/cashfree.js"></script>
+    <script defer src="https://checkout.razorpay.com/v1/checkout.js"></script>
 
     <!-- Tailwind CSS Runtime Config for Dynamic Utility Classes -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -71,6 +72,11 @@
             window.__deferredPwaPrompt = null;
             if (typeof window.updateInstallAppUI === 'function') {
                 window.updateInstallAppUI();
+            }
+        });
+        window.addEventListener('unhandledrejection', function(e) {
+            if (e && e.reason && String(e.reason).includes(' serviceWorker')) {
+                e.preventDefault();
             }
         });
         if ('serviceWorker' in navigator) {

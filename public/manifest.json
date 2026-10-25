@@ -12,6 +12,12 @@
   "categories": ["education", "books", "productivity"],
   "icons": [
     {
+      "src": "/toc-logo.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
       "src": "/apple-touch-icon.png",
       "sizes": "192x192",
       "type": "image/png",
