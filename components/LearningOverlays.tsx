@@ -65,15 +65,15 @@ export const LearningOverlays: React.FC = () => {
               </button>
             </div>
 
-            {/* Colour & Highlight Toolbar Toggle */}
+            {/* Markup Mode Toggle Button */}
             <button
               onClick={() => callWin('togglePdfAnnotationMode')}
               id="btnPdfAnnotate"
-              className="h-8 px-2.5 rounded-xl bg-slate-800 hover:bg-amber-500/20 text-amber-400 border border-slate-700/80 flex items-center justify-center gap-1.5 transition active:scale-95 text-[11px] font-extrabold"
-              title="Colour & Highlight on PDF"
+              className="h-8 px-2.5 sm:px-3 rounded-xl bg-slate-800 hover:bg-amber-500/20 text-amber-400 border border-slate-700/80 flex items-center justify-center gap-1.5 transition active:scale-95 text-[11px] font-extrabold"
+              title="Toggle Markup Mode (Draw & Rectangular Highlights)"
             >
-              <i className="fa-solid fa-highlighter text-xs"></i>
-              <span className="hidden sm:inline">Colour</span>
+              <i className="fa-solid fa-pen-ruler text-xs"></i>
+              <span>Markup</span>
             </button>
 
             {/* Rectangular Phone Full-Screen / Landscape Mode */}
@@ -108,90 +108,163 @@ export const LearningOverlays: React.FC = () => {
           </div>
         </div>
 
-        {/* Interactive Colour & Rectangular Shape Highlighter Bar */}
+        {/* Native Markup Mode Studio Bar (Mouse & Touch Drawing + Rectangular Highlights) */}
         <div
           id="pdfAnnotationToolbar"
-          className="hidden bg-slate-900/95 border-b border-slate-800 px-3 py-2 flex flex-wrap items-center justify-between gap-2 z-30 shrink-0"
+          className="hidden bg-slate-900/95 backdrop-blur-md border-b border-slate-800 px-2.5 sm:px-4 py-2 flex flex-wrap items-center justify-between gap-2 z-30 shrink-0 shadow-lg"
         >
-          <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar">
+          <div className="flex items-center gap-1 sm:gap-1.5 overflow-x-auto no-scrollbar py-0.5">
+            {/* Scroll / Read Mode */}
             <button
               onClick={() => callWin('setPdfTool', 'scroll')}
               id="pdfToolScroll"
-              className="px-2.5 py-1.5 rounded-lg text-[11px] font-extrabold bg-slate-800 text-slate-300 flex items-center gap-1.5 transition"
-              title="Scroll & Pan PDF"
+              className="px-2.5 py-1.5 rounded-lg text-[11px] font-extrabold bg-slate-800 text-slate-300 flex items-center gap-1.5 transition shrink-0"
+              title="Scroll & Read PDF Pages"
             >
               <i className="fa-solid fa-hand"></i>
               <span>Scroll</span>
             </button>
+
+            {/* Chisel Marker Highlighter */}
+            <button
+              onClick={() => callWin('setPdfTool', 'highlighter')}
+              id="pdfToolHighlighter"
+              className="px-2.5 py-1.5 rounded-lg text-[11px] font-extrabold bg-indigo-600 text-white flex items-center gap-1.5 transition shrink-0"
+              title="Chisel Marker Highlight (Freehand)"
+            >
+              <i className="fa-solid fa-highlighter"></i>
+              <span>Highlight</span>
+            </button>
+
+            {/* Fine Ink Pen */}
             <button
               onClick={() => callWin('setPdfTool', 'pen')}
               id="pdfToolPen"
-              className="px-2.5 py-1.5 rounded-lg text-[11px] font-extrabold bg-indigo-600 text-white flex items-center gap-1.5 transition"
-              title="Freehand Colour Marker"
+              className="px-2.5 py-1.5 rounded-lg text-[11px] font-extrabold bg-slate-800 text-slate-300 flex items-center gap-1.5 transition shrink-0"
+              title="Freehand Ink Pen (Draw & Underline)"
             >
               <i className="fa-solid fa-pen-fancy"></i>
-              <span>Marker</span>
+              <span>Draw</span>
             </button>
+
+            {/* Rectangular Box Highlight */}
             <button
               onClick={() => callWin('setPdfTool', 'rect')}
               id="pdfToolRect"
-              className="px-2.5 py-1.5 rounded-lg text-[11px] font-extrabold bg-slate-800 text-slate-300 flex items-center gap-1.5 transition"
-              title="Rectangular Box Highlight"
+              className="px-2.5 py-1.5 rounded-lg text-[11px] font-extrabold bg-slate-800 text-slate-300 flex items-center gap-1.5 transition shrink-0"
+              title="Drag Rectangular Area Highlight"
             >
               <i className="fa-regular fa-square"></i>
               <span>Rect Box</span>
             </button>
 
-            <div className="h-4 w-px bg-slate-700 mx-1"></div>
+            {/* Precision Eraser */}
+            <button
+              onClick={() => callWin('setPdfTool', 'eraser')}
+              id="pdfToolEraser"
+              className="px-2.5 py-1.5 rounded-lg text-[11px] font-extrabold bg-slate-800 text-slate-300 flex items-center gap-1.5 transition shrink-0"
+              title="Tap or Drag Over Markup to Erase"
+            >
+              <i className="fa-solid fa-eraser"></i>
+              <span className="hidden xs:inline">Erase</span>
+            </button>
+
+            <div className="h-4 w-px bg-slate-700 mx-0.5 shrink-0"></div>
 
             {/* Colour Swatches */}
-            <div className="flex items-center gap-1.5">
+            <div className="flex items-center gap-1.5 shrink-0 px-0.5">
               <button
                 onClick={() => callWin('setPdfColor', '#facc15')}
                 data-pdf-color="#facc15"
-                className="pdf-color-btn w-6 h-6 rounded-full bg-yellow-400 ring-2 ring-white scale-110 transition"
+                className="pdf-color-btn w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-yellow-400 ring-2 ring-white scale-110 transition"
                 title="Yellow Highlight"
               ></button>
               <button
                 onClick={() => callWin('setPdfColor', '#4ade80')}
                 data-pdf-color="#4ade80"
-                className="pdf-color-btn w-6 h-6 rounded-full bg-green-400 opacity-75 hover:opacity-100 transition"
-                title="Green Highlight"
+                className="pdf-color-btn w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-green-400 opacity-75 hover:opacity-100 transition"
+                title="Emerald Green Highlight"
               ></button>
               <button
                 onClick={() => callWin('setPdfColor', '#fb7185')}
                 data-pdf-color="#fb7185"
-                className="pdf-color-btn w-6 h-6 rounded-full bg-rose-400 opacity-75 hover:opacity-100 transition"
-                title="Pink Highlight"
+                className="pdf-color-btn w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-rose-400 opacity-75 hover:opacity-100 transition"
+                title="Rose Pink Highlight"
               ></button>
               <button
                 onClick={() => callWin('setPdfColor', '#38bdf8')}
                 data-pdf-color="#38bdf8"
-                className="pdf-color-btn w-6 h-6 rounded-full bg-sky-400 opacity-75 hover:opacity-100 transition"
-                title="Blue Highlight"
+                className="pdf-color-btn w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-sky-400 opacity-75 hover:opacity-100 transition"
+                title="Sky Blue Highlight"
               ></button>
               <button
                 onClick={() => callWin('setPdfColor', '#fb923c')}
                 data-pdf-color="#fb923c"
-                className="pdf-color-btn w-6 h-6 rounded-full bg-orange-400 opacity-75 hover:opacity-100 transition"
-                title="Orange Highlight"
+                className="pdf-color-btn w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-orange-400 opacity-75 hover:opacity-100 transition"
+                title="Amber Orange Highlight"
               ></button>
+            </div>
+
+            <div className="h-4 w-px bg-slate-700 mx-0.5 shrink-0"></div>
+
+            {/* Stroke Width Selector */}
+            <div className="flex items-center bg-slate-800/90 rounded-lg p-0.5 border border-slate-700/70 shrink-0">
+              <button
+                onClick={() => callWin('setPdfStrokeSize', 'sm')}
+                id="pdfStrokeSm"
+                className="px-2 py-1 rounded-md text-[10px] font-black text-slate-400 hover:text-white transition"
+                title="Fine Stroke"
+              >
+                S
+              </button>
+              <button
+                onClick={() => callWin('setPdfStrokeSize', 'md')}
+                id="pdfStrokeMd"
+                className="px-2 py-1 rounded-md text-[10px] font-black bg-slate-700 text-white transition"
+                title="Medium Stroke"
+              >
+                M
+              </button>
+              <button
+                onClick={() => callWin('setPdfStrokeSize', 'lg')}
+                id="pdfStrokeLg"
+                className="px-2 py-1 rounded-md text-[10px] font-black text-slate-400 hover:text-white transition"
+                title="Broad Stroke"
+              >
+                L
+              </button>
             </div>
           </div>
 
-          <div className="flex items-center gap-1.5">
+          <div className="flex items-center gap-1.5 ml-auto shrink-0">
+            <span
+              id="pdfMarkupStatusBadge"
+              className="hidden lg:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-800/90 border border-slate-700 text-[10px] font-bold text-slate-300"
+            >
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+              <span id="pdfMarkupCountText">0 markups • Auto-saved</span>
+            </span>
+
             <button
               onClick={() => callWin('undoPdfAnnotation')}
-              className="px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-[11px] font-bold flex items-center gap-1 transition"
-              title="Undo Last Highlight"
+              className="px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-[11px] font-bold flex items-center gap-1 transition active:scale-95"
+              title="Undo (Ctrl+Z)"
             >
               <i className="fa-solid fa-rotate-left"></i>
               <span className="hidden sm:inline">Undo</span>
             </button>
             <button
+              onClick={() => callWin('redoPdfAnnotation')}
+              className="px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-[11px] font-bold flex items-center gap-1 transition active:scale-95"
+              title="Redo (Ctrl+Y)"
+            >
+              <i className="fa-solid fa-rotate-right"></i>
+              <span className="hidden sm:inline">Redo</span>
+            </button>
+            <button
               onClick={() => callWin('clearPdfAnnotations')}
-              className="px-2.5 py-1.5 rounded-lg bg-rose-500/20 hover:bg-rose-600 text-rose-300 hover:text-white text-[11px] font-bold flex items-center gap-1 transition"
-              title="Clear All Highlights"
+              className="px-2.5 py-1.5 rounded-lg bg-rose-500/20 hover:bg-rose-600 text-rose-300 hover:text-white text-[11px] font-bold flex items-center gap-1 transition active:scale-95"
+              title="Clear All Markups"
             >
               <i className="fa-solid fa-trash-can"></i>
               <span className="hidden sm:inline">Clear</span>
@@ -222,6 +295,44 @@ export const LearningOverlays: React.FC = () => {
               id="pdfAnnotationCanvas"
               className="absolute inset-0 w-full h-full z-30 pointer-events-none touch-none"
             ></canvas>
+          </div>
+
+          {/* Native Floating Quick-Switch Pill for Touch & Mouse Reading Flow */}
+          <div
+            id="pdfMarkupFloatingPill"
+            className="hidden fixed bottom-5 left-1/2 -translate-x-1/2 z-40 bg-slate-900/95 backdrop-blur-md border border-slate-700/90 rounded-2xl px-2.5 py-1.5 shadow-2xl flex items-center gap-1.5"
+          >
+            <button
+              onClick={() => callWin('setPdfTool', 'scroll')}
+              id="pdfFloatScrollBtn"
+              className="px-3 py-1.5 rounded-xl text-[11px] font-extrabold bg-slate-800 text-slate-300 flex items-center gap-1.5 transition"
+            >
+              <i className="fa-solid fa-up-down-left-right text-[10px]"></i>
+              <span>Scroll PDF</span>
+            </button>
+            <button
+              onClick={() => callWin('setPdfTool', 'highlighter')}
+              id="pdfFloatHighlightBtn"
+              className="px-3 py-1.5 rounded-xl text-[11px] font-extrabold bg-indigo-600 text-white flex items-center gap-1.5 transition"
+            >
+              <i className="fa-solid fa-highlighter text-[10px]"></i>
+              <span>Highlight</span>
+            </button>
+            <button
+              onClick={() => callWin('setPdfTool', 'rect')}
+              id="pdfFloatRectBtn"
+              className="px-3 py-1.5 rounded-xl text-[11px] font-extrabold bg-slate-800 text-slate-300 flex items-center gap-1.5 transition"
+            >
+              <i className="fa-regular fa-square text-[10px]"></i>
+              <span>Rect Box</span>
+            </button>
+            <button
+              onClick={() => callWin('undoPdfAnnotation')}
+              className="w-8 h-8 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 flex items-center justify-center transition"
+              title="Undo"
+            >
+              <i className="fa-solid fa-rotate-left text-xs"></i>
+            </button>
           </div>
         </div>
       </div>

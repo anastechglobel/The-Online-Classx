@@ -33,24 +33,31 @@ export const BooksSection: React.FC = () => {
         </button>
       </div>
 
-      {/* Interactive Reader Feature Banner */}
-      <div className="mb-5 p-3.5 rounded-2xl bg-gradient-to-r from-indigo-600/10 via-violet-600/10 to-purple-600/10 dark:from-indigo-950/60 dark:via-violet-950/50 dark:to-purple-950/50 border border-indigo-200/60 dark:border-indigo-800/50 flex flex-wrap items-center justify-between gap-3">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-indigo-600 text-white flex items-center justify-center shadow-md shadow-indigo-500/20 shrink-0">
-            <i className="fa-solid fa-highlighter text-sm"></i>
+      {/* Interactive Reader & Markup Mode Banner */}
+      <div className="mb-5 p-3.5 sm:p-4 rounded-2xl bg-gradient-to-r from-indigo-600/10 via-violet-600/10 to-amber-500/10 dark:from-indigo-950/60 dark:via-violet-950/50 dark:to-slate-900/80 border border-indigo-200/70 dark:border-indigo-800/50 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div className="flex items-start sm:items-center gap-3">
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-600 to-violet-600 text-white flex items-center justify-center shadow-md shadow-indigo-500/20 shrink-0">
+            <i className="fa-solid fa-pen-ruler text-sm"></i>
           </div>
           <div>
-            <h4 className="text-xs font-extrabold text-slate-900 dark:text-white">
-              Smart Book Reader Mode Enabled
-            </h4>
-            <p className="text-[11px] text-slate-500 dark:text-slate-400">
-              Pinch/button zoom, colour marker, rectangular box highlight &amp; full-screen phone view
+            <div className="flex flex-wrap items-center gap-1.5">
+              <h4 className="text-xs sm:text-sm font-extrabold text-slate-900 dark:text-white">
+                Native PDF Markup &amp; Smart Reader
+              </h4>
+              <span className="px-2 py-0.5 rounded-md bg-amber-500/15 text-amber-700 dark:text-amber-300 border border-amber-400/30 text-[9px] font-black uppercase tracking-wider">
+                Touch &amp; Mouse Canvas
+              </span>
+            </div>
+            <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
+              Freehand draw, chisel marker, rectangular box highlights &amp; auto-saved notes per book
             </p>
           </div>
         </div>
-        <span className="px-2.5 py-1 rounded-lg bg-amber-500/15 text-amber-700 dark:text-amber-300 border border-amber-400/30 text-[10px] font-black uppercase tracking-wider flex items-center gap-1.5">
-          <i className="fa-solid fa-crown text-amber-500"></i> Enrolled Students Only
-        </span>
+        <div className="flex items-center gap-2 self-end sm:self-center shrink-0">
+          <span className="px-2.5 py-1 rounded-lg bg-amber-500/15 text-amber-700 dark:text-amber-300 border border-amber-400/30 text-[10px] font-black uppercase tracking-wider flex items-center gap-1.5">
+            <i className="fa-solid fa-crown text-amber-500"></i> Enrolled Students Only
+          </span>
+        </div>
       </div>
 
       {/* Category / Subject Filter */}

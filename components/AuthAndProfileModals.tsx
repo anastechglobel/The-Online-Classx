@@ -19,9 +19,13 @@ export const AuthAndProfileModals: React.FC = () => {
           <div className="text-center mb-6">
             <div
               id="authLogo"
-              className="w-16 h-16 rounded-2xl bg-gradient-to-br from-indigo-600 to-violet-600 text-white flex items-center justify-center font-extrabold text-xl font-display mx-auto mb-4 shadow-xl shadow-indigo-500/30 overflow-hidden"
+              className="w-16 h-16 rounded-2xl bg-slate-900 flex items-center justify-center mx-auto mb-4 shadow-xl shadow-indigo-500/30 overflow-hidden"
             >
-              TOC
+              <img
+                src="/toc-logo.svg"
+                alt="The Online Classes Logo"
+                className="w-full h-full object-contain"
+              />
             </div>
             <h2 className="text-2xl font-extrabold text-slate-900 dark:text-white tracking-tight font-display">
               The Online Classes
@@ -302,6 +306,80 @@ export const AuthAndProfileModals: React.FC = () => {
             <div className="w-full bg-slate-100 dark:bg-slate-800 h-1.5 rounded-full overflow-hidden">
               <div className="bg-indigo-600 h-full w-2/3 animate-pulse"></div>
             </div>
+          </div>
+        </div>
+      </div>
+
+      {/* OFFICIAL BRAND LOGO SHOWCASE & PREVIEW MODAL */}
+      <div
+        id="brandLogoPreviewModal"
+        className="fixed inset-0 z-[110] bg-slate-950/85 backdrop-blur-xl hidden flex items-center justify-center p-4 animate-fade-in"
+        onClick={() => callWin('closeBrandLogoModal')}
+      >
+        <div
+          className="bg-white dark:bg-slate-900 w-full max-w-md rounded-3xl p-6 sm:p-7 shadow-2xl border border-slate-200 dark:border-slate-800 relative text-center"
+          onClick={(e) => e.stopPropagation()}
+        >
+          <button
+            onClick={() => callWin('closeBrandLogoModal')}
+            aria-label="Close Logo Preview"
+            title="Close"
+            className="absolute top-4 right-4 w-9 h-9 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-rose-50 dark:hover:bg-rose-950/60 text-slate-600 dark:text-slate-300 hover:text-rose-600 flex items-center justify-center transition-all active:scale-90"
+          >
+            <i className="fa-solid fa-xmark text-base"></i>
+          </button>
+
+          <span className="text-[10px] font-black uppercase tracking-[0.2em] text-indigo-600 dark:text-indigo-400 block mb-1">
+            Official Brand Identity
+          </span>
+          <h3 className="text-xl font-extrabold text-slate-900 dark:text-white font-display">
+            The Online Classes (TOC)
+          </h3>
+          <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 mb-5">
+            Royal Indigo &amp; Gold Academic Crest • High-Definition Vector Emblem
+          </p>
+
+          {/* Studio Logo Stage */}
+          <div className="relative mx-auto w-56 h-56 sm:w-64 sm:h-64 rounded-3xl bg-gradient-to-br from-slate-950 via-indigo-950 to-slate-900 p-5 flex items-center justify-center shadow-2xl border border-indigo-500/30 mb-5">
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(99,102,241,0.25),transparent_70%)] rounded-3xl pointer-events-none"></div>
+            <img
+              id="brandLogoPreviewImg"
+              src="/toc-logo.svg"
+              alt="The Online Classes Official Crest Logo"
+              className="w-full h-full object-contain drop-shadow-2xl relative z-10"
+            />
+          </div>
+
+          <div className="grid grid-cols-3 gap-2 text-left bg-slate-50 dark:bg-slate-800/60 p-3 rounded-2xl border border-slate-200/70 dark:border-slate-700/60 mb-5">
+            <div>
+              <p className="text-[9px] font-bold uppercase text-slate-400">Crown</p>
+              <p className="text-[11px] font-extrabold text-slate-800 dark:text-slate-200">Scholar Cap</p>
+            </div>
+            <div>
+              <p className="text-[9px] font-bold uppercase text-slate-400">Emblem</p>
+              <p className="text-[11px] font-extrabold text-slate-800 dark:text-slate-200">Open Book</p>
+            </div>
+            <div>
+              <p className="text-[9px] font-bold uppercase text-slate-400">Monogram</p>
+              <p className="text-[11px] font-extrabold text-indigo-600 dark:text-indigo-400">TOC Crest</p>
+            </div>
+          </div>
+
+          <div className="flex gap-2.5">
+            <a
+              href="/toc-logo.svg"
+              download="The-Online-Classes-Official-Logo.svg"
+              className="flex-1 py-3 px-4 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-extrabold flex items-center justify-center gap-2 shadow-lg shadow-indigo-600/25 transition active:scale-95"
+            >
+              <i className="fa-solid fa-download"></i>
+              <span>Download Logo</span>
+            </a>
+            <button
+              onClick={() => callWin('closeBrandLogoModal')}
+              className="py-3 px-5 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-extrabold transition active:scale-95"
+            >
+              Done
+            </button>
           </div>
         </div>
       </div>

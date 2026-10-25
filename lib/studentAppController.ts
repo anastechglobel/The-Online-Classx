@@ -2061,6 +2061,22 @@ export function initStudentAppController() {
     });
   }
 
+  function getPdfMarkupStorageKey(urlOrTitle: string): string {
+    const clean = (urlOrTitle || "default_pdf").trim().toLowerCase().replace(/[^a-z0-9]/g, "_").slice(-64);
+    return `toc_pdf_markup_${clean}`;
+  }
+
+  function getSavedMarkupCount(urlOrTitle: string): number {
+    try {
+      const raw = localStorage.getItem(getPdfMarkupStorageKey(urlOrTitle));
+      if (!raw) return 0;
+      const parsed = JSON.parse(raw);
+      return Array.isArray(parsed) ? parsed.length : 0;
+    } catch (_e) {
+      return 0;
+    }
+  }
+
   function generateBookCard(b: any) {
     const hasAccess = checkItemAccess(b, "book");
     const safeTitle = (b.title || "Syllabus Book").replace(/'/g, "\\'");
@@ -2068,10 +2084,14 @@ export function initStudentAppController() {
     const clickAction = hasAccess
       ? `viewPdf('${safeUrl}', '${safeTitle}')`
       : `handleLockedItemClick('${b.id}', 'book')`;
+    const markupAction = hasAccess
+      ? `event.stopPropagation(); viewPdf('${safeUrl}', '${safeTitle}', false, true)`
+      : `event.stopPropagation(); handleLockedItemClick('${b.id}', 'book')`;
 
     const encodedTitle = encodeURIComponent((b.title || "BOOK").slice(0, 22));
     const fallbackCover = `data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='360' height='480' viewBox='0 0 360 480'%3E%3Cdefs%3E%3ClinearGradient id='bg' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%231e1b4b'/%3E%3Cstop offset='50%25' stop-color='%23312e81'/%3E%3Cstop offset='100%25' stop-color='%230f172a'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='360' height='480' fill='url(%23bg)'/%3E%3Crect x='18' y='18' width='324' height='444' rx='14' fill='none' stroke='%236366f1' stroke-width='2' stroke-opacity='0.4'/%3E%3Ctext x='50%25' y='45%25' dominant-baseline='middle' text-anchor='middle' font-family='sans-serif' font-weight='800' font-size='20' fill='%23ffffff'%3E${encodedTitle}%3C/text%3E%3Ctext x='50%25' y='56%25' dominant-baseline='middle' text-anchor='middle' font-family='sans-serif' font-weight='700' font-size='12' fill='%23a5b4fc'%3ESYLLABUS TEXTBOOK%3C/text%3E%3C/svg%3E`;
-    const coverImg = b.coverUrl || b.thumbnail || fallbackCover;
+    const coverImg = b.cover || b.coverUrl || b.thumbnail || b.image || fallbackCover;
+    const savedMarkups = hasAccess ? getSavedMarkupCount(b.url || b.title || b.id) : 0;
 
     const linkedCourseId = getCourseIdForItem(b, "book");
     const linkedCourseObj = linkedCourseId
@@ -2118,11 +2138,16 @@ export function initStudentAppController() {
               : ""
           }
 
-          <div class="absolute bottom-2.5 left-2.5 right-2.5 z-10">
+          <div class="absolute bottom-2.5 left-2.5 right-2.5 z-10 flex items-center justify-between gap-1">
             <p class="text-[9px] font-bold text-indigo-300 truncate flex items-center gap-1">
               <i class="fa-solid fa-graduation-cap text-[8px]"></i>
               <span class="truncate">${batchLabel}</span>
             </p>
+            ${
+              savedMarkups > 0
+                ? `<span class="px-1.5 py-0.5 rounded bg-amber-500/90 text-slate-950 text-[8px] font-black uppercase tracking-wider shrink-0"><i class="fa-solid fa-highlighter mr-0.5"></i>${savedMarkups}</span>`
+                : ""
+            }
           </div>
         </div>
 
@@ -2132,19 +2157,32 @@ export function initStudentAppController() {
               ${b.title || "Syllabus Book"}
             </h3>
             <p class="text-[10px] text-slate-500 dark:text-slate-400 font-semibold mt-1 flex items-center gap-1.5">
-              <i class="fa-solid fa-highlighter text-amber-500 text-[9px]"></i>
-              <span>Zoom • Colour • Fullscreen</span>
+              <i class="fa-solid fa-pen-ruler text-amber-500 text-[9px]"></i>
+              <span>Draw • Rect Highlight • Zoom</span>
             </p>
           </div>
 
-          <button class="mt-3 w-full py-2 px-3 rounded-xl text-[10px] font-black uppercase tracking-wider flex items-center justify-center gap-1.5 transition-all ${
+          ${
             hasAccess
-              ? "bg-indigo-600 hover:bg-indigo-500 text-white shadow-sm shadow-indigo-500/20"
-              : "bg-amber-500/15 text-amber-700 dark:text-amber-300 border border-amber-400/30 hover:bg-amber-500 hover:text-white"
-          }">
-            <i class="fa-solid ${hasAccess ? "fa-book-open-reader" : "fa-lock"} text-[9px]"></i>
-            <span>${hasAccess ? "Read Book" : "Unlock Book"}</span>
-          </button>
+              ? `
+            <div class="mt-3 grid grid-cols-5 gap-1.5">
+              <button class="col-span-3 py-2 px-2.5 rounded-xl text-[10px] font-black uppercase tracking-wider flex items-center justify-center gap-1.5 transition-all bg-indigo-600 hover:bg-indigo-500 text-white shadow-sm shadow-indigo-500/20">
+                <i class="fa-solid fa-book-open-reader text-[9px]"></i>
+                <span>Read</span>
+              </button>
+              <button onclick="${markupAction}" title="Open directly in Markup & Highlight Mode" class="col-span-2 py-2 px-2 rounded-xl text-[10px] font-black uppercase tracking-wider flex items-center justify-center gap-1 transition-all bg-amber-500/15 hover:bg-amber-500 text-amber-700 dark:text-amber-300 hover:text-slate-950 border border-amber-400/40">
+                <i class="fa-solid fa-highlighter text-[9px]"></i>
+                <span>Markup</span>
+              </button>
+            </div>
+          `
+              : `
+            <button class="mt-3 w-full py-2 px-3 rounded-xl text-[10px] font-black uppercase tracking-wider flex items-center justify-center gap-1.5 transition-all bg-amber-500/15 text-amber-700 dark:text-amber-300 border border-amber-400/30 hover:bg-amber-500 hover:text-white">
+              <i class="fa-solid fa-lock text-[9px]"></i>
+              <span>Unlock Book</span>
+            </button>
+          `
+          }
         </div>
       </div>
     `;
@@ -3378,21 +3416,29 @@ export function initStudentAppController() {
   }
 
   // ==========================================
-  // INTERACTIVE BOOK & PDF READER ENGINE (ZOOM, COLOUR, RECTANGULAR HIGHLIGHT, FULLSCREEN)
+  // INTERACTIVE BOOK & PDF READER ENGINE (NATIVE MARKUP MODE: DRAW, HIGHLIGHT, RECT BOX, ERASER, ZOOM, FULLSCREEN)
   // ==========================================
+  type PdfMarkupTool = "scroll" | "highlighter" | "pen" | "rect" | "eraser";
+  type PdfStrokeSize = "sm" | "md" | "lg";
+  interface PdfAnnotationItem {
+    type: "highlighter" | "pen" | "rect";
+    color: string;
+    size?: PdfStrokeSize;
+    points?: Array<{ x: number; y: number }>;
+    rect?: { x: number; y: number; w: number; h: number };
+  }
+
   let currentPdfZoom = 1;
   let pdfAnnotationActive = false;
-  let currentPdfTool: "scroll" | "pen" | "rect" = "scroll";
+  let currentPdfTool: PdfMarkupTool = "scroll";
   let currentPdfColor = "#facc15";
+  let currentPdfStrokeSize: PdfStrokeSize = "md";
+  let currentPdfDocKey = "";
   let isDrawingPdf = false;
   let pdfStartPoint = { x: 0, y: 0 };
   let currentPenPoints: Array<{ x: number; y: number }> = [];
-  let pdfAnnotationsHistory: Array<{
-    type: "pen" | "rect";
-    color: string;
-    points?: Array<{ x: number; y: number }>;
-    rect?: { x: number; y: number; w: number; h: number };
-  }> = [];
+  let pdfAnnotationsHistory: PdfAnnotationItem[] = [];
+  let pdfRedoStack: PdfAnnotationItem[] = [];
   let pdfCanvasInitialized = false;
   let isPdfRectangularMode = false;
 
@@ -3400,7 +3446,6 @@ export function initStudentAppController() {
     const trimmed = (rawUrl || "").trim();
     if (!trimmed) return "";
     if (trimmed.includes("drive.google.com")) {
-      // Match /file/d/FILE_ID or ?id=FILE_ID
       const fileIdMatch =
         trimmed.match(/\/file\/d\/([a-zA-Z0-9_-]+)/) ||
         trimmed.match(/[?&]id=([a-zA-Z0-9_-]+)/) ||
@@ -3411,6 +3456,44 @@ export function initStudentAppController() {
       return trimmed.replace(/\/view.*$/, "/preview").replace(/\/edit.*$/, "/preview");
     }
     return `https://docs.google.com/viewer?url=${encodeURIComponent(trimmed)}&embedded=true`;
+  }
+
+  function updateMarkupStatusBadge() {
+    const countEl = document.getElementById("pdfMarkupCountText");
+    if (countEl) {
+      const count = pdfAnnotationsHistory.length;
+      countEl.innerText = `${count} markup${count === 1 ? "" : "s"} • Auto-saved`;
+    }
+  }
+
+  function savePdfAnnotationsToStorage() {
+    if (!currentPdfDocKey) return;
+    try {
+      const key = getPdfMarkupStorageKey(currentPdfDocKey);
+      if (pdfAnnotationsHistory.length === 0) {
+        localStorage.removeItem(key);
+      } else {
+        localStorage.setItem(key, JSON.stringify(pdfAnnotationsHistory));
+      }
+      updateMarkupStatusBadge();
+    } catch (_e) {}
+  }
+
+  function loadPdfAnnotationsFromStorage(docKey: string) {
+    currentPdfDocKey = docKey || "default_pdf";
+    pdfRedoStack = [];
+    try {
+      const raw = localStorage.getItem(getPdfMarkupStorageKey(currentPdfDocKey));
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        pdfAnnotationsHistory = Array.isArray(parsed) ? parsed : [];
+      } else {
+        pdfAnnotationsHistory = [];
+      }
+    } catch (_e) {
+      pdfAnnotationsHistory = [];
+    }
+    updateMarkupStatusBadge();
   }
 
   function applyPdfZoomUI() {
@@ -3442,13 +3525,29 @@ export function initStudentAppController() {
     const wrapper = document.getElementById("pdfZoomWrapper");
     if (!canvas || !wrapper) return;
     const rect = wrapper.getBoundingClientRect();
-    const w = Math.max(wrapper.scrollWidth || rect.width || 300, 300);
-    const h = Math.max(wrapper.scrollHeight || rect.height || 400, 400);
-    if (canvas.width !== w || canvas.height !== h) {
-      canvas.width = w;
-      canvas.height = h;
+    const cssW = Math.max(wrapper.scrollWidth || rect.width || 300, 300);
+    const cssH = Math.max(wrapper.scrollHeight || rect.height || 400, 400);
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    const targetW = Math.round(cssW * dpr);
+    const targetH = Math.round(cssH * dpr);
+    if (canvas.width !== targetW || canvas.height !== targetH) {
+      canvas.width = targetW;
+      canvas.height = targetH;
     }
     redrawPdfAnnotations();
+  }
+
+  function getStrokePixelWidth(tool: "highlighter" | "pen", size: PdfStrokeSize = "md", canvasW = 800): number {
+    const scale = Math.max(0.75, canvasW / 900);
+    if (tool === "highlighter") {
+      if (size === "sm") return 12 * scale;
+      if (size === "lg") return 26 * scale;
+      return 18 * scale;
+    }
+    // Fine Ink Pen
+    if (size === "sm") return 2.2 * scale;
+    if (size === "lg") return 5.5 * scale;
+    return 3.5 * scale;
   }
 
   function redrawPdfAnnotations(previewRect?: { x: number; y: number; w: number; h: number }) {
@@ -3457,62 +3556,142 @@ export function initStudentAppController() {
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    const w = canvas.width;
+    const h = canvas.height;
+    ctx.clearRect(0, 0, w, h);
 
-    const drawStroke = (
+    const drawSmoothStroke = (
       points: Array<{ x: number; y: number }>,
-      color: string
+      color: string,
+      toolType: "highlighter" | "pen",
+      size: PdfStrokeSize = "md"
     ) => {
       if (!points || points.length === 0) return;
       ctx.save();
-      ctx.globalAlpha = 0.38;
+      ctx.globalAlpha = toolType === "highlighter" ? 0.36 : 0.92;
       ctx.strokeStyle = color;
-      ctx.lineWidth = 14;
-      ctx.lineCap = "round";
+      ctx.fillStyle = color;
+      ctx.lineWidth = getStrokePixelWidth(toolType, size, w);
+      ctx.lineCap = toolType === "highlighter" ? "butt" : "round";
       ctx.lineJoin = "round";
-      ctx.beginPath();
-      ctx.moveTo(points[0].x * canvas.width, points[0].y * canvas.height);
-      for (let i = 1; i < points.length; i++) {
-        ctx.lineTo(points[i].x * canvas.width, points[i].y * canvas.height);
+
+      if (points.length === 1) {
+        ctx.beginPath();
+        ctx.arc(points[0].x * w, points[0].y * h, ctx.lineWidth / 2, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+        return;
       }
+
+      ctx.beginPath();
+      ctx.moveTo(points[0].x * w, points[0].y * h);
+      for (let i = 1; i < points.length - 1; i++) {
+        const currX = points[i].x * w;
+        const currY = points[i].y * h;
+        const nextX = points[i + 1].x * w;
+        const nextY = points[i + 1].y * h;
+        const midX = (currX + nextX) / 2;
+        const midY = (currY + nextY) / 2;
+        ctx.quadraticCurveTo(currX, currY, midX, midY);
+      }
+      const last = points[points.length - 1];
+      ctx.lineTo(last.x * w, last.y * h);
       ctx.stroke();
       ctx.restore();
     };
 
     const drawRectBox = (
       r: { x: number; y: number; w: number; h: number },
-      color: string
+      color: string,
+      size: PdfStrokeSize = "md",
+      isPreview = false
     ) => {
       ctx.save();
-      const rx = r.x * canvas.width;
-      const ry = r.y * canvas.height;
-      const rw = r.w * canvas.width;
-      const rh = r.h * canvas.height;
+      const rx = r.x * w;
+      const ry = r.y * h;
+      const rw = r.w * w;
+      const rh = r.h * h;
+
+      // Soft translucent highlight fill
       ctx.fillStyle = color;
-      ctx.globalAlpha = 0.28;
+      ctx.globalAlpha = isPreview ? 0.22 : 0.28;
       ctx.fillRect(rx, ry, rw, rh);
-      ctx.globalAlpha = 0.85;
+
+      // Crisp rectangular highlight border
+      ctx.globalAlpha = isPreview ? 0.95 : 0.85;
       ctx.strokeStyle = color;
-      ctx.lineWidth = 2.5;
+      ctx.lineWidth = size === "sm" ? 1.8 : size === "lg" ? 3.8 : 2.6;
+      if (isPreview) {
+        ctx.setLineDash([6, 4]);
+      }
       ctx.strokeRect(rx, ry, rw, rh);
+
+      // Corner handles during live drag for tactile precision
+      if (isPreview) {
+        ctx.setLineDash([]);
+        ctx.fillStyle = "#ffffff";
+        const handleSize = 6;
+        const corners = [
+          [rx, ry],
+          [rx + rw, ry],
+          [rx, ry + rh],
+          [rx + rw, ry + rh],
+        ];
+        corners.forEach(([cx, cy]) => {
+          ctx.fillRect(cx - handleSize / 2, cy - handleSize / 2, handleSize, handleSize);
+          ctx.strokeRect(cx - handleSize / 2, cy - handleSize / 2, handleSize, handleSize);
+        });
+      }
       ctx.restore();
     };
 
     pdfAnnotationsHistory.forEach((item) => {
-      if (item.type === "pen" && item.points) {
-        drawStroke(item.points, item.color);
+      if ((item.type === "highlighter" || item.type === "pen") && item.points) {
+        drawSmoothStroke(item.points, item.color, item.type, item.size || "md");
       } else if (item.type === "rect" && item.rect) {
-        drawRectBox(item.rect, item.color);
+        drawRectBox(item.rect, item.color, item.size || "md", false);
       }
     });
 
-    if (isDrawingPdf && currentPdfTool === "pen" && currentPenPoints.length > 0) {
-      drawStroke(currentPenPoints, currentPdfColor);
+    if (
+      isDrawingPdf &&
+      (currentPdfTool === "highlighter" || currentPdfTool === "pen") &&
+      currentPenPoints.length > 0
+    ) {
+      drawSmoothStroke(currentPenPoints, currentPdfColor, currentPdfTool, currentPdfStrokeSize);
     }
 
     if (previewRect && currentPdfTool === "rect") {
-      drawRectBox(previewRect, currentPdfColor);
+      drawRectBox(previewRect, currentPdfColor, currentPdfStrokeSize, true);
     }
+  }
+
+  function eraseAnnotationAtPoint(pt: { x: number; y: number }): boolean {
+    const threshold = 0.028;
+    for (let i = pdfAnnotationsHistory.length - 1; i >= 0; i--) {
+      const item = pdfAnnotationsHistory[i];
+      if (item.type === "rect" && item.rect) {
+        const r = item.rect;
+        if (
+          pt.x >= r.x - 0.01 &&
+          pt.x <= r.x + r.w + 0.01 &&
+          pt.y >= r.y - 0.01 &&
+          pt.y <= r.y + r.h + 0.01
+        ) {
+          pdfAnnotationsHistory.splice(i, 1);
+          return true;
+        }
+      } else if (item.points && item.points.length > 0) {
+        const hit = item.points.some(
+          (p) => Math.hypot(p.x - pt.x, p.y - pt.y) <= threshold
+        );
+        if (hit) {
+          pdfAnnotationsHistory.splice(i, 1);
+          return true;
+        }
+      }
+    }
+    return false;
   }
 
   function initPdfAnnotationCanvas() {
@@ -3524,33 +3703,54 @@ export function initStudentAppController() {
     if (!canvas) return;
     pdfCanvasInitialized = true;
 
-    const getNormalizedCoords = (e: PointerEvent) => {
+    const getNormalizedCoords = (clientX: number, clientY: number) => {
       const rect = canvas.getBoundingClientRect();
-      const x = Math.max(0, Math.min(1, (e.clientX - rect.left) / (rect.width || 1)));
-      const y = Math.max(0, Math.min(1, (e.clientY - rect.top) / (rect.height || 1)));
+      const x = Math.max(0, Math.min(1, (clientX - rect.left) / (rect.width || 1)));
+      const y = Math.max(0, Math.min(1, (clientY - rect.top) / (rect.height || 1)));
       return { x, y };
     };
 
     canvas.addEventListener("pointerdown", (e: PointerEvent) => {
-      if (currentPdfTool === "scroll") return;
+      if (currentPdfTool === "scroll" || !pdfAnnotationActive) return;
+      if (e.pointerType === "mouse" && e.button !== 0) return;
       e.preventDefault();
-      canvas.setPointerCapture(e.pointerId);
+      e.stopPropagation();
+      try {
+        canvas.setPointerCapture(e.pointerId);
+      } catch (_err) {}
+
       isDrawingPdf = true;
-      const pt = getNormalizedCoords(e);
+      const pt = getNormalizedCoords(e.clientX, e.clientY);
       pdfStartPoint = pt;
-      if (currentPdfTool === "pen") {
+
+      if (currentPdfTool === "eraser") {
+        if (eraseAnnotationAtPoint(pt)) {
+          savePdfAnnotationsToStorage();
+          redrawPdfAnnotations();
+        }
+      } else if (currentPdfTool === "highlighter" || currentPdfTool === "pen") {
         currentPenPoints = [pt];
         redrawPdfAnnotations();
       }
     });
 
     canvas.addEventListener("pointermove", (e: PointerEvent) => {
-      if (!isDrawingPdf || currentPdfTool === "scroll") return;
+      if (!isDrawingPdf || currentPdfTool === "scroll" || !pdfAnnotationActive) return;
       e.preventDefault();
-      const pt = getNormalizedCoords(e);
-      if (currentPdfTool === "pen") {
-        currentPenPoints.push(pt);
-        redrawPdfAnnotations();
+      e.stopPropagation();
+      const pt = getNormalizedCoords(e.clientX, e.clientY);
+
+      if (currentPdfTool === "eraser") {
+        if (eraseAnnotationAtPoint(pt)) {
+          savePdfAnnotationsToStorage();
+          redrawPdfAnnotations();
+        }
+      } else if (currentPdfTool === "highlighter" || currentPdfTool === "pen") {
+        const lastPt = currentPenPoints[currentPenPoints.length - 1];
+        if (!lastPt || Math.hypot(pt.x - lastPt.x, pt.y - lastPt.y) > 0.0015) {
+          currentPenPoints.push(pt);
+          redrawPdfAnnotations();
+        }
       } else if (currentPdfTool === "rect") {
         const rx = Math.min(pdfStartPoint.x, pt.x);
         const ry = Math.min(pdfStartPoint.y, pt.y);
@@ -3566,25 +3766,35 @@ export function initStudentAppController() {
       try {
         canvas.releasePointerCapture(e.pointerId);
       } catch (_err) {}
-      const pt = getNormalizedCoords(e);
-      if (currentPdfTool === "pen" && currentPenPoints.length > 0) {
+      const pt = getNormalizedCoords(e.clientX, e.clientY);
+
+      if (
+        (currentPdfTool === "highlighter" || currentPdfTool === "pen") &&
+        currentPenPoints.length > 0
+      ) {
         pdfAnnotationsHistory.push({
-          type: "pen",
+          type: currentPdfTool,
           color: currentPdfColor,
+          size: currentPdfStrokeSize,
           points: [...currentPenPoints],
         });
+        pdfRedoStack = [];
         currentPenPoints = [];
+        savePdfAnnotationsToStorage();
       } else if (currentPdfTool === "rect") {
         const rx = Math.min(pdfStartPoint.x, pt.x);
         const ry = Math.min(pdfStartPoint.y, pt.y);
         const rw = Math.abs(pt.x - pdfStartPoint.x);
         const rh = Math.abs(pt.y - pdfStartPoint.y);
-        if (rw > 0.01 && rh > 0.01) {
+        if (rw > 0.006 && rh > 0.006) {
           pdfAnnotationsHistory.push({
             type: "rect",
             color: currentPdfColor,
+            size: currentPdfStrokeSize,
             rect: { x: rx, y: ry, w: rw, h: rh },
           });
+          pdfRedoStack = [];
+          savePdfAnnotationsToStorage();
         }
       }
       redrawPdfAnnotations();
@@ -3592,6 +3802,23 @@ export function initStudentAppController() {
 
     canvas.addEventListener("pointerup", finishPointer);
     canvas.addEventListener("pointercancel", finishPointer);
+
+    // Keyboard shortcuts (Ctrl+Z / Ctrl+Y) while reader is open
+    window.addEventListener("keydown", (e: KeyboardEvent) => {
+      const container = document.getElementById("pdfViewerContainer");
+      if (!container || container.classList.contains("hidden") || container.style.display === "none") {
+        return;
+      }
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "z") {
+        e.preventDefault();
+        if (e.shiftKey) redoPdfAnnotation();
+        else undoPdfAnnotation();
+      } else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "y") {
+        e.preventDefault();
+        redoPdfAnnotation();
+      }
+    });
+
     window.addEventListener("resize", () => {
       const container = document.getElementById("pdfViewerContainer");
       if (container && container.style.display !== "none" && !container.classList.contains("hidden")) {
@@ -3603,17 +3830,37 @@ export function initStudentAppController() {
   function updatePdfToolButtonsUI() {
     const canvas = document.getElementById("pdfAnnotationCanvas");
     const btnScroll = document.getElementById("pdfToolScroll");
+    const btnHighlighter = document.getElementById("pdfToolHighlighter");
     const btnPen = document.getElementById("pdfToolPen");
     const btnRect = document.getElementById("pdfToolRect");
+    const btnEraser = document.getElementById("pdfToolEraser");
+
+    const floatScroll = document.getElementById("pdfFloatScrollBtn");
+    const floatHighlight = document.getElementById("pdfFloatHighlightBtn");
+    const floatRect = document.getElementById("pdfFloatRectBtn");
 
     const activeClass =
-      "px-2.5 py-1.5 rounded-lg text-[11px] font-extrabold bg-indigo-600 text-white flex items-center gap-1.5 transition shadow-sm";
+      "px-2.5 py-1.5 rounded-lg text-[11px] font-extrabold bg-indigo-600 text-white flex items-center gap-1.5 transition shadow-sm shrink-0";
     const inactiveClass =
-      "px-2.5 py-1.5 rounded-lg text-[11px] font-extrabold bg-slate-800 text-slate-300 hover:bg-slate-700 flex items-center gap-1.5 transition";
+      "px-2.5 py-1.5 rounded-lg text-[11px] font-extrabold bg-slate-800 text-slate-300 hover:bg-slate-700 flex items-center gap-1.5 transition shrink-0";
 
     if (btnScroll) btnScroll.className = currentPdfTool === "scroll" ? activeClass : inactiveClass;
+    if (btnHighlighter)
+      btnHighlighter.className = currentPdfTool === "highlighter" ? activeClass : inactiveClass;
     if (btnPen) btnPen.className = currentPdfTool === "pen" ? activeClass : inactiveClass;
     if (btnRect) btnRect.className = currentPdfTool === "rect" ? activeClass : inactiveClass;
+    if (btnEraser) btnEraser.className = currentPdfTool === "eraser" ? activeClass : inactiveClass;
+
+    const floatActive =
+      "px-3 py-1.5 rounded-xl text-[11px] font-extrabold bg-indigo-600 text-white flex items-center gap-1.5 transition shadow-sm";
+    const floatInactive =
+      "px-3 py-1.5 rounded-xl text-[11px] font-extrabold bg-slate-800 text-slate-300 hover:bg-slate-700 flex items-center gap-1.5 transition";
+
+    if (floatScroll) floatScroll.className = currentPdfTool === "scroll" ? floatActive : floatInactive;
+    if (floatHighlight)
+      floatHighlight.className =
+        currentPdfTool === "highlighter" || currentPdfTool === "pen" ? floatActive : floatInactive;
+    if (floatRect) floatRect.className = currentPdfTool === "rect" ? floatActive : floatInactive;
 
     if (canvas) {
       if (currentPdfTool === "scroll" || !pdfAnnotationActive) {
@@ -3621,29 +3868,50 @@ export function initStudentAppController() {
         canvas.style.cursor = "default";
       } else {
         canvas.classList.remove("pointer-events-none");
-        canvas.style.cursor = "crosshair";
+        canvas.style.cursor = currentPdfTool === "eraser" ? "cell" : "crosshair";
       }
     }
   }
 
-  function togglePdfAnnotationMode() {
-    pdfAnnotationActive = !pdfAnnotationActive;
+  function setPdfStrokeSize(size: PdfStrokeSize) {
+    currentPdfStrokeSize = size;
+    const ids: Record<PdfStrokeSize, string> = {
+      sm: "pdfStrokeSm",
+      md: "pdfStrokeMd",
+      lg: "pdfStrokeLg",
+    };
+    (["sm", "md", "lg"] as PdfStrokeSize[]).forEach((s) => {
+      const el = document.getElementById(ids[s]);
+      if (!el) return;
+      if (s === size) {
+        el.className = "px-2 py-1 rounded-md text-[10px] font-black bg-indigo-600 text-white transition";
+      } else {
+        el.className = "px-2 py-1 rounded-md text-[10px] font-black text-slate-400 hover:text-white transition";
+      }
+    });
+  }
+
+  function togglePdfAnnotationMode(forceState?: boolean) {
+    pdfAnnotationActive = typeof forceState === "boolean" ? forceState : !pdfAnnotationActive;
     const toolbar = document.getElementById("pdfAnnotationToolbar");
+    const floatingPill = document.getElementById("pdfMarkupFloatingPill");
     const btn = document.getElementById("btnPdfAnnotate");
     if (pdfAnnotationActive) {
       if (toolbar) toolbar.classList.remove("hidden");
+      if (floatingPill) floatingPill.classList.remove("hidden");
       if (btn) {
-        btn.classList.add("bg-amber-500", "text-slate-950");
+        btn.classList.add("bg-amber-500", "text-slate-950", "border-amber-400");
         btn.classList.remove("bg-slate-800", "text-amber-400");
       }
-      if (currentPdfTool === "scroll") currentPdfTool = "pen";
+      if (currentPdfTool === "scroll") currentPdfTool = "highlighter";
       initPdfAnnotationCanvas();
       resizePdfAnnotationCanvas();
-      showToast("Colour Highlighter Active! Choose Marker or Rect Box.");
+      showToast("Markup Mode Active: Draw or drag Rectangular Highlights on the PDF");
     } else {
       if (toolbar) toolbar.classList.add("hidden");
+      if (floatingPill) floatingPill.classList.add("hidden");
       if (btn) {
-        btn.classList.remove("bg-amber-500", "text-slate-950");
+        btn.classList.remove("bg-amber-500", "text-slate-950", "border-amber-400");
         btn.classList.add("bg-slate-800", "text-amber-400");
       }
       currentPdfTool = "scroll";
@@ -3651,22 +3919,33 @@ export function initStudentAppController() {
     updatePdfToolButtonsUI();
   }
 
-  function setPdfTool(tool: "scroll" | "pen" | "rect") {
+  function setPdfTool(tool: PdfMarkupTool) {
     currentPdfTool = tool;
+    if (tool !== "scroll" && !pdfAnnotationActive) {
+      pdfAnnotationActive = true;
+      const toolbar = document.getElementById("pdfAnnotationToolbar");
+      const floatingPill = document.getElementById("pdfMarkupFloatingPill");
+      if (toolbar) toolbar.classList.remove("hidden");
+      if (floatingPill) floatingPill.classList.remove("hidden");
+    }
     updatePdfToolButtonsUI();
     if (tool === "scroll") {
-      showToast("Scroll Mode: Swipe to scroll pages");
+      showToast("Scroll Mode: Swipe or scroll PDF pages");
+    } else if (tool === "highlighter") {
+      showToast("Highlighter Mode: Drag finger or mouse to highlight");
     } else if (tool === "pen") {
-      showToast("Marker Mode: Draw to highlight text");
+      showToast("Ink Draw Mode: Draw freehand notes & underlines");
     } else if (tool === "rect") {
-      showToast("Rectangular Shape Mode: Drag box over text/notes");
+      showToast("Rectangular Highlight: Drag a box over text or formulas");
+    } else if (tool === "eraser") {
+      showToast("Eraser Mode: Tap or drag over any markup to remove it");
     }
   }
 
   function setPdfColor(color: string) {
     currentPdfColor = color;
-    if (currentPdfTool === "scroll") {
-      currentPdfTool = "pen";
+    if (currentPdfTool === "scroll" || currentPdfTool === "eraser") {
+      currentPdfTool = "highlighter";
       updatePdfToolButtonsUI();
     }
     document.querySelectorAll(".pdf-color-btn").forEach((el) => {
@@ -3683,17 +3962,33 @@ export function initStudentAppController() {
 
   function undoPdfAnnotation() {
     if (pdfAnnotationsHistory.length > 0) {
-      pdfAnnotationsHistory.pop();
+      const popped = pdfAnnotationsHistory.pop();
+      if (popped) pdfRedoStack.push(popped);
+      savePdfAnnotationsToStorage();
       redrawPdfAnnotations();
     } else {
       showToast("Nothing to undo");
     }
   }
 
+  function redoPdfAnnotation() {
+    if (pdfRedoStack.length > 0) {
+      const restored = pdfRedoStack.pop();
+      if (restored) pdfAnnotationsHistory.push(restored);
+      savePdfAnnotationsToStorage();
+      redrawPdfAnnotations();
+    } else {
+      showToast("Nothing to redo");
+    }
+  }
+
   function clearPdfAnnotations() {
+    if (pdfAnnotationsHistory.length === 0) return;
+    pdfRedoStack = [...pdfAnnotationsHistory];
     pdfAnnotationsHistory = [];
+    savePdfAnnotationsToStorage();
     redrawPdfAnnotations();
-    showToast("Cleared all highlights");
+    showToast("Cleared all markups on this document");
   }
 
   function togglePdfRectangularMode() {
@@ -3740,20 +4035,22 @@ export function initStudentAppController() {
     setTimeout(() => resizePdfAnnotationCanvas(), 100);
   }
 
-  function viewPdf(url: string, title: string, isVideo = false) {
+  function viewPdf(url: string, title: string, isVideo = false, startInMarkupMode = false) {
     safeSetText("pdfTitle", title);
     currentPdfZoom = 1;
-    pdfAnnotationsHistory = [];
+    loadPdfAnnotationsFromStorage(url || title);
     pdfAnnotationActive = false;
     currentPdfTool = "scroll";
     const toolbar = document.getElementById("pdfAnnotationToolbar");
+    const floatingPill = document.getElementById("pdfMarkupFloatingPill");
     if (toolbar) toolbar.classList.add("hidden");
+    if (floatingPill) floatingPill.classList.add("hidden");
     const annotateBtn = document.getElementById("btnPdfAnnotate");
     const zoomControls = document.getElementById("pdfZoomControls");
     const rectBtn = document.getElementById("btnPdfRectMode");
 
     if (annotateBtn) {
-      annotateBtn.classList.remove("bg-amber-500", "text-slate-950");
+      annotateBtn.classList.remove("bg-amber-500", "text-slate-950", "border-amber-400");
       annotateBtn.classList.add("bg-slate-800", "text-amber-400");
       annotateBtn.style.display = isVideo ? "none" : "flex";
     }
@@ -3805,6 +4102,9 @@ export function initStudentAppController() {
     applyPdfZoomUI();
     initPdfAnnotationCanvas();
     updatePdfToolButtonsUI();
+    if (!isVideo && startInMarkupMode) {
+      togglePdfAnnotationMode(true);
+    }
     setTimeout(() => resizePdfAnnotationCanvas(), 150);
   }
 
@@ -3812,6 +4112,8 @@ export function initStudentAppController() {
     safeSetStyle("pdfViewerContainer", "display", "none");
     safeClassAdd("pdfViewerContainer", "hidden");
     safeSetSrc("pdfFrame", "");
+    const floatingPill = document.getElementById("pdfMarkupFloatingPill");
+    if (floatingPill) floatingPill.classList.add("hidden");
     if (screen.orientation && typeof (screen.orientation as any).unlock === "function") {
       try {
         (screen.orientation as any).unlock();
@@ -3820,6 +4122,7 @@ export function initStudentAppController() {
     if (document.fullscreenElement) {
       document.exitFullscreen().catch(() => {});
     }
+    renderBooks();
   }
 
   function togglePdfFullscreen() {
@@ -5537,10 +5840,15 @@ export function initStudentAppController() {
 
           const sidebarLogos = document.querySelectorAll(".tanu-logo-circle");
           sidebarLogos.forEach((logo: any) => {
-            logo.innerHTML = `<img src="${url}" class="w-full h-full object-contain rounded-full" />`;
+            logo.innerHTML = `<img src="${url}" class="w-full h-full object-contain rounded-[10px]" />`;
             logo.style.background = "transparent";
             logo.style.border = "none";
           });
+
+          const previewImg = document.getElementById("brandLogoPreviewImg") as HTMLImageElement | null;
+          if (previewImg) {
+            previewImg.src = url;
+          }
         }
         if (data.title) {
           document.querySelectorAll(".splash-title").forEach((el: any) => {
@@ -5778,9 +6086,19 @@ export function initStudentAppController() {
   window.togglePdfAnnotationMode = togglePdfAnnotationMode;
   window.setPdfTool = setPdfTool;
   window.setPdfColor = setPdfColor;
+  window.setPdfStrokeSize = setPdfStrokeSize;
   window.undoPdfAnnotation = undoPdfAnnotation;
+  window.redoPdfAnnotation = redoPdfAnnotation;
   window.clearPdfAnnotations = clearPdfAnnotations;
   window.togglePdfRectangularMode = togglePdfRectangularMode;
+  window.openBrandLogoModal = () => {
+    const modal = document.getElementById("brandLogoPreviewModal");
+    if (modal) modal.classList.remove("hidden");
+  };
+  window.closeBrandLogoModal = () => {
+    const modal = document.getElementById("brandLogoPreviewModal");
+    if (modal) modal.classList.add("hidden");
+  };
   window.exitQuiz = confirmExitQuiz;
   window.prevQuestion = () => {
     if (currentQuizIndex > 0) {

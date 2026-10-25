@@ -14,9 +14,27 @@ export function HeaderBar() {
         </button>
         <div
           onClick={() => window.navigateTo && window.navigateTo("home")}
-          className="flex items-center gap-2 cursor-pointer min-w-0"
+          className="flex items-center gap-2.5 cursor-pointer min-w-0 group"
         >
-          <div className="tanu-logo-circle shrink-0">TOC</div>
+          <div
+            onClick={(e) => {
+              e.stopPropagation();
+              const w = window as any;
+              if (typeof w.openBrandLogoModal === "function") {
+                w.openBrandLogoModal();
+              } else if (w.navigateTo) {
+                w.navigateTo("home");
+              }
+            }}
+            title="View Official Brand Logo"
+            className="tanu-logo-circle shrink-0 overflow-hidden p-0 bg-transparent border-0 shadow-md group-hover:scale-105 transition-transform"
+          >
+            <img
+              src="/toc-logo.svg"
+              alt="The Online Classes Logo"
+              className="w-full h-full object-contain rounded-[10px]"
+            />
+          </div>
           <span className="font-display text-sm sm:text-lg font-extrabold text-slate-900 dark:text-white tracking-tight truncate">
             The Online Classes
           </span>

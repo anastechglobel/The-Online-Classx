@@ -17,20 +17,40 @@ export const HomeDashboard: React.FC = () => {
           <div className="absolute -right-12 -top-12 w-52 h-52 bg-indigo-500/20 rounded-full blur-3xl pointer-events-none"></div>
           <div className="absolute -left-10 -bottom-10 w-40 h-40 bg-violet-500/20 rounded-full blur-2xl pointer-events-none"></div>
 
-          <div className="relative z-10">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-indigo-500/20 border border-indigo-400/30 text-indigo-200 text-[11px] font-bold uppercase tracking-wider mb-3">
-              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
-              Active Learning Portal
+          <div className="relative z-10 flex items-start justify-between gap-4">
+            <div>
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-indigo-500/20 border border-indigo-400/30 text-indigo-200 text-[11px] font-bold uppercase tracking-wider mb-3">
+                <i className="fa-solid fa-shield-halved text-amber-400 text-[10px]"></i>
+                Official Learning Portal
+              </div>
+              <p className="text-xs sm:text-sm font-semibold text-indigo-200/80 mb-1">
+                <span id="greetingTime">Good Morning</span>, Scholar
+              </p>
+              <h2 className="text-2xl sm:text-3xl font-extrabold font-display tracking-tight text-white leading-tight">
+                <span id="userNameHeader">Student</span>
+              </h2>
+              <p className="text-xs sm:text-sm text-slate-300 mt-2 max-w-md leading-relaxed">
+                Your structured batches, live classrooms, syllabus books, and real-time mock evaluations are synced and ready.
+              </p>
             </div>
-            <p className="text-xs sm:text-sm font-semibold text-indigo-200/80 mb-1">
-              <span id="greetingTime">Good Morning</span>, Scholar
-            </p>
-            <h2 className="text-2xl sm:text-3xl font-extrabold font-display tracking-tight text-white leading-tight">
-              <span id="userNameHeader">Student</span>
-            </h2>
-            <p className="text-xs sm:text-sm text-slate-300 mt-2 max-w-md leading-relaxed">
-              Your structured batches, live classrooms, and real-time mock evaluations are synced and ready.
-            </p>
+
+            {/* Official Brand Crest Showcase Emblem */}
+            <div
+              onClick={() => callWin('openBrandLogoModal')}
+              title="Click to preview & download Official Brand Logo"
+              className="group cursor-pointer shrink-0 flex flex-col items-center gap-1.5"
+            >
+              <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-slate-950/60 p-1.5 border border-amber-400/40 shadow-xl group-hover:scale-105 transition-transform">
+                <img
+                  src="/toc-logo.svg"
+                  alt="The Online Classes Official Logo"
+                  className="w-full h-full object-contain"
+                />
+              </div>
+              <span className="text-[9px] font-extrabold uppercase tracking-wider text-amber-300/90 group-hover:text-amber-200 flex items-center gap-1">
+                <i className="fa-solid fa-expand text-[8px]"></i> View Logo
+              </span>
+            </div>
           </div>
 
           <div className="relative z-10 flex flex-wrap items-center gap-3 mt-6 pt-4 border-t border-white/10">
@@ -45,6 +65,12 @@ export const HomeDashboard: React.FC = () => {
               className="px-4 py-2.5 rounded-xl bg-white/10 hover:bg-white/15 text-white font-semibold text-xs border border-white/15 transition flex items-center gap-2 active:scale-95"
             >
               <i className="fa-solid fa-tower-broadcast text-rose-400"></i> Live Classrooms
+            </button>
+            <button
+              onClick={() => callWin('openBrandLogoModal')}
+              className="px-3.5 py-2.5 rounded-xl bg-amber-500/15 hover:bg-amber-500/25 text-amber-300 font-bold text-xs border border-amber-400/30 transition flex items-center gap-1.5 active:scale-95"
+            >
+              <i className="fa-solid fa-award text-amber-400"></i> Official Logo
             </button>
           </div>
         </div>
